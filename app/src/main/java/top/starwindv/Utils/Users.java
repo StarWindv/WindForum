@@ -39,7 +39,13 @@ public class Users {
             .build(),
         new ColumnConfig.Builder("last_log_time", "TIMESTAMP")
             .build(),
+        new ColumnConfig.Builder("permission", "INTEGER")
+            .notNull()
+            .defaultValue(Permission.Normal.code)
+            .build(),
         new ColumnConfig.Builder("is_deleted", "INTEGER")
+            .defaultValue(Permission.IsDeleted.code)
+            .notNull()
             .build()
     );
     
