@@ -38,6 +38,8 @@ public class Users {
             .defaultValue("CURRENT_TIMESTAMP")
             .build(),
         new ColumnConfig.Builder("last_log_time", "TIMESTAMP")
+            .build(),
+        new ColumnConfig.Builder("is_deleted", "INTEGER")
             .build()
     );
     
