@@ -9,9 +9,11 @@ public enum Permission {
      * Struct:
      *  Name (Value, Desription)
      */
+
+    IsDeleted(0, "IsDeleted"),
     SuperAdmin(1, "SuperAdmin"),
     Admin (2, "Admin"),
-    Normal(3, "Normal");
+    Normal(3, "Normal");    
 
     private static final HashMap<Integer, Permission> CMap = new HashMap<>();
     private static final HashMap<String, Permission> DMap = new HashMap<>();
