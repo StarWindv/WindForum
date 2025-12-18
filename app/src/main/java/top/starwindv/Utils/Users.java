@@ -44,7 +44,7 @@ public class Users {
             .defaultValue(Permission.Normal.code)
             .build(),
         new ColumnConfig.Builder("is_deleted", "INTEGER")
-            .defaultValue(Permission.IsDeleted.code)
+            .defaultValue(Status.Active)
             .notNull()
             .build()
     );

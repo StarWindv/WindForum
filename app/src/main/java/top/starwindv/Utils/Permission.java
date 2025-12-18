@@ -2,7 +2,6 @@ package top.starwindv;
 
 
 import java.util.HashMap;
-import java.Tools.Tools;
 
 
 public enum Permission {
@@ -11,7 +10,6 @@ public enum Permission {
      *  Name (Value, Desription)
      */
 
-    IsDeleted(0, 1, "IsDeleted"),
     SuperAdmin(1, "SuperAdmin"),
     Admin (2, "Admin"),
     Normal(3, "Normal");    
@@ -28,16 +26,8 @@ public enum Permission {
         this.description = description;
     }
 
-    Permission(int positive, int negative, String description){
-        this.positive = positive;
-        this.negative = negative;
-        this.description = description;
-    }
-
-
     static {
         for (Permission auto : values()) {
-            if (Tools.hasattr)
             CMap.put(auto.code, auto);
             DMap.put(auto.description, auto);
         }
