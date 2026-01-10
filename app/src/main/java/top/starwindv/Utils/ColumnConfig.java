@@ -1,7 +1,4 @@
-package top.starwindv;
-
-
-import java.util.*;
+package top.starwindv.Utils;
 
 
 public class ColumnConfig {

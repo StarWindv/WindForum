@@ -1,5 +1,11 @@
-package top.starwindv;
+package top.starwindv.Models;
 
+
+import top.starwindv.Utils.Values;
+import top.starwindv.Utils.SQLite;
+import top.starwindv.Utils.ColumnConfig;
+import top.starwindv.Utils.Permission;
+import top.starwindv.Utils.Status;
 
 import java.util.*;
 import java.sql.*;
@@ -22,14 +28,14 @@ public class Users {
             .length(100)
             .notNull()
             .build(),
-        new ColumnConfig.Builder("pswd_hash", "VARCHAR")
+        new ColumnConfig.Builder("passwd_hash", "VARCHAR")
             .length(255)
             .notNull()
             .build(),
         new ColumnConfig.Builder("last_log_ip", "VARCHAR")
             .length(45)
             .build(),
-        new ColumnConfig.Builder("regist_ip", "VARCHAR")
+        new ColumnConfig.Builder("register_ip", "VARCHAR")
             .length(45)
             .notNull()
             .build(),
@@ -43,14 +49,14 @@ public class Users {
             .notNull()
             .defaultValue(Permission.Normal.code)
             .build(),
-        new ColumnConfig.Builder("is_deleted", "INTEGER")
+        new ColumnConfig.Builder("status", "INTEGER")
             .defaultValue(Status.Active)
             .notNull()
             .build()
     );
     
-    public Users() {
-        this.db = new SQLite("db.sqlite");
+    public Users(String tableName) {
+        this.db = new SQLite(tableName);
         init();
     }
     
@@ -74,21 +80,21 @@ public class Users {
         }
     }
     
-    public Values register(String userName, String emailStr, String pswdHash, String registIP) {
+    public Values register(String userName, String emailStr, String passwdHash, String registerIP) {
         try {
             if (userName == null || userName.trim().isEmpty()) {
-                return Values.from(false, "用户名不能为空");
+                return Values.from(false, "The username cannot be empty");
             }
             if (emailStr == null || emailStr.trim().isEmpty()) {
-                return Values.from(false, "邮箱不能为空");
+                return Values.from(false, "Email cannot be empty");
             }
-            if (pswdHash == null || pswdHash.trim().isEmpty()) {
-                return Values.from(false, "密码哈希不能为空");
+            if (passwdHash == null || passwdHash.trim().isEmpty()) {
+                return Values.from(false, "Password cannot be empty");
             }
 
             userName = userName.trim();
             emailStr = emailStr.trim();
-            pswdHash = pswdHash.trim();
+            passwdHash = passwdHash.trim();
             
             List<Map<String, Object>> existingUser = db.query(
                 TABLE_NAME, 
@@ -97,7 +103,7 @@ public class Users {
                 Values.from(userName)
             );
             if (!existingUser.isEmpty()) {
-                return Values.from(false, "用户名已存在");
+                return Values.from(false, "The username is already exist");
             }
             
             List<Map<String, Object>> existingEmail = db.query(
@@ -107,13 +113,13 @@ public class Users {
                 Values.from(emailStr)
             );
             if (!existingEmail.isEmpty()) {
-                return Values.from(false, "邮箱已被注册");
+                return Values.from(false, "The email is already exist");
             }
             
             int affectedRows = db.insert(
                 TABLE_NAME, 
-                "(user_name, email_str, pswd_hash, regist_ip)", 
-                Values.from(userName, emailStr, pswdHash, registIP)
+                "(user_name, email_str, passwd_hash, register_ip)", 
+                Values.from(userName, emailStr, passwdHash, registerIP)
             );
             
             if (affectedRows > 0) {
@@ -126,45 +132,38 @@ public class Users {
                 
                 if (!newUser.isEmpty()) {
                     Map<String, Object> result = new HashMap<>();
-                    result.put("user_id", newUser.get(0).get("user_id"));
+                    result.put("user_id", newUser.getFirst().get("user_id"));
                     result.put("user_name", userName);
                     result.put("email_str", emailStr);
-                    result.put("reg_time", newUser.get(0).get("reg_time"));
-                    return Values.from(true, "注册成功", result);
+                    result.put("reg_time", newUser.getFirst().get("reg_time"));
+                    return Values.from(true, "Success", result);
                 }
             }
             
-            return Values.from(false, "注册失败，未知错误");
+            return Values.from(false, "Register Failed: Unknown Error");
             
         } catch (Exception e) {
-            return Values.from(false, "注册失败: " + e.getMessage());
+            return Values.from(false, "Register Failed: " + e.getMessage());
         }
     }
     
-    public Values login(String identifier, String pswdHash, String loginIP) {
+    public Values login(String identifier, String passwdHash, String loginIP) {
         try {
-            if (identifier == null || identifier.trim().isEmpty()) {
-                return Values.from(false, "用户名/邮箱不能为空");
-            }
-            if (pswdHash == null || pswdHash.trim().isEmpty()) {
-                return Values.from(false, "密码哈希不能为空");
-            }
-            
             identifier = identifier.trim();
-            pswdHash = pswdHash.trim();
+            passwdHash = passwdHash.trim();
 
             List<Map<String, Object>> users = db.query(
                 TABLE_NAME, 
                 "*", 
-                "(user_name = ? OR email_str = ?) AND pswd_hash = ?", 
-                Values.from(identifier, identifier, pswdHash)
+                "(user_name = ? OR email_str = ?) AND passwd_hash = ?", 
+                Values.from(identifier, identifier, passwdHash)
             );
             
             if (users.isEmpty()) {
-                return Values.from(false, "用户名/邮箱或密码错误");
+                return Values.from(false, "Not match");
             }
             
-            Map<String, Object> user = users.get(0);
+            Map<String, Object> user = users.getFirst();
             
             updateLoginInfo(user.get("user_id"), loginIP);
             
@@ -173,14 +172,14 @@ public class Users {
             userInfo.put("user_name", user.get("user_name"));
             userInfo.put("email_str", user.get("email_str"));
             userInfo.put("last_log_ip", user.get("last_log_ip"));
-            userInfo.put("regist_ip", user.get("regist_ip"));
+            userInfo.put("register_ip", user.get("register_ip"));
             userInfo.put("reg_time", user.get("reg_time"));
             userInfo.put("last_log_time", user.get("last_log_time"));
             
-            return Values.from(true, "登录成功", userInfo);
+            return Values.from(true, "", userInfo);
             
         } catch (Exception e) {
-            return Values.from(false, "登录失败: " + e.getMessage());
+            return Values.from(false, "Failed: " + e.getMessage());
         }
     }
     
@@ -203,7 +202,7 @@ public class Users {
         try {
             List<Map<String, Object>> users = db.query(
                 TABLE_NAME, 
-                "user_id, user_name, email_str, regist_ip, reg_time, last_log_ip, last_log_time", 
+                "user_id, user_name, email_str, register_ip, reg_time, last_log_ip, last_log_time", 
                 "user_id = ?", 
                 Values.from(userId)
             );
@@ -212,7 +211,7 @@ public class Users {
                 return Values.from(false, "用户不存在");
             }
             
-            return Values.from(true, "获取成功", users.get(0));
+            return Values.from(true, "获取成功", users.getFirst());
             
         } catch (Exception e) {
             return Values.from(false, "获取用户信息失败: " + e.getMessage());
@@ -243,11 +242,11 @@ public class Users {
                 Object value = entry.getValue();
                 
                 if (!key.equals("user_id") && 
-                    !key.equals("pswd_hash") && 
+                    !key.equals("passwd_hash") && 
                     !key.equals("reg_time") && 
-                    !key.equals("regist_ip")) {
+                    !key.equals("register_ip")) {
                     
-                    if (setClause.length() > 0) {
+                    if (!setClause.isEmpty()) {
                         setClause.append(", ");
                     }
                     setClause.append(key).append(" = ?");
@@ -292,13 +291,13 @@ public class Users {
         }
     }
 
-    public Values deleteUser(Object userId, String pswdHash) {
+    public Values deleteUser(Object userId, String passwdHash) {
         try {
             List<Map<String, Object>> users = db.query(
                 TABLE_NAME, 
                 "user_id", 
-                "user_id = ? AND pswd_hash = ?", 
-                Values.from(userId, pswdHash)
+                "user_id = ? AND passwd_hash = ?", 
+                Values.from(userId, passwdHash)
             );
             
             if (users.isEmpty()) {

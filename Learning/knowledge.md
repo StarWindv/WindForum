@@ -6,3 +6,7 @@
 
 2025年12月17日
  - 你不需要使用 Java 的`resources`目录, 你也没那么多必须打包进`jar`包的资源, 最好的做法是基于工作目录的相对路径来获取文件内容, 至少你还可以在脚本运行时修改前端文件
+
+2026年1月7日
+ - 对于`Javalin`, 它内置了一个`Jackson`的接口来实现`Json`解析, 但当我们需要使用其它`Json`实现, 比如`Gson`时, 就需要继承`io.javalin.json.JsonMapper`来自己实现一个`Mapper`, 并且在`Javalin`服务器启动时替换`config`中的`Mapper`
+

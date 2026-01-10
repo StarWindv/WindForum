@@ -24,12 +24,12 @@ dependencies {
 
     // This dependency is used by the application.
     implementation(libs.guava)
-    // implementation("com.resend:resend-java:4.11.0")
+    implementation("com.resend:resend-java:4.11.0")
     implementation("io.javalin:javalin:6.7.0")
     implementation("org.slf4j:slf4j-simple:2.0.7")
     implementation("org.xerial:sqlite-jdbc:3.51.1.0")
     implementation("org.apache.commons:commons-lang3:3.20.0")
-    // implementation("com.google.code.gson:gson:2.13.2")
+    implementation("com.google.code.gson:gson:2.13.2")
 }
 
 // Apply a specific Java toolchain to ease working on different environments.

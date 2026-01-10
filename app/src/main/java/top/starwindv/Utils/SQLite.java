@@ -1,4 +1,4 @@
-package top.starwindv;
+package top.starwindv.Utils;
 
 
 import java.util.*;
@@ -163,7 +163,12 @@ public class SQLite {
         }
     }
 
-    public List<Map<String, Object>> query(String tableName, String selectColumns, String whereClause, Values whereValues) {
+    public List<Map<String, Object>> query(
+        String tableName, 
+        String selectColumns, 
+        String whereClause, 
+        Values whereValues
+    ) {
         validateTableAndColumns(tableName, selectColumns);
         List<Map<String, Object>> result = new ArrayList<>();
 
@@ -171,8 +176,8 @@ public class SQLite {
         querySql.append(
             selectColumns == null 
                 || 
-                selectColumns.trim()
-                    .isEmpty() 
+            selectColumns.trim()
+                .isEmpty() 
                 ? "*" : selectColumns.trim()
             );
 
