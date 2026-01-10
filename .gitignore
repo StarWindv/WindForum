@@ -3,6 +3,8 @@
 
 # Ignore Gradle build output directory
 build
+app/bin
 
-# Custom Folders
-py
+# IDE Folders
+.idea
+.vscode
