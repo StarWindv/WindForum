@@ -26,7 +26,7 @@ class BaseServer {
     private final SimpleDateFormat Formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     private final FStyles Color = new FStyles();
     private Javalin server;
-    private Sources Src;
+    public Sources Src;
 
     public String page4xx = "err/4n.html";
     public String page5xx = "err/4n.html";
@@ -100,6 +100,7 @@ class BaseServer {
                 ) {
                     realIP = "localhost";
                 }
+                ctx.attribute("IP", realIP);
                 String msg = String.format(
                     "%s[%s]%s [%s] [%s] [%s] [%s]\n",
                     Color.BCyan,
@@ -180,7 +181,7 @@ class Services {
         this.initForum();
     }
     private void initForum() {
-        new Forum("Wind", this.server.instance());
+        new Forum("Wind", this.server.instance(), this.server.Src);
     }
     public void start(String ip, int port) {
         this.server.start(ip, port);

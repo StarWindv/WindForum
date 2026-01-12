@@ -1,6 +1,8 @@
 package top.starwindv.Utils;
 
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.Arrays;
 import java.util.Iterator;
 
@@ -43,6 +45,7 @@ public class Values implements Iterable<Object> {
         return elements.length == 0;
     }
 
+    @NotNull
     @Override
     public Iterator<Object> iterator() {
         return Arrays.asList(elements).iterator();
@@ -53,7 +56,7 @@ public class Values implements Iterable<Object> {
         if (elements.length == 0) {
             return null;
         }
-        StringBuilder sb = new StringBuilder("");
+        StringBuilder sb = new StringBuilder();
         for (int i = 0; i < elements.length; i++) {
             sb.append(elements[i]);
             if (i != elements.length - 1) {

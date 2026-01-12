@@ -28,14 +28,6 @@ public class Email {
     private static final String logo = """
             <table border="0" cellpadding="0" cellspacing="0" role="presentation" style="border-collapse: collapse;">
                 <tr>
-                    <td valign="middle" style="padding-right: 20px;">
-                        <img src="https://video.starwindv.top/favicon.ico"
-                        <!-- Temporary quoted my another website icon -->
-                            alt="Forum Logo"
-                            style="display: block;
-                            max-height: 40px;"
-                        >
-                    </td>
                     <td valign="middle">
                         <span style="font-size: 24px; color: #333333; font-weight: bold;">
                             WindForum
@@ -46,12 +38,14 @@ public class Email {
         """;
 
 
-    Email(String template, String AppName) {
+    public Email(String template, String AppName) {
         this.template = template.replace(
                             "<|content|>", 
                             "以下是您的验证码, 请不要透露给任何人"
                             + "<br>"
                             + "如不是您主动操作, 请忽略此邮件"
+                            + "<br>"
+                            + "验证码 <strong>5</strong> 分钟内有效"
                         );
         this.AppName = AppName;
     }

@@ -55,8 +55,8 @@ public class Users {
             .build()
     );
     
-    public Users(String tableName) {
-        this.db = new SQLite(tableName);
+    public Users(String dbName) {
+        this.db = new SQLite(dbName);
         init();
     }
     

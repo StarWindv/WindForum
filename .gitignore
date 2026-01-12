@@ -4,6 +4,8 @@
 # Ignore Gradle build output directory
 build
 app/bin
+app/Data
+app/build
 
 # IDE Folders
 .idea
