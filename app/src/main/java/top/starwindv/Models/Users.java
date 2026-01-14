@@ -39,12 +39,16 @@ public class Users {
             .length(45)
             .notNull()
             .build(),
+/*
         new ColumnConfig.Builder("reg_time", "TIMESTAMP")
             .notNull()
             .defaultValue("CURRENT_TIMESTAMP")
             .build(),
         new ColumnConfig.Builder("last_log_time", "TIMESTAMP")
             .build(),
+
+        迁移使用 exec 接口实现
+ */
         new ColumnConfig.Builder("permission", "INTEGER")
             .notNull()
             .defaultValue(Permission.Normal.code)
@@ -57,7 +61,7 @@ public class Users {
     
     public Users(String dbName) {
         this.db = new SQLite(dbName);
-        init();
+        this.init();
     }
     
     private void init() {
@@ -71,9 +75,11 @@ public class Users {
             
             if (tables.isEmpty()) {
                 db.createTable(TABLE_NAME, TABLE_COLUMNS);
-                
+
                 db.exec("CREATE UNIQUE INDEX idx_users_username ON users(user_name)");
                 db.exec("CREATE UNIQUE INDEX idx_users_email ON users(email_str)");
+                db.exec("ALTER TABLE users ADD COLUMN reg_time DATETIME NOT NULL DEFAULT (CAST((julianday('now', 'utc') - 2440587.5) * 86400000 + 0.5 AS INTEGER));");
+                db.exec("ALTER TABLE users ADD COLUMN last_log_time DATETIME NOT NULL DEFAULT (CAST((julianday('now', 'utc') - 2440587.5) * 86400000 + 0.5 AS INTEGER));");
             }
         } catch (Exception e) {
             throw new RuntimeException("Failed to initialize users table: " + e.getMessage(), e);
@@ -105,7 +111,9 @@ public class Users {
                 TABLE_NAME, 
                 "(user_name, email_str, passwd_hash, register_ip, reg_time)",
                 Values.from(userName, emailStr, passwdHash, registerIP, System.currentTimeMillis())
-            );
+            ); // 其实这里要不要手动时间戳都行
+            // 主要是因为之前的时间戳实现有问题所以在服务器做了处理
+            // 懒得改了
             
             if (affectedRows > 0) {
                 List<Map<String, Object>> newUser = db.query(
@@ -219,7 +227,7 @@ public class Users {
         try {
             List<Map<String, Object>> users = db.query(
                 TABLE_NAME, 
-                "user_id, user_name, email_str, register_ip, reg_time, last_log_ip, last_log_time", 
+                "user_id, user_name, email_str, register_ip, reg_time, last_log_ip, last_log_time, permission, status",
                 "user_id = ?", 
                 Values.from(userId)
             );
@@ -238,7 +246,7 @@ public class Users {
     public Values updateUserInfo(Object userId, Map<String, Object> updates) {
         try {
             if (updates == null || updates.isEmpty()) {
-                return Values.from(false, "没有要更新的信息");
+                return Values.from(false, "Nothing to update");
             }
             
             List<Map<String, Object>> existing = db.query(

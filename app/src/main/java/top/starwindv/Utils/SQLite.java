@@ -6,6 +6,7 @@ import java.sql.*;
 import java.util.stream.Collectors;
 
 
+@SuppressWarnings("UnusedReturnValue")
 public class SQLite {
     /**
      * Fool-proofing Sqlite DataBase Manager
@@ -31,8 +32,7 @@ public class SQLite {
                 if (!conn.isClosed()) {
                     return;
                 }
-            } catch (SQLException e) {
-                }
+            } catch (SQLException ignored) {}
         }
 
         try {
@@ -65,7 +65,7 @@ public class SQLite {
         try (Statement stmt = conn.createStatement()) {
             stmt.execute(createSql.toString());
         } catch (SQLException e) {
-            throw new RuntimeException("Cretate Failed: ", e);
+            throw new RuntimeException("Create Failed: ", e);
         }
     }
 
@@ -132,8 +132,7 @@ public class SQLite {
 
         try (PreparedStatement pstmt = conn.prepareStatement(updateSql)) {
             setPreparedStatementParams(pstmt, allValues);
-            int affectedRows = pstmt.executeUpdate();
-            return affectedRows;
+            return pstmt.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException("Update Failed: ", e);
         }
@@ -148,8 +147,7 @@ public class SQLite {
         String deleteSql = String.format("DELETE FROM %s WHERE %s", tableName.trim(), whereClause);
         try (PreparedStatement pstmt = conn.prepareStatement(deleteSql)) {
             setPreparedStatementParams(pstmt, whereValues);
-            int affectedRows = pstmt.executeUpdate();
-            return affectedRows;
+            return pstmt.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException("Delete Failed: ", e);
         }
@@ -157,7 +155,7 @@ public class SQLite {
 
     public Values exec(String SQL) {
         try (PreparedStatement pstmt = conn.prepareStatement(SQL)) {
-            return Values.from(pstmt.executeUpdate());
+            return Values.from(pstmt.execute());
         } catch (SQLException e) {
             throw new RuntimeException("Exec Failed: ", e);
         }
@@ -289,7 +287,7 @@ public class SQLite {
         if (conn != null) {
             try {
                 conn.close();
-                } catch (SQLException e) {
+                } catch (SQLException ignored) {
                 }
         }
     }

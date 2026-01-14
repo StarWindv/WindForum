@@ -3,8 +3,9 @@ package top.starwindv;
 
 import io.javalin.Javalin;
 
-import top.starwindv.DTO.*;
 import top.starwindv.Backend.Register;
+
+import top.starwindv.DTO.*;
 import top.starwindv.Models.Users;
 import top.starwindv.Tools.Sources;
 
@@ -39,7 +40,7 @@ public class Forum {
             "/api/register", 
             ctx -> {
                 UserDTO RegisterInfo = ctx.bodyAsClass(UserDTO.class);
-                System.out.println(RegisterInfo.viewer.Stringify(RegisterInfo));
+                System.out.println(UserDTO.viewer.Stringify(RegisterInfo));
                 System.out.println(
                     this.register.sendCode(
                         RegisterInfo.username(),
@@ -64,6 +65,10 @@ public class Forum {
                 );
             }
         );
+    }
+
+    private void post() {
+
     }
 
 }

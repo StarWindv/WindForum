@@ -1,6 +1,7 @@
 package top.starwindv.Utils;
 
 
+@SuppressWarnings("unused")
 public class Status {
     public static final int Active  = 1;
     public static final int Deleted =-1;

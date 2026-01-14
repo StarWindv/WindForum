@@ -161,9 +161,9 @@ class BaseServer {
         return String.format(
             msg, 
             this.Color.Bold,
-            this.Color.ffrom(159, 43, 104),
+            this.Color.frontFrom(159, 43, 104),
             this.Color.Reset,
-            this.Color.ffrom(255, 246, 75),
+            this.Color.frontFrom(255, 246, 75),
             code < 500 ? this.page4xx : this.page5xx,
             this.Color.Reset
         );

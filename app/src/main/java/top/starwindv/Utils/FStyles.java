@@ -1,9 +1,10 @@
 package top.starwindv.Utils;
 
 
+@SuppressWarnings("unused")
 public class FStyles {
     // Frontend Styles
-    private String template = "\033[%sm";
+    private final String template = "\033[%sm";
     public String Red    = String.format(template, "31");
     public String Green  = String.format(template, "32");
     public String Yellow = String.format(template, "38;5;220");
@@ -16,11 +17,11 @@ public class FStyles {
     public String BYellow = Yellow+Bold;
     public String BCyan   = Cyan+Bold;
 
-    public String ffrom(int r, int g, int b) {
+    public String frontFrom(int r, int g, int b) {
         return String.format(this.template, "38;2;"+r+";"+g+";"+b);
     }
 
-    public String bfrom(int r, int g, int b) {
+    public String backgroundFrom(int r, int g, int b) {
         return String.format(this.template, "48;2;"+r+";"+g+";"+b);
     }
 }
