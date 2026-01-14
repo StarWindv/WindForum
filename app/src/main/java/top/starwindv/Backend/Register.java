@@ -5,6 +5,7 @@ import org.apache.commons.lang3.tuple.Triple;
 import top.starwindv.Email;
 import top.starwindv.Models.Users;
 import top.starwindv.Tools.VerifyCode;
+import top.starwindv.Utils.FStyles;
 import top.starwindv.Utils.Values;
 
 import java.util.Map;
@@ -13,36 +14,41 @@ import java.util.Map;
 public class Register {
     public final Users UsersTool;
     public final VerifyCode CodeGen;
-    public final Map<
+    public final static Map<
         String, Triple<String, String, Long>
     > codeCache = new java.util.HashMap<>();
     public final Email Poster;
-    public final long validityPeriod = 5 * 60; // 5 minutes
+    public final long validityPeriod = 5 * 60 * 1000L; // 5 minutes
+    public final static FStyles styles = new FStyles();
 
-    public void register(
+    public Values sendCode(
         String username,
-        String password,
-        String email,
-        String registerIP
+        String email
     ) {
-        Values regResult = this.UsersTool.register(
-            username, password, email, registerIP
+        Values checkResult = this.UsersTool.unionNameEmailCheck(username, email);
+        if (!(boolean) checkResult.get(0)) { return checkResult; }
+        String code = this.CodeGen.generate();
+        codeCache.put(
+            email, Triple.of(
+                email,
+                code,
+                System.currentTimeMillis()
+            )
         );
-        if ((boolean) regResult.get(0)) {
-            String code = this.CodeGen.generate();
-            this.codeCache.put(
-                email, Triple.of(
-                    email,
-                    code,
-                    System.currentTimeMillis()
-                )
+        System.out.println(email + ", " + code);
+        String responseID = this.Poster.verifyCode(code, email);
+        if (!responseID.isEmpty()) {
+            System.out.println(responseID);
+            return Values.from(true, "Email Sent");
+        } else {
+
+            System.out.println(
+                styles.Bold + styles.Red + "[X]" + styles.Reset + "Failed to Send Email, Removed"
             );
-            String responseID = this.Poster.verifyCode(code, email);
-            if (!responseID.isEmpty()) {
-                System.out.println(responseID);
-            }
+            codeCache.remove(email);
+            return Values.from(false, "Failed when Send Email");
         }
-        System.out.println(regResult.get(1));
+
     }
 
     public Register(Users UsersTool, int codeLength, Email Poster) {
@@ -51,18 +57,25 @@ public class Register {
         this.Poster = Poster;
     }
 
-    public Values verifyCodeAfterRegister(String email, String code) {
+    public Values verifyCodeAfterRegister(String email, String userName, String code, String codeHash, String IP) {
         // <Email, Email, code, Timestamp>
         Values result;
         if (
-            this.codeCache.containsKey(email) &&
-            this.codeCache.get(email).getMiddle().equals(code)
+            codeCache.containsKey(email) &&
+            codeCache.get(email).getMiddle().equals(code)
         ) {
-            if (System.currentTimeMillis() - this.codeCache.get(email).getRight() < this.validityPeriod) {
+            if (System.currentTimeMillis() - codeCache.get(email).getRight() < this.validityPeriod) {
                 result = Values.from(true, "Register Success");
-            } else { result = Values.from(false, "Verify Code Has Expired"); }
-            this.codeCache.remove(email);
-        } else { result = Values.from(false, "Verify Code is invalid"); }
+                Values regResult = this.UsersTool.register(userName, email, codeHash, IP);
+                if (!(boolean) regResult.get(0)) { result = regResult; }
+            } else {
+                result = Values.from(false, "Verify Code Has Expired");
+                codeCache.remove(email);
+            }
+        } else {
+            result = Values.from(false, "Verify Code is invalid");
+        }
+        System.out.println(codeCache);
         return result;
     }
 }

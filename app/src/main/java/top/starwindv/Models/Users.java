@@ -95,31 +95,16 @@ public class Users {
             userName = userName.trim();
             emailStr = emailStr.trim();
             passwdHash = passwdHash.trim();
-            
-            List<Map<String, Object>> existingUser = db.query(
-                TABLE_NAME, 
-                "user_id", 
-                "user_name = ?", 
-                Values.from(userName)
-            );
-            if (!existingUser.isEmpty()) {
-                return Values.from(false, "The username is already exist");
-            }
-            
-            List<Map<String, Object>> existingEmail = db.query(
-                TABLE_NAME, 
-                "user_id", 
-                "email_str = ?", 
-                Values.from(emailStr)
-            );
-            if (!existingEmail.isEmpty()) {
-                return Values.from(false, "The email is already exist");
+
+            Values unionCheck = this.unionNameEmailCheck(userName, emailStr);
+            if (!(boolean) unionCheck.get(0)) {
+                return unionCheck;
             }
             
             int affectedRows = db.insert(
                 TABLE_NAME, 
-                "(user_name, email_str, passwd_hash, register_ip)", 
-                Values.from(userName, emailStr, passwdHash, registerIP)
+                "(user_name, email_str, passwd_hash, register_ip, reg_time)",
+                Values.from(userName, emailStr, passwdHash, registerIP, System.currentTimeMillis())
             );
             
             if (affectedRows > 0) {
@@ -146,7 +131,39 @@ public class Users {
             return Values.from(false, "Register Failed: " + e.getMessage());
         }
     }
-    
+
+    public Values userNameAvailable(String userName) {
+        List<Map<String, Object>> existingUser = db.query(
+            TABLE_NAME,
+            "user_id",
+            "user_name = ?",
+            Values.from(userName)
+        );
+        if (!existingUser.isEmpty()) {
+            return Values.from(false, "The username is already exist");
+        } return Values.from(true, "The username is available");
+    }
+
+    public Values emailAvailable(String emailStr) {
+        List<Map<String, Object>> existingEmail = db.query(
+            TABLE_NAME,
+            "user_id",
+            "email_str = ?",
+            Values.from(emailStr)
+        );
+        if (!existingEmail.isEmpty()) {
+            return Values.from(false, "The email is already exist");
+        } return Values.from(true, "The email is available");
+    }
+
+    public Values unionNameEmailCheck(String userName, String email) {
+        Values result=this.userNameAvailable(userName);
+        if (!(boolean) result.get(0)) {return result;}
+        result=this.emailAvailable(email);
+        if (!(boolean) result.get(0)) {return result;}
+        return Values.from(true, "The username and email are available");
+    }
+
     public Values login(String identifier, String passwdHash, String loginIP) {
         try {
             identifier = identifier.trim();

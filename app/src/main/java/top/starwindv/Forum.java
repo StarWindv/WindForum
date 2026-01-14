@@ -40,11 +40,27 @@ public class Forum {
             ctx -> {
                 UserDTO RegisterInfo = ctx.bodyAsClass(UserDTO.class);
                 System.out.println(RegisterInfo.viewer.Stringify(RegisterInfo));
-                this.register.register(
-                    RegisterInfo.username(),
-                    RegisterInfo.codeHash(),
-                    RegisterInfo.email(),
-                    ctx.attribute("IP")
+                System.out.println(
+                    this.register.sendCode(
+                        RegisterInfo.username(),
+                        RegisterInfo.email()
+                    )
+                );
+            }
+        );
+
+        this.server.post(
+            "/api/verify",
+            ctx -> {
+                UserDTO RegisterInfo = ctx.bodyAsClass(UserDTO.class);
+                System.out.println(
+                    this.register.verifyCodeAfterRegister(
+                        RegisterInfo.email(),
+                        RegisterInfo.username(),
+                        RegisterInfo.verifyCode(),
+                        RegisterInfo.codeHash(),
+                        ctx.attribute("IP")
+                    )
                 );
             }
         );
