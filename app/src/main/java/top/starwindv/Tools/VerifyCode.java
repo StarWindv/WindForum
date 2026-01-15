@@ -7,7 +7,7 @@ import java.util.Random;
 public class VerifyCode {
     @SuppressWarnings("SpellCheckingInspection")
     private static final String CHAR_SET = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-    private static final Random random = new Random();
+    private static final Random random = new Random(System.currentTimeMillis());
     public final int genLength;
 
     public VerifyCode(int genLength) {

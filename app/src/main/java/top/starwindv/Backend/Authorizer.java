@@ -11,7 +11,7 @@ import top.starwindv.Utils.Values;
 import java.util.Map;
 
 
-public class Register {
+public class Authorizer {
     public final Users UsersTool;
     public final VerifyCode CodeGen;
     public final static Map<
@@ -20,6 +20,8 @@ public class Register {
     public final Email Poster;
     public final long validityPeriod = 5 * 60 * 1000L; // 5 minutes
     public final static FStyles styles = new FStyles();
+
+    public final SessionController SessionOperator;
 
     public Values sendCode(
         String username,
@@ -51,10 +53,11 @@ public class Register {
 
     }
 
-    public Register(Users UsersTool, int codeLength, Email Poster) {
+    public Authorizer(Users UsersTool, int codeLength, Email Poster, SessionController sc) {
         this.UsersTool = UsersTool;
         this.CodeGen = new VerifyCode(codeLength);
         this.Poster = Poster;
+        this.SessionOperator = sc;
     }
 
     public Values verifyCodeAfterRegister(String email, String userName, String code, String codeHash, String IP) {
@@ -77,5 +80,13 @@ public class Register {
         }
         System.out.println(codeCache);
         return result;
+    }
+
+    public Values login(String email, String codeHash, String IP) {
+        Values result = this.UsersTool.login(email, codeHash, IP);
+        if ((boolean) result.get(0)) {
+            String session_id = (String) this.SessionOperator.addSession(email).get(2);
+            return Values.from(true, session_id);
+        } else {return Values.from(false, "Login Failed"); }
     }
 }

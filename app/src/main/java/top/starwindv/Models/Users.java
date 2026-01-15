@@ -172,6 +172,12 @@ public class Users {
         return Values.from(true, "The username and email are available");
     }
 
+    /**
+     * @param identifier 这里指的是用户邮箱或者是用户名
+     *                   只要能代表用户身份就可以
+     *                   不能是 user_id
+     *
+     * */
     public Values login(String identifier, String passwdHash, String loginIP) {
         try {
             identifier = identifier.trim();
@@ -190,7 +196,7 @@ public class Users {
             
             Map<String, Object> user = users.getFirst();
             
-            updateLoginInfo(user.get("user_id"), loginIP);
+            this.updateLoginInfo(user.get("user_id"), loginIP);
             
             Map<String, Object> userInfo = new HashMap<>();
             userInfo.put("user_id", user.get("user_id"));
@@ -219,7 +225,7 @@ public class Users {
                 Values.from(userId)
             );
         } catch (Exception e) {
-            System.err.println("更新登录信息失败: " + e.getMessage());
+            System.err.println("Update Login Info Failed: " + e.getMessage());
         }
     }
     
