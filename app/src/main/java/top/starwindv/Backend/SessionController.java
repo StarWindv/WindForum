@@ -1,9 +1,12 @@
 package top.starwindv.Backend;
 
 
-import top.starwindv.Utils.SQLite;
+import top.starwindv.SQL.SQLite;
 import top.starwindv.Utils.Values;
 import top.starwindv.Tools.VerifyCode;
+
+import java.util.List;
+import java.util.Map;
 
 
 class SessionDB {
@@ -17,40 +20,44 @@ class SessionDB {
 
     }
     private void init() {
+        List<Map<String, Object>> tables = this.instance.query(
+            "sqlite_master",
+            "name",
+            "type='table' AND name=?",
+            Values.from(tableName)
+        );
+        if (!tables.isEmpty()) { return; }
         this.instance.exec(
             "CREATE TABLE IF NOT EXISTS "
             + this.tableName
             + "("
             + "    session_id VARCHAR(16) NOT NULL"
             + ","
-            + "    user_email VARCHAR(100) NOT NULL"
-            + ");"
+            + "    user_email VARCHAR(100) NOT NULL,"
+            + " CONSTRAINT fk_email FOREIGN KEY (user_email) REFERENCES users(email_str));"
         );
-        instance.exec(
+        this.instance.exec(
             "ALTER TABLE "
                 + tableName
                 + " ADD COLUMN create_time DATETIME NOT NULL"
                 + " DEFAULT ("
-                + "     CAST((julianday('now', 'utc') - 2440587.5) * 86400000 + 0.5 AS INTEGER));"
+                + "     CAST((julianday('now', 'utc') - 2440587.5) * 86400000 + 0.5 AS INTEGER)"
+                + " );"
         ); // 个人习惯, 喜欢用标准时间戳
         // 儒略日换算法
         this.instance.exec(
             "CREATE UNIQUE INDEX idx_session_id ON "+tableName+" (session_id)"
         ); // 允许多端登录所以只给session上索引
-        this.instance.exec(
-            "ALTER TABLE "
-                + tableName
-                + " ADD CONSTRAINT fk_email "
-                + "FOREIGN KEY (user_email) REFERENCES users(email_str); "
-        );
     }
 }
 
 
+@SuppressWarnings("UnusedReturnValue")
 public class SessionController {
     private final SessionDB db;
     public final static int sessionLength = 16;
     private final static VerifyCode CodeGen = new VerifyCode(sessionLength);
+    public final static Long validityPeriod = 24 * 60  * 60 * 1000L; // 24 h * 60 min * 60 s = 1 day
 
     public SessionController(String dbName) {
         this.db = new SessionDB(dbName);
@@ -58,29 +65,76 @@ public class SessionController {
 
     public Values loggedInBySessionID(String session_id) {
         try {
-            if (
-                !this.db.instance.query(
-                    this.db.tableName,
-                    "user_email",
-                    "where session_id = ?",
-                    Values.from(session_id)
-                ).isEmpty()
-            ) {
-                return Values.from(true, "User has been login");
-            } else {
-                return Values.from(false, "User is not login");
-            }
+            return (Boolean) this.isOutdate(session_id).get(0)
+                ? Values.from(false, "User is not login")
+                : Values.from(true, "User has been login");
         } catch (Exception e) {
             return Values.from(false, "Query Failed: " + e.getMessage());
         }
     }
 
+    public Values isOutdate(String user_identify) {
+        List<Map<String, Object>> queryResult = this.db.instance.query(
+            this.db.tableName,
+            "session_id, create_time",
+            "(session_id = ? or user_email=?)",
+            Values.from(user_identify, user_identify)
+        );
+        if (queryResult.isEmpty()) { // 空的也就是没登录, 自然不会过期
+            return Values.from(false, "User is not logged");
+        }
+        Map<String, Object> queryInsideResult = queryResult.getFirst();
+        if (System.currentTimeMillis() - (Long)queryInsideResult.get("create_time") > validityPeriod) {
+            this.makeExpire(user_identify);
+            return Values.from(true, "This Session-ID is Outdate");
+        } return Values.from(false, "This Session-ID is valid", queryInsideResult.get("session_id"));
+    }
+
+    public Values makeExpire(String session_id) {
+        try {
+            int affectRows = this.db.instance.delete(
+                this.db.tableName,
+                "session_id = ?",
+                Values.from(session_id)
+            );
+            if (affectRows > 0) {
+                return Values.from(true, "Expire Success");
+            }
+            return Values.from(false, "Expire Failed");
+        } catch (Exception e) {
+            return Values.from(false, "Expire Failed By: " + e.getMessage());
+        }
+    }
+
     public Values addSession(String user_email) {
         String session_id = CodeGen.generate();
-        // TODO: 存在性检验
-        // 别问, 问就是我写不完了
-        try {
-            if (this.db.instance.insert(
+        while (true) {
+            List<Map<String, Object>> check = this.db.instance.query(
+                this.db.tableName,
+                "session_id",
+                "session_id = ?",
+                Values.from(session_id)
+            );
+            if (check.isEmpty()) {
+                break; }
+            session_id = CodeGen.generate();
+        }
+        try { // outdate check
+            Values outdateCheck = this.isOutdate(user_email);
+//            System.out.println("VALUES CONTAINS: " + outdateCheck);
+            if (!(boolean) outdateCheck.get(0) && !outdateCheck.get(1).equals("User is not logged")) {
+                return Values.from(
+                    true,
+                    "Session-ID is within the validity period",
+                    outdateCheck.get(2)
+                );
+            }
+        } catch (Exception e) {
+            return Values.from(false, "Failed When Select Login Status");
+        }
+        try { // Insert Try-Catch
+            if (
+                this.db.instance.insert(
                 this.db.tableName,
                 "(session_id, user_email)",
                 Values.from(session_id, user_email)
@@ -95,7 +149,7 @@ public class SessionController {
         try {
             if (this.db.instance.delete(
                 this.db.tableName,
-                "where user_email = ?",
+                "session_id = ?",
                 Values.from(session_id)
             ) > 0) {
                 return Values.from(true, "logout success");
@@ -109,7 +163,7 @@ public class SessionController {
         try {
             if (this.db.instance.delete(
                 this.db.tableName,
-                "where user_email = ?",
+                "user_email = ?",
                 Values.from(user_email)
             ) > 0) {
                 return Values.from(true, "logout success");

@@ -17,6 +17,13 @@ public class Sources {
     public final String srcRoot;
     public final String template;
     public final String staticFile;
+
+    public static final String[] TextMimeTypes = {
+        "application/javascript",
+        "application/json",
+        "application/xml",
+        "application/xhtml+xml"
+    };
     
     public Sources(String srcRoot) {
         srcRoot = srcRoot.replace("\\", "/");
@@ -50,17 +57,34 @@ public class Sources {
      * such as scripts.js
      * or robots.txt
      */
-    public void init(Javalin server) {
-
+    public final void init(Javalin server) {
         server.get(
             "/static/*", ctx -> {
                 String staticPath = StringUtils.substringAfter(ctx.path(), "/static/");
                 String mimeType = Files.probeContentType(Paths.get(staticPath));
-                ctx.contentType(mimeType != null ? mimeType : "text/plain");
-                ctx.result(
-                    this.staticFile(staticPath)
-                );
+                if (mimeType == null) { mimeType = "text/plain"; }
+
+                boolean isTextType = mimeType.startsWith("text/");
+                if (!isTextType) {
+                    for (String textMime : TextMimeTypes) {
+                        if (textMime.equals(mimeType)) {
+                            isTextType = true;
+                            break;
+                        }
+                    }
+                }
+                ctx.header("X-Content-Type-Options", "nosniff");
+                System.out.println("Request MimeType: " + mimeType);
+                if (isTextType) {
+                    ctx.contentType(mimeType + "; charset=UTF-8")
+                        .result(this.staticFile(staticPath));
+                } else {
+                    ctx.header("Content-Encoding", "identity");
+                    ctx.contentType(mimeType)
+                        .result(this.staticMedia(staticPath));
+                }
             }
         );
     }
+
 }

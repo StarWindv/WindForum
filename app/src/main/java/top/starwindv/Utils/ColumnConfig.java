@@ -2,15 +2,15 @@ package top.starwindv.Utils;
 
 
 public class ColumnConfig {
-    private final String name;
-    private final String type;
-    private Integer length;
-    private Object defaultValue;
-    private boolean notNull = false;
-    private boolean primaryKey = false; 
-    private boolean autoIncrement = false;
+    public final String name;
+    public final String type;
+    public Integer length;
+    public Object defaultValue;
+    public boolean notNull = false;
+    public boolean primaryKey = false;
+    public boolean autoIncrement = false;
 
-    private ColumnConfig(Builder builder) {
+    public ColumnConfig(Builder builder) {
         this.name = builder.name;
         this.type = builder.type;
         this.length = builder.length;

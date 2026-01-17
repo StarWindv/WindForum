@@ -9,19 +9,16 @@ import org.jetbrains.annotations.NotNull;
 import java.lang.reflect.Type;
 
 
-public class GsonMapper implements JsonMapper {
-
-    private final Gson gson;
+public record GsonMapper(Gson gson) implements JsonMapper {
 
     public GsonMapper() {
-        this.gson = new GsonBuilder()
+        this(
+            new GsonBuilder()
                 .setPrettyPrinting()
                 .serializeNulls()
-                .create();
-    }
-
-    public GsonMapper(Gson gson) {
-        this.gson = gson;
+                .setPrettyPrinting()
+                .create()
+        );
     }
 
     @NotNull

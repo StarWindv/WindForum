@@ -3,13 +3,14 @@ package top.starwindv.Models;
 
 import top.starwindv.DTO.PostDTO;
 import top.starwindv.Utils.ColumnConfig;
-import top.starwindv.Utils.SQLite;
+import top.starwindv.SQL.SQLite;
 import top.starwindv.Utils.Status;
 import top.starwindv.Utils.Values;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+
 
 public class Posts {
     private static final List<ColumnConfig> TABLE_COLUMNS = Arrays.asList(
@@ -53,7 +54,18 @@ public class Posts {
 
             if (tables.isEmpty()) {
                 db.createTable(TABLE_NAME, TABLE_COLUMNS);
-
+                db.exec("CREATE TABLE IF NOT EXISTS "
+                    + TABLE_NAME
+                    + " ("
+                    + "    post_id INTEGER PRIMARY KEY AUTOINCREMENT,"
+                    + "    email_str VARCHAR NOT NULL,"
+                    + "    title VARCHAR NOT NULL,"
+                    + "    content TEXT NOT NULL,"
+                    + "    status INTEGER NOT NULL DEFAULT "
+                    + Status.Active
+                    + ", "
+                    + "CONSTRAINT fk_email FOREIGN KEY (email_str) REFERENCES users(email_str)"
+                    + ");");
                 db.exec("CREATE UNIQUE INDEX idx_posts_email ON " + TABLE_NAME + "(email_str)");
                 db.exec("ALTER TABLE " + TABLE_NAME + " ADD COLUMN create_time DATETIME NOT NULL DEFAULT (CAST((julianday('now', 'utc') - 2440587.5) * 86400000 + 0.5 AS INTEGER));");
                 db.exec(
@@ -62,35 +74,30 @@ public class Posts {
                         + " ADD COLUMN last_update_time DATETIME NOT NULL DEFAULT"
                         + " (CAST((julianday('now', 'utc') - 2440587.5) * 86400000 + 0.5 AS INTEGER));"
                 );
-                db.exec(
-                    "ALTER TABLE "
-                        + TABLE_NAME
-                        + "ADD CONSTRAINT fk_email "
-                        + "FOREIGN KEY (email_str) REFERENCES users(email_str); "
-                );
             }
         } catch (Exception e) {
             throw new RuntimeException("Failed to initialize users table: " + e.getMessage(), e);
         }
     }
 
-    public Values addPost(PostDTO PostInfomation) {
+    public Values addPost(PostDTO PostInformation) {
         try {
             int affectedRows = this.db.insert(
                 TABLE_NAME,
                 "(email_str, title, content)",
-                Values.from(PostInfomation.userEmail(), PostInfomation.title(), PostInfomation.content())
+                Values.from(PostInformation.userEmail(), PostInformation.title(), PostInformation.content())
             );
             if (affectedRows > 0) {
                 return Values.from(true, "Post added success");
             }
             return Values.from(false, "Unknown Error ");
         } catch (Exception e) {
+//            e.printStackTrace();
             return Values.from(false, "Failed to add post: " + e.getMessage());
         }
     }
 
-    public Values getPost(int postId) {
+    public Values getPost(String postId) {
         try {
             List<Map<String, Object>> posts = this.db.query(
                 TABLE_NAME,
@@ -101,13 +108,13 @@ public class Posts {
             if (posts.isEmpty()) {
                 return Values.from(false, "Post not found");
             }
-            return Values.from(true, posts.getFirst());
+            return Values.from(true, "", posts.getFirst());
         } catch (Exception e) {
             return Values.from(false, "Failed to get post: " + e.getMessage());
         }
     }
 
-    public Values userPost(int user_email) {
+    public Values AllPostOfOneUser(int user_email) {
         try {
             List<Map<String, Object>> posts = this.db.query(
                 TABLE_NAME,
@@ -122,5 +129,28 @@ public class Posts {
         } catch (Exception e) {
             return Values.from(false, "Failed to get post: " + e.getMessage());
         }
+    }
+
+    public Values getAllPosts(boolean isAsc, int limit) {
+        try {
+            List<Map<String, Object>> posts = this.db.query(
+                TABLE_NAME,
+                "post_id, email_str, title, content, status, create_time, last_update_time",
+                "create_time",
+                isAsc,
+                limit
+
+            );
+            if (posts.isEmpty())
+                return Values.from(false, "Post not found");
+
+            return Values.from(true, posts);
+        } catch (Exception e) {
+            return Values.from(false, "Failed to get post: " + e.getMessage());
+        }
+    }
+
+    public Values getFromTo(int from, int to) {
+        return Values.from();
     }
 }

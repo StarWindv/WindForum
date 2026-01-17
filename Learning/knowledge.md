@@ -10,3 +10,5 @@
 2026年1月7日
  - 对于`Javalin`, 它内置了一个`Jackson`的接口来实现`Json`解析, 但当我们需要使用其它`Json`实现, 比如`Gson`时, 就需要继承`io.javalin.json.JsonMapper`来自己实现一个`Mapper`, 并且在`Javalin`服务器启动时替换`config`中的`Mapper`
 
+2026年1月18日
+ - `List<Map<String, Object>>` 会直接返回一个空的 `[]`, 所以 `.get(Object)` 会直接抛出`java.util.NoSuchElementException`, 导致 `.isEmpty` 返回 `true` ... 纯有病。

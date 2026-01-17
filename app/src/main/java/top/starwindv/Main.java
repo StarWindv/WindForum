@@ -72,18 +72,6 @@ class BaseServer {
         this.server.get(
             "/", ctx -> ctx.html("Server is Running")
         );
-
-        this.server.get(
-            "/index", ctx -> {
-                ctx.html(Src.template("index.html"));
-            }
-        );
-
-        this.server.post(
-            "/api/login", ctx -> {
-                
-            }
-        );
     }
 
     private void registerHooks() {

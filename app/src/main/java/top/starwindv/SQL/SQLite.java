@@ -1,5 +1,8 @@
-package top.starwindv.Utils;
+package top.starwindv.SQL;
 
+
+import top.starwindv.Utils.ColumnConfig;
+import top.starwindv.Utils.Values;
 
 import java.util.*;
 import java.sql.*;
@@ -95,8 +98,7 @@ public class SQLite {
 
         try (PreparedStatement pstmt = conn.prepareStatement(insertSql)) {
             setPreparedStatementParams(pstmt, values);
-            int affectedRows = pstmt.executeUpdate();
-            return affectedRows;
+            return pstmt.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException("Insert Failed: ", e);
         }
@@ -249,24 +251,17 @@ public class SQLite {
     private void setPreparedStatementParams(PreparedStatement pstmt, Values values) throws SQLException {
         int paramIndex = 1;
         for (Object value : values) {
-            if (value == null) {
-                pstmt.setNull(paramIndex, Types.NULL);
-            } else if (value instanceof Integer) {
-                pstmt.setInt(paramIndex, (Integer) value);
-            } else if (value instanceof Long) {
-                pstmt.setLong(paramIndex, (Long) value);
-            } else if (value instanceof String) {
-                pstmt.setString(paramIndex, (String) value);
-            } else if (value instanceof Double) {
-                pstmt.setDouble(paramIndex, (Double) value);
-            } else if (value instanceof Float) {
-                pstmt.setFloat(paramIndex, (Float) value);
-            } else if (value instanceof Boolean) {
-                pstmt.setBoolean(paramIndex, (Boolean) value);
-            } else if (value instanceof java.util.Date) {
-                pstmt.setTimestamp(paramIndex, new Timestamp(((java.util.Date) value).getTime()));
-            } else {
-                pstmt.setString(paramIndex, value.toString());
+            switch (value) {
+                case null -> pstmt.setNull(paramIndex, Types.NULL);
+                case Integer i -> pstmt.setInt(paramIndex, i);
+                case Long l -> pstmt.setLong(paramIndex, l);
+                case String s -> pstmt.setString(paramIndex, s);
+                case Double v -> pstmt.setDouble(paramIndex, v);
+                case Float v -> pstmt.setFloat(paramIndex, v);
+                case Boolean b -> pstmt.setBoolean(paramIndex, b);
+                case java.util.Date date ->
+                    pstmt.setTimestamp(paramIndex, new Timestamp(date.getTime()));
+                default -> pstmt.setString(paramIndex, value.toString());
             }
             paramIndex++;
         }
@@ -289,6 +284,91 @@ public class SQLite {
                 conn.close();
                 } catch (SQLException ignored) {
                 }
+        }
+    }
+
+    public List<Map<String, Object>> query(String tableName, String selectColumns) {
+        validateTableAndColumns(tableName, selectColumns);
+        List<Map<String, Object>> result = new ArrayList<>();
+
+        String querySql = "SELECT " +
+            (selectColumns == null
+                ||
+                selectColumns.trim().isEmpty()
+                ? "*" : selectColumns.trim()) +
+            " FROM " + tableName.trim();
+
+        try (
+            PreparedStatement pstmt = conn.prepareStatement(querySql)
+        ) {
+            try (ResultSet rs = pstmt.executeQuery()) {
+                ResultSetMetaData metaData = rs.getMetaData();
+                int columnCount = metaData.getColumnCount();
+
+                while (rs.next()) {
+                    Map<String, Object> row = new HashMap<>();
+                    for (int i = 1; i <= columnCount; i++) {
+                        String columnName = metaData.getColumnName(i);
+                        Object value = rs.getObject(i);
+                        row.put(columnName, value);
+                    }
+                    result.add(row);
+                }
+            }
+            return result;
+        } catch (SQLException e) {
+            throw new RuntimeException("Select Failed: ", e);
+        }
+    }
+
+    public List<Map<String, Object>> query(
+        String tableName,
+        String selectColumns,
+        String orderByColumn,
+        boolean isAsc,
+        int limit
+    ) {
+        validateTableAndColumns(tableName, selectColumns);
+
+        if (orderByColumn == null || orderByColumn.trim().isEmpty()) {
+            throw new IllegalArgumentException("Order by column cannot be empty");
+        }
+        if (limit <= 0) {
+            throw new IllegalArgumentException("Limit must be a positive integer");
+        }
+
+        List<Map<String, Object>> result = new ArrayList<>();
+
+        String querySql = "SELECT " +
+            (
+                selectColumns == null || selectColumns.trim().isEmpty()
+                    ? "*" : selectColumns.trim()
+            )
+            + " FROM " + tableName.trim()
+            + " ORDER BY " + orderByColumn.trim()
+            + (isAsc ? " ASC" : " DESC")
+            + " LIMIT ?";
+
+        try (PreparedStatement pstmt = conn.prepareStatement(querySql)) {
+            pstmt.setInt(1, limit);
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                ResultSetMetaData metaData = rs.getMetaData();
+                int columnCount = metaData.getColumnCount();
+
+                while (rs.next()) {
+                    Map<String, Object> row = new HashMap<>();
+                    for (int i = 1; i <= columnCount; i++) {
+                        String columnName = metaData.getColumnName(i);
+                        Object value = rs.getObject(i);
+                        row.put(columnName, value);
+                    }
+                    result.add(row);
+                }
+            }
+            return result;
+        } catch (SQLException e) {
+            throw new RuntimeException("Query top N data failed: ", e);
         }
     }
 }

@@ -85,8 +85,12 @@ public class Authorizer {
     public Values login(String email, String codeHash, String IP) {
         Values result = this.UsersTool.login(email, codeHash, IP);
         if ((boolean) result.get(0)) {
-            String session_id = (String) this.SessionOperator.addSession(email).get(2);
-            return Values.from(true, session_id);
+            Values resp = this.SessionOperator.addSession(email);
+            System.out.println(resp);
+            if ((boolean) resp.get(0)) {
+                String session_id = (String) resp.get(2);
+                return Values.from(true, "", session_id);
+            } return Values.from(false, "Add Session-ID Failed");
         } else {return Values.from(false, "Login Failed"); }
     }
 }

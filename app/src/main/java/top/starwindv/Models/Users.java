@@ -2,7 +2,7 @@ package top.starwindv.Models;
 
 
 import top.starwindv.Utils.Values;
-import top.starwindv.Utils.SQLite;
+import top.starwindv.SQL.SQLite;
 import top.starwindv.Utils.ColumnConfig;
 import top.starwindv.Utils.Permission;
 import top.starwindv.Utils.Status;
@@ -66,7 +66,7 @@ public class Users {
     
     private void init() {
         try {
-            List<Map<String, Object>> tables = db.query(
+            List<Map<String, Object>> tables = this.db.query(
                 "sqlite_master", 
                 "name", 
                 "type='table' AND name=?", 
@@ -74,12 +74,35 @@ public class Users {
             );
             
             if (tables.isEmpty()) {
-                db.createTable(TABLE_NAME, TABLE_COLUMNS);
+                this.db.createTable(TABLE_NAME, TABLE_COLUMNS);
 
-                db.exec("CREATE UNIQUE INDEX idx_users_username ON users(user_name)");
-                db.exec("CREATE UNIQUE INDEX idx_users_email ON users(email_str)");
-                db.exec("ALTER TABLE users ADD COLUMN reg_time DATETIME NOT NULL DEFAULT (CAST((julianday('now', 'utc') - 2440587.5) * 86400000 + 0.5 AS INTEGER));");
-                db.exec("ALTER TABLE users ADD COLUMN last_log_time DATETIME NOT NULL DEFAULT (CAST((julianday('now', 'utc') - 2440587.5) * 86400000 + 0.5 AS INTEGER));");
+                this.db.exec("CREATE UNIQUE INDEX idx_users_username ON users(user_name)");
+                this.db.exec("CREATE UNIQUE INDEX idx_users_email ON users(email_str)");
+                this.db.exec("ALTER TABLE users ADD COLUMN reg_time DATETIME NOT NULL DEFAULT (CAST((julianday('now', 'utc') - 2440587.5) * 86400000 + 0.5 AS INTEGER));");
+                this.db.exec("ALTER TABLE users ADD COLUMN last_log_time DATETIME NOT NULL DEFAULT (CAST((julianday('now', 'utc') - 2440587.5) * 86400000 + 0.5 AS INTEGER));");
+                this.db.exec("""
+                    CREATE VIRTUAL TABLE users_fts USING fts5(
+                        user_id UNINDEXED,
+                        user_name,
+                        content='users',
+                        content_rowid='user_id'
+                    );""");
+                this.db.exec("""
+                    CREATE TRIGGER users_ai AFTER INSERT ON users BEGIN
+                      INSERT INTO users_fts(rowid, user_name) VALUES (new.user_id, new.user_name);
+                    END;
+                    """);
+                this.db.exec("""
+                    CREATE TRIGGER users_ad AFTER DELETE ON users BEGIN
+                      INSERT INTO users_fts(users_fts, rowid, user_name) VALUES('delete', old.user_id, old.user_name);
+                    END;
+                    """);
+                this.db.exec("""
+                    CREATE TRIGGER users_au AFTER UPDATE ON users BEGIN
+                      INSERT INTO users_fts(users_fts, rowid, user_name) VALUES('delete', old.user_id, old.user_name);
+                      INSERT INTO users_fts(rowid, user_name) VALUES (new.user_id, new.user_name);
+                    END;
+                    """);
             }
         } catch (Exception e) {
             throw new RuntimeException("Failed to initialize users table: " + e.getMessage(), e);
@@ -107,7 +130,7 @@ public class Users {
                 return unionCheck;
             }
             
-            int affectedRows = db.insert(
+            int affectedRows = this.db.insert(
                 TABLE_NAME, 
                 "(user_name, email_str, passwd_hash, register_ip, reg_time)",
                 Values.from(userName, emailStr, passwdHash, registerIP, System.currentTimeMillis())
@@ -116,7 +139,7 @@ public class Users {
             // 懒得改了
             
             if (affectedRows > 0) {
-                List<Map<String, Object>> newUser = db.query(
+                List<Map<String, Object>> newUser = this.db.query(
                     TABLE_NAME, 
                     "*", 
                     "user_name = ?", 
@@ -141,7 +164,7 @@ public class Users {
     }
 
     public Values userNameAvailable(String userName) {
-        List<Map<String, Object>> existingUser = db.query(
+        List<Map<String, Object>> existingUser = this.db.query(
             TABLE_NAME,
             "user_id",
             "user_name = ?",
@@ -153,7 +176,7 @@ public class Users {
     }
 
     public Values emailAvailable(String emailStr) {
-        List<Map<String, Object>> existingEmail = db.query(
+        List<Map<String, Object>> existingEmail = this.db.query(
             TABLE_NAME,
             "user_id",
             "email_str = ?",
@@ -183,7 +206,7 @@ public class Users {
             identifier = identifier.trim();
             passwdHash = passwdHash.trim();
 
-            List<Map<String, Object>> users = db.query(
+            List<Map<String, Object>> users = this.db.query(
                 TABLE_NAME, 
                 "*", 
                 "(user_name = ? OR email_str = ?) AND passwd_hash = ?", 
@@ -217,7 +240,7 @@ public class Users {
     private void updateLoginInfo(Object userId, String loginIP) {
         try {
             Timestamp currentTime = new Timestamp(System.currentTimeMillis());
-            db.update(
+            this.db.update(
                 TABLE_NAME,
                 "last_log_ip = ?, last_log_time = ?",
                 "user_id = ?",
@@ -231,7 +254,7 @@ public class Users {
     
     public Values getUserInfo(Object userId) {
         try {
-            List<Map<String, Object>> users = db.query(
+            List<Map<String, Object>> users = this.db.query(
                 TABLE_NAME, 
                 "user_id, user_name, email_str, register_ip, reg_time, last_log_ip, last_log_time, permission, status",
                 "user_id = ?", 
@@ -255,7 +278,7 @@ public class Users {
                 return Values.from(false, "Nothing to update");
             }
             
-            List<Map<String, Object>> existing = db.query(
+            List<Map<String, Object>> existing = this.db.query(
                 TABLE_NAME, 
                 "user_id", 
                 "user_id = ?", 
@@ -284,7 +307,7 @@ public class Users {
                     values.add(value);
                     
                     if (key.equals("user_name") || key.equals("email_str")) {
-                        List<Map<String, Object>> duplicate = db.query(
+                        List<Map<String, Object>> duplicate = this.db.query(
                             TABLE_NAME, 
                             "user_id", 
                             key + " = ? AND user_id != ?", 
@@ -303,7 +326,7 @@ public class Users {
                 return Values.from(false, "没有有效的更新字段");
             }
             
-            int affectedRows = db.update(
+            int affectedRows = this.db.update(
                 TABLE_NAME,
                 setClause.toString(),
                 "user_id = ?",
@@ -324,7 +347,7 @@ public class Users {
 
     public Values deleteUser(Object userId, String passwdHash) {
         try {
-            List<Map<String, Object>> users = db.query(
+            List<Map<String, Object>> users = this.db.query(
                 TABLE_NAME, 
                 "user_id", 
                 "user_id = ? AND passwd_hash = ?", 
@@ -335,7 +358,7 @@ public class Users {
                 return Values.from(false, "密码错误或用户不存在");
             }
             
-            int affectedRows = db.delete(
+            int affectedRows = this.db.delete(
                 TABLE_NAME,
                 "user_id = ?",
                 Values.from(userId)
@@ -354,7 +377,7 @@ public class Users {
 
     public void close() {
         if (db != null) {
-            db.close();
+            this.db.close();
         }
     }
 }

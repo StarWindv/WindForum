@@ -15,6 +15,10 @@ public class PostDTO {
     public String title() { return this.title; }
     public String content() { return this.content; }
 
+    public boolean isEmpty() {
+        return userEmail == null && title == null && content == null;
+    }
+
     public PostDTO() {
         /* Gson Mapper Required Default White Constructor */
     }
