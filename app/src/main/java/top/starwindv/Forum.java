@@ -21,7 +21,8 @@ class protectAPI {
     public final static Set<String> path = Set.of(
         "/dashboard",
         "/api/posts/upload",
-        "/api/posts/comments"
+        "/api/posts/comments",
+        "/editor"
     );
     public static boolean isProtectedPath(String requestFor) {
         for (String pattern : path) {
@@ -34,6 +35,7 @@ class protectAPI {
 }
 
 
+@SuppressWarnings("CallToPrintStackTrace")
 public class Forum {
     public final String AppName;
     public final Javalin server;
@@ -68,7 +70,7 @@ public class Forum {
         this.staticFile();
         this.loginMethodGroup();
         this.userUploadMethodGroup();
-        this.obtainArticleMethodGroup();
+        this.obtainInfoMethodGroup();
         this.viewPage();
     }
 
@@ -173,29 +175,92 @@ public class Forum {
             "/dashboard",
             ctx -> ctx.html(Src.template("dashboard.html"))
         );
+
+        this.server.get(
+            "/editor",
+            ctx -> ctx.html(Src.template("editor.html"))
+        );
+
+        this.server.get(
+            "/login",
+            ctx -> ctx.html(Src.template("login.html"))
+        );
     }
 
-    private void obtainArticleMethodGroup() {
-        this.server.get(
+    private void obtainInfoMethodGroup() {
+        this.server.post(
             "/api/posts/get",
             ctx -> {
-                String postID = ctx.queryParam("post_id");
-                String _sortedByArc = ctx.queryParam("sorted_by");
-                boolean sortedByArc = _sortedByArc == null || !_sortedByArc.equals("false");
-                String _limit = ctx.queryParam("limit");
+                Values response;
+                try {
+                    GetPostsDTO needInfo = ctx.bodyAsClass(GetPostsDTO.class);
 
-                Values response = Values.from(false);
-                int limit = 1;
-                if (_limit != null) { limit = Integer.parseInt(_limit); }
+                    boolean hasFromTo = (needInfo.from() >= 0 && needInfo.to() >= 0);
+                    boolean hasLimit = (needInfo.limit() > 0);
+                    boolean hasPostId = (needInfo.post_id() != null && !needInfo.post_id().isEmpty());
+                    boolean hasOnlyFrom = (needInfo.from() >= 0 && needInfo.to() < 0);
+                    boolean hasOnlyTo = (needInfo.from() < 0 && needInfo.to() >= 0);
 
-                if (postID != null && postID.isEmpty() && limit<=0) { ctx.status(400); }
-                if(limit<0) { ctx.status(400); }
-                else if(limit>0) { response = PostsTool.getAllPosts(sortedByArc, limit); }
-                else { response = PostsTool.getPost(postID); }
-                if (!(boolean) response.get(0)) { ctx.status(404); }
-                else { ctx.json(response.get(2)); }
-            } // Context
-        ); // api/posts/get
+                    if (hasOnlyFrom || hasOnlyTo) {
+                        ctx.status(400);
+                        return;
+                    }
+
+                    int paramTypeCount = 0;
+                    if (hasFromTo) paramTypeCount++;
+                    if (hasLimit) paramTypeCount++;
+                    if (hasPostId) paramTypeCount++;
+
+                    if (paramTypeCount > 1) {
+                        ctx.status(400);
+                        return;
+                    }
+
+                    if (hasFromTo) {
+                        Values posts = PostsTool.getFromTo(
+                            "create_time",
+                            needInfo.isArc(),
+                            needInfo.from(),
+                            needInfo.to()
+                        );
+                        response = Values.from(true, "", posts);
+                    } else if (hasLimit) {
+                        response = PostsTool.getAllPosts(needInfo.isArc(), needInfo.limit());
+                    } else if (hasPostId) {
+                        response = PostsTool.getPost(needInfo.post_id());
+                    } else {
+                        ctx.status(400);
+                        return;
+                    }
+                    if (!(boolean) response.get(0)) {
+                        ctx.status(404);
+                    } else {
+                        ctx.json(response.get(2));
+                    }
+
+                } catch (Exception e) {
+                    ctx.status(400);
+                     e.printStackTrace();
+                }
+            }
+        );
+
+        this.server.post(
+            "/api/posts/getuser",
+            ctx -> {
+                try {
+                    PostDTO postInfo = ctx.bodyAsClass(PostDTO.class);
+                    Values result = this.PostsTool.AllPostOfOneUser(postInfo.userEmail());
+                    if (!(boolean) result.get(0)) {
+                        ctx.status(404);
+                    }
+                    ctx.json(result.get(2));
+                } catch (Exception e) {
+                    ctx.status(404);
+                }
+            }
+        );
+
     } // obtainArticleMethodGroup
 
     private void staticFile() {
@@ -204,6 +269,14 @@ public class Forum {
             ctx -> {
                 ctx.contentType("image/png");
                 ctx.result(this.Src.staticMedia("image/head.png"));
+            }
+        );
+
+        this.server.get(
+            "robots.txt",
+            ctx -> {
+                ctx.contentType("text/plain");
+                ctx.result(this.Src.staticFile("text/robots.txt"));
             }
         );
     }

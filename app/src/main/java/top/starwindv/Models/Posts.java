@@ -68,6 +68,7 @@ public class Posts {
                     + ");");
                 db.exec("CREATE UNIQUE INDEX idx_posts_email ON " + TABLE_NAME + "(email_str)");
                 db.exec("ALTER TABLE " + TABLE_NAME + " ADD COLUMN create_time DATETIME NOT NULL DEFAULT (CAST((julianday('now', 'utc') - 2440587.5) * 86400000 + 0.5 AS INTEGER));");
+                db.exec("CREATE UNIQUE INDEX idx_posts_create ON " + TABLE_NAME + "(create_time)");
                 db.exec(
                     "ALTER TABLE "
                         + TABLE_NAME
@@ -114,7 +115,7 @@ public class Posts {
         }
     }
 
-    public Values AllPostOfOneUser(int user_email) {
+    public Values AllPostOfOneUser(String user_email) {
         try {
             List<Map<String, Object>> posts = this.db.query(
                 TABLE_NAME,
@@ -122,10 +123,11 @@ public class Posts {
                 "email_str=?",
                 Values.from(user_email)
             );
-            if (posts.isEmpty())
+            if (posts.isEmpty()) {
                 return Values.from(false, "Post not found");
+            }
 
-            return Values.from(true, posts.getFirst());
+            return Values.from(true, posts);
         } catch (Exception e) {
             return Values.from(false, "Failed to get post: " + e.getMessage());
         }
@@ -150,7 +152,22 @@ public class Posts {
         }
     }
 
-    public Values getFromTo(int from, int to) {
-        return Values.from();
+    public Values getFromTo(String orderBy, boolean isAsc, int from, int to) {
+        try {
+            List<Map<String, Object>> posts = this.db.queryFromTo(
+                TABLE_NAME,
+                "post_id, email_str, title, content, status, create_time, last_update_time",
+                orderBy,
+                isAsc,
+                from,
+                to
+            );
+            if (posts.isEmpty())
+                return Values.from(false, "Post not found");
+
+            return Values.from(true, posts);
+        } catch (Exception e) {
+            return Values.from(false, "Failed to get post: " + e.getMessage());
+        }
     }
 }

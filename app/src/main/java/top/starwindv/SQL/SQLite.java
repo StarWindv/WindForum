@@ -371,4 +371,62 @@ public class SQLite {
             throw new RuntimeException("Query top N data failed: ", e);
         }
     }
+
+    public List<Map<String, Object>> queryFromTo(
+        String tableName,
+        String selectColumns,
+        String orderByColumn,
+        boolean isAsc,
+        int from,
+        int to
+    ) {
+        validateTableAndColumns(tableName, selectColumns);
+
+        if (orderByColumn == null || orderByColumn.trim().isEmpty()) {
+            throw new IllegalArgumentException("Order by column cannot be empty");
+        }
+
+        if (from < 1) {
+            throw new IllegalArgumentException("From must be a positive integer (start from 1)");
+        }
+        if (to < from) {
+            throw new IllegalArgumentException("To cannot be less than from");
+        }
+
+        List<Map<String, Object>> result = new ArrayList<>();
+
+        int offset = from - 1;
+        int rowCount = to - from + 1;
+
+        String querySql = "SELECT " +
+            (selectColumns == null || selectColumns.trim().isEmpty()
+                ? "*" : selectColumns.trim()) +
+            " FROM " + tableName.trim() +
+            " ORDER BY " + orderByColumn.trim() +
+            (isAsc ? " ASC" : " DESC") +
+            " LIMIT ?, ?";
+
+        try (PreparedStatement pstmt = conn.prepareStatement(querySql)) {
+            pstmt.setInt(1, offset);
+            pstmt.setInt(2, rowCount);
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                ResultSetMetaData metaData = rs.getMetaData();
+                int columnCount = metaData.getColumnCount();
+
+                while (rs.next()) {
+                    Map<String, Object> row = new HashMap<>();
+                    for (int i = 1; i <= columnCount; i++) {
+                        String columnName = metaData.getColumnName(i);
+                        Object value = rs.getObject(i);
+                        row.put(columnName, value);
+                    }
+                    result.add(row);
+                }
+            }
+            return result;
+        } catch (SQLException e) {
+            throw new RuntimeException("Query range data failed: ", e);
+        }
+    }
 }
