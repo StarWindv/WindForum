@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<!--suppress HtmlUnknownTarget -->
+<html lang="zh-cn">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wind Forum</title>
+    <style>
+        body.mouse {
+            height: 90vh;
+            weight: 90vw;
+            cursor: url('/static/image/cursor/default32x32.png') 0 0, default;
+        }
+
+        body.mouse a:hover,
+        body.mouse button:hover,
+        body.mouse input[type="submit"]:hover,
+        body.mouse input[type="button"]:hover {
+            cursor: url('/static/image/cursor/pointer32x32.png') 0 0, pointer;
+        }
+    </style>
+</head>
+<body class="mouse">
+<div>
+    <a href="#">
+        <b>NOT YET</b>
+    </a>
+</div>
+<div>
+    <form id="login">
+        <label>
+            Email
+            <input type="text" id="email" name="email" autocomplete="email" required>
+        </label>
+        <label>
+            Password
+            <input type="password" id="password" name="password" autocomplete="password" required>
+        </label>
+        <button type="submit">Login</button>
+    </form>
+</div>
+<script src="/static/js/focus.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
+<script src="/static/js/services/authorize.js"></script>
+<script>
+    const form = document.getElementById('login');
+    const Auth = new Authorizer();
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+
+        const result = await Auth.login(email, password);
+        console.log(result);
+        if (result.status) {
+            form.reset();
+            window.location.href("/index");
+        }
+    });
+</script>
+</body>
+</html>

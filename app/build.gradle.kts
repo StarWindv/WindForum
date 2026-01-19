@@ -9,6 +9,8 @@ plugins {
     // Apply the application plugin to add support for building a CLI application in Java.
     application
     java
+    // 新增：添加shadow插件，用于构建包含所有依赖的可执行jar（胖包）
+    id("com.github.johnrengelman.shadow") version "8.1.1"
 }
 
 repositories {
@@ -39,7 +41,6 @@ java {
     }
 }
 
-
 tasks.named<Test>("test") {
     // Use JUnit Platform for unit tests.
     useJUnitPlatform()
@@ -49,3 +50,4 @@ application {
     // Define the main class for the application.
     mainClass.set("top.starwindv.Main")
 }
+

@@ -1,39 +1,164 @@
+### API路由总览
 
-| 路由路径                  | HTTP方法 | 请求参数                                                             | 返回值/响应                                           | 说明                    |
-|-----------------------|--------|------------------------------------------------------------------|--------------------------------------------------|-----------------------|
-| `/`                   | GET    | 无                                                                | "Server is Running"                              | 服务器状态检查               |
-| `/index`              | GET    | 无                                                                | HTML页面                                           | 返回index.html          |
-| `/dashboard`          | GET    | 无                                                                | HTML页面                                           | 返回dashboard.html(需认证) |
-| `/favicon.ico`        | GET    | 无                                                                | 图片数据                                             | 返回网站图标                |
-| `/api/register`       | POST   | UserDTO对象<br>- username<br>- email                               | 401状态码或成功                                        | 发送注册验证码               |
-| `/api/verify`         | POST   | UserDTO对象<br>- email<br>- username<br>- verifyCode<br>- codeHash | 验证结果                                             | 验证注册验证码               |
-| `/api/login`          | POST   | UserDTO对象<br>- email<br>- codeHash                               | JSON对象:<br>- Session-ID<br>- status<br>- message | 用户登录                  |
-| `/api/posts/upload`   | POST   | PostDTO对象                                                        | 400状态码或成功                                        | 上传帖子(需认证)             |
-| `/api/posts/comments` | POST   | 未实现                                                              | 未实现                                              | 评论功能(待开发)             |
-| `/api/posts/get`      | POST   | GetPostsDTO对象<br>- from/to<br>- limit<br>- post_id<br>- isArc    | JSON数组或404状态码                                    | 获取帖子列表或单个帖子           |
-| `/static/*`           | GET    | 无                                                                | 静态文件                                             | 获取静态资源                |
+| 路由路径                  | 方法   | 入参类型        | 返回值类型               | 返回格式        | 注意事项                                     |
+|-----------------------|------|-------------|---------------------|-------------|------------------------------------------|
+| `/api/register`       | POST | UserDTO     | Values              | -           | 需包含username和email；失败返回401                |
+| `/api/verify`         | POST | UserDTO     | -                   | -           | 需包含email, username, verifyCode, codeHash |
+| `/api/login`          | POST | UserDTO     | Map<String, String> | JSON        | 成功返回Session-ID；失败返回401                   |
+| `/api/posts/upload`   | POST | PostDTO     | Values              | -           | 需通过Session-ID验证；空内容返回400                 |
+| `/api/posts/comments` | POST | -           | -                   | -           | 未实现(TODO)                                |
+| `/api/posts/get`      | POST | GetPostsDTO | Values              | JSON/JSON数组 | 支持三种查询方式:from/to, limit, post_id         |
+| `/api/posts/getuser`  | POST | PostDTO     | Values              | JSON数组      | 需包含userEmail；失败返回404                     |
+| `/index`              | GET  | -           | String              | HTML        | 返回index.html                             |
+| `/dashboard`          | GET  | -           | String              | HTML        | 需通过Session-ID验证                          |
+| `/editor`             | GET  | -           | String              | HTML        | 需通过Session-ID验证                          |
+| `/login`              | GET  | -           | String              | HTML        | 返回login.html                             |
+| `favicon.ico`         | GET  | -           | byte[]              | PNG         | 返回head.png                               |
+| `robots.txt`          | GET  | -           | String              | text/plain  | 返回robots.txt内容                           |
 
-### 关键说明: 
+### 详细说明
 
-1. **认证路由**(需Session-ID头部): 
-    - `/dashboard`
-    - `/api/posts/upload`
-    - `/api/posts/comments`
+#### 1. 认证相关路由
 
-2. **参数说明**: 
-    - `UserDTO`: 包含用户相关字段(username, email, verifyCode, codeHash等)
-    - `PostDTO`: 包含帖子相关字段 (userEmail, title, content)
-    - `GetPostsDTO`: 包含查询参数((((from, to), isArc), (limit, isArc)), post_id )
-    - 对于获取帖子的API, 会返回 `[{post_id, email_str, title, content, status, create_time, last_update_time}]`这样的json数组
-   注意, 前端只需要定义同样格式的json即可
+**`/api/register`** (POST)
+- 入参:UserDTO
+  ```java
+  {
+    username: String,
+    email: String
+  }
+  ```
+- 返回: 400/200
+- 注意: 在register后用户会收到一个邮箱验证码, 必须填写此邮箱验证码并在/api/verify验证结束后才算完整的注册流程
 
-3. **特殊路由**: 
-    - `/api/posts/get` 支持三种查询方式(from/to范围、limit限制数量、post_id单个查询)，但只能使用其中一种
-    - 所有API路由返回JSON格式数据(除明确返回HTML或图片的路由)
-    - 部分API返回json数组而不是单个json对象
-    - `/static/*` 按照静态文件夹路径返回资源, 并伴有对应的 mimetype 和`nosniff`; 如 `/static/image/head.png` 会返回一张图片, 而`static/focus.js`会返回一个js文件
+**`/api/verify`** (POST)
+- 入参:UserDTO
+  ```java
+  {
+    email: String,
+    username: String,
+    verifyCode: String,
+    codeHash: String
+  }
+  ```
+- 返回: 400/200
 
-4. **错误处理**: 
-    - 401: 未授权/认证失败
-    - 400: 请求参数错误
-    - 404: 资源未找到
+**`/api/login`** (POST)
+- 入参:UserDTO
+  ```java
+  {
+    email: String,
+    codeHash: String
+  }
+  ```
+- 返回:JSON对象
+  ```json
+  {
+    "Session-ID": "string",
+    "status": "boolean",
+    "message": "string"
+  }
+  ```
+- 注意:成功时返回Session-ID，失败返回401
+
+#### 2. 帖子相关路由
+
+**`/api/posts/upload`** (POST)
+- 入参:PostDTO
+  ```java
+  {
+    userEmail: String,
+    title: String,
+    content: String
+  }
+  ```
+- 返回: 200
+- 注意:
+    - 需通过Session-ID验证（受保护路径）
+    - 空内容返回400状态码
+    - 调用`PostsTool.addPost()`
+
+**`/api/posts/get`** (POST)
+- 入参:GetPostsDTO
+  ```java
+  {
+    from: int,
+    to: int,
+    limit: int,
+    post_id: String,
+    isArc: boolean
+  }
+  ```
+- 返回:JSON对象或JSON数组
+- 注意:
+    - 三种查询方式互斥，只能使用一种
+    - from/to必须同时提供或都不提供
+    - 失败返回 400/404 状态码
+
+**`/api/posts/getuser`** (POST)
+获取用户的全部帖子
+- 入参:PostDTO
+  ```java
+  {
+    userEmail: String
+  }
+  ```
+- 返回:JSON数组 
+  ```java
+  [{
+    "post_id": post_id, 
+    "email_str": email_str, 
+    "title": title, 
+    "content": content, 
+    "status": status, 
+    "create_time": create_time, 
+    "last_update_time": last_update_time
+  }, ...]
+  ```
+- 注意:失败返回 404 状态码
+
+#### 3. 页面路由
+
+**`/index`** (GET)
+- 返回:HTML页面
+- 注意:返回index.html
+
+**`/dashboard`** (GET)
+- 返回:HTML页面
+- 注意:
+    - 需通过Session-ID验证（受保护路径）
+    - 返回dashboard.html
+
+**`/editor`** (GET)
+- 返回:HTML页面
+- 注意:
+    - 需通过Session-ID验证（受保护路径）
+    - 返回editor.html
+
+**`/login`** (GET)
+- 返回:HTML页面
+- 注意:返回login.html
+
+#### 4. 静态资源路由
+
+**`favicon.ico`** (GET)
+- 返回:PNG图片
+- 注意:返回head.png
+
+**`robots.txt`** (GET)
+- 返回:文本文件
+- 注意:返回robots.txt内容
+
+### 受保护路径列表
+
+以下路径需要Session-ID验证:
+- `/dashboard`
+- `/api/posts/upload`
+- `/api/posts/comments`
+- `/editor`
+未通过验证返回401状态码.
+
+### Notes:
+- 访问页面路由时如果加了末尾的后缀名会导致错误
+- 只有当你访问静态资源时才需要加后缀名
+- 访问静态资源时的前缀名必须是`/static/`, 不能是`./static/`

@@ -6,6 +6,10 @@ import org.apache.commons.lang3.StringUtils;
 import io.javalin.Javalin;
 
 //import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.charset.MalformedInputException;
+import java.nio.charset.UnsupportedCharsetException;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Paths;
 import java.nio.file.Files;
 
@@ -46,6 +50,12 @@ public class Sources {
         );
     }
 
+    public String staticFile(String filePath, String encoding) throws Exception {
+        return (
+            Files.readString(Paths.get(this.staticFile, filePath), Charset.forName(encoding))
+        );
+    }
+
     public byte[] staticMedia(String filePath) throws Exception {
         return (
             Files.readAllBytes(Paths.get(this.staticFile, filePath))
@@ -61,8 +71,12 @@ public class Sources {
     public final void init(Javalin server) {
         server.get(
             "/static/*", ctx -> {
+                String staticPath = StringUtils.substringAfter(ctx.path(), "/static/");
+                String encoding = ctx.queryParam("encoding");
+                if (encoding==null) {
+                    encoding="UTF-8";
+                }
                 try {
-                    String staticPath = StringUtils.substringAfter(ctx.path(), "/static/");
                     String mimeType = Files.probeContentType(Paths.get(staticPath));
                     if (mimeType == null) {
                         mimeType = "text/plain";
@@ -81,16 +95,19 @@ public class Sources {
                     System.out.println("Request MimeType: " + mimeType);
                     if (isTextType) {
                         ctx.contentType(mimeType + "; charset=UTF-8")
-                            .result(this.staticFile(staticPath));
+                            .result(this.staticFile(staticPath, encoding));
                     } else {
                         ctx.header("Content-Encoding", "identity");
                         ctx.contentType(mimeType)
                             .result(this.staticMedia(staticPath));
                     }
-                } catch (Exception e) {
+                } catch (NoSuchFileException ignored) {
                     ctx.status(404);
-                    //noinspection CallToPrintStackTrace
-                    e.printStackTrace();
+                    System.err.println("No Such File: " + staticPath);
+                } catch (MalformedInputException ignored) {
+                    ctx.status(501);
+                } catch (UnsupportedCharsetException ignored) {
+                    ctx.status(400);
                 }
             }
         );

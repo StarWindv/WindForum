@@ -1,0 +1,12 @@
+body.mouse {
+    height: 90vh;
+    weight: 90vw;
+    cursor: url('/static/image/cursor/default32x32.png') 0 0, default;
+}
+
+body.mouse a:hover,
+body.mouse button:hover,
+body.mouse input[type="submit"]:hover,
+body.mouse input[type="button"]:hover {
+    cursor: url('/static/image/cursor/pointer32x32.png') 0 0, pointer;
+}

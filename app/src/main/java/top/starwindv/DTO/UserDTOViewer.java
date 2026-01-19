@@ -38,7 +38,9 @@ public class UserDTOViewer implements DTOViewer{
             else {
                 Method method = targetCls.getMethod(name);
                 this.getterCache.put(name, method);
-                return method.invoke(obj);
+                Object result = method.invoke(obj);
+                if (result==null) { result=""; }
+                return result;
             }
         } catch (
             NoSuchMethodException |

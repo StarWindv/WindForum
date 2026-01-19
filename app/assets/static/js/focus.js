@@ -1,5 +1,6 @@
 const originalTitle = document.title;
 const blurTitle = "快回来哇 Σ(っ °Д °;)っ";
+const welcomeTitle = "哇, 你回来啦!ヾ(≧▽≦*)o";
 
 window.addEventListener(
     "blur", () => {
@@ -7,12 +8,9 @@ window.addEventListener(
     }
 );
 
-window.addEventListener(
-    "focus", () => {
+window.addEventListener("focus", () => {
+    document.title = welcomeTitle;
+    setTimeout(() => {
         document.title = originalTitle;
-    }
-);
-
-body {
-    cursor: url('/static/image/cursor/cursor_arrow.png'), auto;
-}
+    }, 1500);
+});

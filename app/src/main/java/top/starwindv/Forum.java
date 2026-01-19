@@ -85,7 +85,7 @@ public class Forum {
                     RegisterInfo.email()
                 );
                 if (!(boolean) result.get(0)) {
-                    ctx.status(401);
+                    ctx.status(400);
                 }
                 System.out.println(result);
             }
@@ -95,15 +95,17 @@ public class Forum {
             "/api/verify",
             ctx -> {
                 UserDTO RegisterInfo = ctx.bodyAsClass(UserDTO.class);
-                System.out.println(
-                    this.authorizer.verifyCodeAfterRegister(
-                        RegisterInfo.email(),
-                        RegisterInfo.username(),
-                        RegisterInfo.verifyCode(),
-                        RegisterInfo.codeHash(),
-                        ctx.attribute("IP")
-                    )
+                Values result = this.authorizer.verifyCodeAfterRegister(
+                    RegisterInfo.email(),
+                    RegisterInfo.username(),
+                    RegisterInfo.verifyCode(),
+                    RegisterInfo.codeHash(),
+                    ctx.attribute("IP")
                 );
+                System.out.println(result);
+                if (!(boolean) result.get(0)) {
+                    ctx.status(400);
+                }
             }
         );
     }
@@ -118,20 +120,25 @@ public class Forum {
                     LoginInfo.codeHash(),
                     ctx.attribute("IP")
                 );
+                Map<String, String> response = new HashMap<>();
                 if ((boolean) result.get(0)) {
                     String session_id = (String) result.get(2);
                     System.out.println("User      : " + LoginInfo.email() + "\nSession-ID: " + session_id);
-                    Map<String, String> response = new HashMap<>();
                     response.put("Session-ID", session_id);
                     response.put("status", String.valueOf(true));
                     response.put("message", """
                         Please add the complete "Session-ID" field in the Header of subsequent requests, which will serve as your identity identifier.
                         """);
-                    ctx.json(response);
-                    ctx.contentType("text/plain");
                 } else {
+                    response.put("Session-ID", null);
+                    response.put("status", String.valueOf(false));
+                    response.put("message", """
+                        Please check if your email address and verification code are correct.
+                        """);
                     ctx.status(401);
                 }
+                ctx.contentType("application/json");
+                ctx.json(response);
                 /* result: (0, 1, 2)
                  * 0: boolean
                  * 1: message
@@ -146,15 +153,26 @@ public class Forum {
             "/api/posts/upload",
             ctx -> {
                 PostDTO PostInfo = ctx.bodyAsClass(PostDTO.class);
+                Map<String, Object> result = new HashMap<>();
                 if (!PostInfo.isEmpty()) {
                     Values postResult = this.PostsTool.addPost(PostInfo);
                     if (!(boolean) postResult.get(0)) {
+                        result.put("status", false);
+                        result.put("message", """
+                                Server Error: Failed When Add Post
+                                """);
                         ctx.status(400);
+                    } else {
+                        result.put("status", true);
+                        result.put("message", "Success");
                     }
                     System.out.println(postResult);
                 } else {
+                    result.put("status", false);
+                    result.put("message", "Please check your data and ensure that is not empty");
                     ctx.status(400);
                 }
+                ctx.json(result);
             }
         );
 
@@ -184,6 +202,11 @@ public class Forum {
         this.server.get(
             "/login",
             ctx -> ctx.html(Src.template("login.html"))
+        );
+
+        this.server.get(
+            "/register",
+            ctx -> ctx.html(Src.template("register.html"))
         );
     }
 
@@ -239,14 +262,14 @@ public class Forum {
                     }
 
                 } catch (Exception e) {
-                    ctx.status(400);
+                    ctx.status(500);
                      e.printStackTrace();
                 }
             }
         );
 
         this.server.post(
-            "/api/posts/getuser",
+            "/api/posts/getUserPosts",
             ctx -> {
                 try {
                     PostDTO postInfo = ctx.bodyAsClass(PostDTO.class);
@@ -256,7 +279,7 @@ public class Forum {
                     }
                     ctx.json(result.get(2));
                 } catch (Exception e) {
-                    ctx.status(404);
+                    ctx.status(500);
                 }
             }
         );
