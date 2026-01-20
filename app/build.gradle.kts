@@ -32,6 +32,8 @@ dependencies {
     implementation("org.xerial:sqlite-jdbc:3.51.1.0")
     implementation("org.apache.commons:commons-lang3:3.20.0")
     implementation("com.google.code.gson:gson:2.13.2")
+
+    implementation("info.picocli:picocli:4.7.5")
 }
 
 // Apply a specific Java toolchain to ease working on different environments.

@@ -83,4 +83,15 @@ public class Values implements Iterable<Object> {
         }
         return result;
     }
+
+    public Object getFirst() { return this.get(0); }
+    public Object getMessage() { return this.get(1); }
+    public Object getResult() {
+        if (this.size()<3) { return null; }
+        return this.get(2);
+    }
+    public Object getInnerStatus() {
+        if (this.size()<4) { return null; }
+        return this.get(3);
+    }
 }

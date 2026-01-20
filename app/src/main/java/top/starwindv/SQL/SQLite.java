@@ -159,6 +159,7 @@ public class SQLite {
         try (PreparedStatement pstmt = conn.prepareStatement(SQL)) {
             return Values.from(pstmt.execute());
         } catch (SQLException e) {
+//            e.printStackTrace();
             throw new RuntimeException("Exec Failed: ", e);
         }
     }

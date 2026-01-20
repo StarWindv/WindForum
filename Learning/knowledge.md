@@ -12,3 +12,10 @@
 
 2026年1月18日
  - `List<Map<String, Object>>` 会直接返回一个空的 `[]`, 所以 `.get(Object)` 会直接抛出`java.util.NoSuchElementException`, 导致 `.isEmpty` 返回 `true` ... 纯有病。
+
+2026年1月20日
+ - `gradlew run` 运行程序时, Java 根本无法获取到实际的命令运行方式, 出来的不可能是 `/path/to/gradlew run`, 获取到的只有`{域名反写}.{主类} {整个参数列表}`
+   <p>目前不确定直接运行jar包会发生什么
+ - `java -jar [path/to/jar]` 得到的是 `{path/to/jar} {arg list}`, 这里的路径是你输入的路径
+ - 01点02分 买个小甜水去
+ - 02点17分 这样吧, 先不纠结隐藏什么的了, 先直接展示算了

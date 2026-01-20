@@ -86,7 +86,7 @@ public class Authorizer {
         Values result = this.UsersTool.login(email, codeHash, IP);
         if ((boolean) result.get(0)) {
             Values resp = this.SessionOperator.addSession(email);
-            System.out.println(resp);
+//            System.out.println(resp);
             if ((boolean) resp.get(0)) {
                 String session_id = (String) resp.get(2);
                 return Values.from(true, "", session_id);

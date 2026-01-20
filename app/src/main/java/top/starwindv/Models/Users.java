@@ -11,6 +11,7 @@ import java.util.*;
 import java.sql.*;
 
 
+@SuppressWarnings("ClassCanBeRecord")
 public class Users {
     private final SQLite db;
     
@@ -209,9 +210,10 @@ public class Users {
             List<Map<String, Object>> users = this.db.query(
                 TABLE_NAME, 
                 "*", 
-                "(user_name = ? OR email_str = ?) AND passwd_hash = ?", 
+                "(email_str = ? OR user_name = ?)AND passwd_hash = ?",
                 Values.from(identifier, identifier, passwdHash)
             );
+//            System.err.println(users);
             
             if (users.isEmpty()) {
                 return Values.from(false, "Not match");
@@ -252,23 +254,23 @@ public class Users {
         }
     }
     
-    public Values getUserInfo(Object userId) {
+    public Values getUserInfo(Object identity) {
         try {
             List<Map<String, Object>> users = this.db.query(
                 TABLE_NAME, 
                 "user_id, user_name, email_str, register_ip, reg_time, last_log_ip, last_log_time, permission, status",
-                "user_id = ?", 
-                Values.from(userId)
+                "(user_name = ? OR email_str = ?)",
+                Values.from(identity, identity)
             );
             
             if (users.isEmpty()) {
-                return Values.from(false, "用户不存在");
+                return Values.from(false, "用户不存在", "", true);
             }
             
-            return Values.from(true, "获取成功", users.getFirst());
+            return Values.from(true, "获取成功", users);
             
         } catch (Exception e) {
-            return Values.from(false, "获取用户信息失败: " + e.getMessage());
+            return Values.from(false, "获取用户信息失败: " + e.getMessage(), false);
         }
     }
     

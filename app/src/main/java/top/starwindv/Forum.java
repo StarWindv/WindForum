@@ -22,7 +22,8 @@ class protectAPI {
         "/dashboard",
         "/api/posts/upload",
         "/api/posts/comments",
-        "/editor"
+        "/editor",
+        "/userinfo"
     );
     public static boolean isProtectedPath(String requestFor) {
         for (String pattern : path) {
@@ -41,15 +42,18 @@ public class Forum {
     public final Javalin server;
     public final Authorizer authorizer;
     public final Sources Src;
-    public final Users UsersTool = new Users("Data/WindForum.db");
-    public final Posts PostsTool = new Posts("Data/WindForum.db");
-    public final SessionController SessionOperator = new SessionController("Data/WindForum.db");
+
+    public final String dbName = "Data/WindForum.db";
+    private Users UsersTool = new Users(dbName);
+    private Posts PostsTool = new Posts(dbName);
+    private SessionController SessionOperator = new SessionController(dbName);
     public final Email Poster;
 
     public Forum(String AppName, Javalin instance, Sources Src) {
         this.AppName = AppName;
         this.server = instance;
         this.Src = Src;
+        this.init();
         try {
             this.Poster = new Email(Src.template("email/mail.html"), "WindForum");
         } catch (Exception e) {
@@ -61,7 +65,6 @@ public class Forum {
             this.Poster,
             this.SessionOperator
         );
-        this.init();
     }
 
     private void init() {
@@ -110,16 +113,19 @@ public class Forum {
         );
     }
 
+//    @SuppressWarnings("AccessStaticViaInstance")
     private void loginMethodGroup() {
         this.server.post(
             "/api/login",
             ctx ->  {
                 UserDTO LoginInfo = ctx.bodyAsClass(UserDTO.class);
+//                System.err.println(LoginInfo.viewer.toString(LoginInfo));
                 Values result = this.authorizer.login(
                     LoginInfo.email(),
                     LoginInfo.codeHash(),
                     ctx.attribute("IP")
                 );
+//                System.err.println(result);
                 Map<String, String> response = new HashMap<>();
                 if ((boolean) result.get(0)) {
                     String session_id = (String) result.get(2);
@@ -195,6 +201,11 @@ public class Forum {
         );
 
         this.server.get(
+            "/user/{user_email}",
+            ctx -> ctx.html(Src.template("user_show.html"))
+        );
+
+        this.server.get(
             "/editor",
             ctx -> ctx.html(Src.template("editor.html"))
         );
@@ -255,10 +266,10 @@ public class Forum {
                         ctx.status(400);
                         return;
                     }
-                    if (!(boolean) response.get(0)) {
+                    if (!(boolean) response.getFirst()) {
                         ctx.status(404);
                     } else {
-                        ctx.json(response.get(2));
+                        ctx.json(response.getResult());
                     }
 
                 } catch (Exception e) {
@@ -274,11 +285,37 @@ public class Forum {
                 try {
                     PostDTO postInfo = ctx.bodyAsClass(PostDTO.class);
                     Values result = this.PostsTool.AllPostOfOneUser(postInfo.userEmail());
-                    if (!(boolean) result.get(0)) {
+                    if (!(boolean) result.getFirst()) {
                         ctx.status(404);
                     }
-                    ctx.json(result.get(2));
+//                    System.err.println(result);
+                    ctx.json(result.getResult());
                 } catch (Exception e) {
+                    ctx.status(500);
+                    e.printStackTrace(); // 那服务器报错了我真得看一下了
+                }
+            }
+        );
+
+        this.server.post(
+            "/api/userinfo",
+            ctx -> {
+                UserDTO user_identity = ctx.bodyAsClass(UserDTO.class);
+                String useful_info;
+                if (user_identity.username() != null) {
+                    useful_info = user_identity.username();
+                } else if (user_identity.email()!=null) {
+                    useful_info = user_identity.email();
+                } else {
+                    ctx.status(400);
+                    return;
+                }
+                Values result = this.UsersTool.getUserInfo(useful_info);
+                if ((boolean) result.getFirst()) {
+                    ctx.json(result.getResult());
+                } else if ((boolean) result.getInnerStatus()) {
+                    ctx.status(404);
+                } else if (!(boolean) result.getInnerStatus()) {
                     ctx.status(500);
                 }
             }
@@ -301,6 +338,11 @@ public class Forum {
                 ctx.contentType("text/plain");
                 ctx.result(this.Src.staticFile("text/robots.txt"));
             }
+        );
+
+        this.server.get(
+            "/.well-known/appspecific/com.chrome.devtools.json",
+            ctx -> ctx.json("{}")
         );
     }
 

@@ -10,16 +10,19 @@
 package top.starwindv;
 
 
-import io.javalin.Javalin;
-
 import java.util.*;
 import java.text.SimpleDateFormat;
-
 import java.nio.file.Paths;
+
+import io.javalin.util.JavalinBindException;
+import io.javalin.Javalin;
+
+import picocli.CommandLine;
 
 import top.starwindv.Utils.*;
 import top.starwindv.Tools.*;
 import top.starwindv.DTO.GsonMapper;
+import top.starwindv.Tools.ArgParser;
 
 
 class BaseServer {
@@ -182,6 +185,17 @@ public class Main {
     private final static Services services = new Services();
 
     public static void main(String[] args) {
-        services.start("0.0.0.0", 7000);
+        CommandLine cmd = new CommandLine(ArgParser.instance);
+        int status = cmd.execute(args);
+        if (status!=0) { System.exit(status);}
+        try {
+            services.start(
+                ArgParser.instance.host(),
+                Integer.parseInt(ArgParser.instance.port())
+            );
+        } catch (JavalinBindException e) {
+            System.err.println(" x This Port Has Been Bind");
+            System.err.println(" x EXIT");
+        }
     }
 }

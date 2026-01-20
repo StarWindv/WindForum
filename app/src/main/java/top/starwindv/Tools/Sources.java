@@ -1,6 +1,7 @@
 package top.starwindv.Tools;
 
 
+import io.javalin.http.Context;
 import org.apache.commons.lang3.StringUtils;
 
 import io.javalin.Javalin;
@@ -62,6 +63,33 @@ public class Sources {
         );
     }
 
+    private void requestFile(
+        String encoding,
+        String mimeType,
+        String staticPath,
+        Context ctx
+    ) throws Exception {
+        boolean isTextType = mimeType.startsWith("text/");
+        if (!isTextType) {
+            for (String textMime : TextMimeTypes) {
+                if (textMime.equals(mimeType)) {
+                    isTextType = true;
+                    break;
+                }
+            }
+        }
+        ctx.header("X-Content-Type-Options", "nosniff");
+        System.out.println("Request MimeType: " + mimeType);
+        if (isTextType) {
+            ctx.contentType(mimeType + "; charset=UTF-8")
+                .result(this.staticFile(staticPath, encoding));
+        } else {
+            ctx.header("Content-Encoding", "identity");
+            ctx.contentType(mimeType)
+                .result(this.staticMedia(staticPath));
+        }
+    }
+
     /**
      * Register a static files routes
      * to return static dependence
@@ -72,35 +100,17 @@ public class Sources {
         server.get(
             "/static/*", ctx -> {
                 String staticPath = StringUtils.substringAfter(ctx.path(), "/static/");
-                String encoding = ctx.queryParam("encoding");
-                if (encoding==null) {
-                    encoding="UTF-8";
-                }
+
+                String encoding = "UTF-8";
                 try {
                     String mimeType = Files.probeContentType(Paths.get(staticPath));
                     if (mimeType == null) {
                         mimeType = "text/plain";
                     }
+                    this.requestFile(
+                        encoding, mimeType, staticPath, ctx
+                    );
 
-                    boolean isTextType = mimeType.startsWith("text/");
-                    if (!isTextType) {
-                        for (String textMime : TextMimeTypes) {
-                            if (textMime.equals(mimeType)) {
-                                isTextType = true;
-                                break;
-                            }
-                        }
-                    }
-                    ctx.header("X-Content-Type-Options", "nosniff");
-                    System.out.println("Request MimeType: " + mimeType);
-                    if (isTextType) {
-                        ctx.contentType(mimeType + "; charset=UTF-8")
-                            .result(this.staticFile(staticPath, encoding));
-                    } else {
-                        ctx.header("Content-Encoding", "identity");
-                        ctx.contentType(mimeType)
-                            .result(this.staticMedia(staticPath));
-                    }
                 } catch (NoSuchFileException ignored) {
                     ctx.status(404);
                     System.err.println("No Such File: " + staticPath);
