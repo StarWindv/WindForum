@@ -12,7 +12,7 @@ app/build
 .vscode
 
 # Ignore hljs and marked files
-app/static/js/outerPKG/*
+app/assets/static/js/outerPKG/
 
 # Ignore JetBrains Mono Font
-app/static/font/JetBrainsMono
+app/assets/static/font/JetBrainsMono
