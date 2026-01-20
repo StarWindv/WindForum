@@ -10,3 +10,12 @@ body.mouse input[type="submit"]:hover,
 body.mouse input[type="button"]:hover {
     cursor: url('/static/image/cursor/pointer32x32.png') 0 0, pointer;
 }
+
+body {
+    background: #FFF2DF;
+    scrollbar-width: none;
+    overflow: auto;
+    overflow-x: hidden;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}

@@ -5,58 +5,42 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Wind Forum</title>
-    <style>
-        body.mouse {
-            height: 90vh;
-            weight: 90vw;
-            cursor: url('/static/image/cursor/default32x32.png') 0 0, default;
-        }
-
-        body.mouse a:hover,
-        body.mouse button:hover,
-        body.mouse input[type="submit"]:hover,
-        body.mouse input[type="button"]:hover {
-            cursor: url('/static/image/cursor/pointer32x32.png') 0 0, pointer;
-        }
-    </style>
+    <link rel="stylesheet" type="text/css" href="/static/css/cursor.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/footer.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/login.css">
 </head>
 <body class="mouse">
 <div>
-    <a href="#">
-        <b>NOT YET</b>
-    </a>
-</div>
-<div>
-    <form id="login">
-        <label>
+    <form id="auth" class="Auth">
+        <label class="collector">
+            UserName
+            <input type="text" id="username" name="username" autocomplete="on">
+        </label>
+        <label class="collector">
             Email
-            <input type="text" id="email" name="email" autocomplete="email" required>
+            <input type="text" id="email" name="email" autocomplete="on">
         </label>
-        <label>
+        <label class="collector">
             Password
-            <input type="password" id="password" name="password" autocomplete="password" required>
+            <input type="password" id="password" name="password" autocomplete="on">
         </label>
-        <button type="submit">Login</button>
+        <label class="collector">
+            Email Verify Code
+            <input type="text" id="verifyCode" name="verifyCode" autocomplete="on">
+        </label>
+        <div class="button-group"> <!-- 新增按钮组容器 -->
+            <button type="button" id="login">Login</button>
+            <button type="button" id="send_code">Send Email Code</button>
+            <button type="button" id="register">Register</button>
+        </div>
     </form>
 </div>
+<footer>
+    <p>© 2025 WindForum</p>
+</footer>
 <script src="/static/js/focus.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
 <script src="/static/js/services/authorize.js"></script>
-<script>
-    const form = document.getElementById('login');
-    const Auth = new Authorizer();
-    form.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const email = document.getElementById('email').value;
-        const password = document.getElementById('password').value;
-
-        const result = await Auth.login(email, password);
-        console.log(result);
-        if (result.status) {
-            form.reset();
-            window.location.href("/index");
-        }
-    });
-</script>
+<script src="/static/js/services/login.js" defer></script>
 </body>
 </html>

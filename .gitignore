@@ -10,3 +10,9 @@ app/build
 # IDE Folders
 .idea
 .vscode
+
+# Ignore hljs and marked files
+app/static/js/outerPKG/*
+
+# Ignore JetBrains Mono Font
+app/static/font/JetBrainsMono

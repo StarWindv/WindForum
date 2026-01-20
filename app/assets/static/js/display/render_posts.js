@@ -3,6 +3,27 @@ function formatTimestamp(timestamp) {
     return `${d.getFullYear()}-${(d.getMonth()+1).toString().padStart(2,'0')}-${d.getDate().toString().padStart(2,'0')} ${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`;
 }
 
+function formatCode(Content) {
+  let normalized = Content.replace(/\\n/g, '\n');
+  normalized = normalized.replace(
+    /```(\w+)?\s*(.+?)```/gs,
+    (match, lang, code) => {
+      const cleanCode = code.trim().replace(/```/g, '');
+      return `\n\`\`\`${lang || ''}\n${cleanCode}\n\`\`\`\n`;
+    }
+  );
+
+  return normalized;
+}
+
+marked.setOptions({
+  highlight: function(code, lang) {
+    if (lang && hljs.getLanguage(lang)) {
+      return hljs.highlight(code, { language: lang }).value;
+    }
+    return hljs.highlightAuto(code).value;
+  }
+});
 
 async function renderPosts(postContainer, loader) {
         let postsData;
@@ -26,7 +47,13 @@ async function renderPosts(postContainer, loader) {
                 titleElement.textContent = post.title;
 
                 const contentElement = document.createElement("div");
-                contentElement.textContent = post.content;
+                contentElement.innerHTML = marked.parse(formatCode(post.content));
+
+                /** 高亮 */
+                contentElement.querySelectorAll('pre code').forEach(block => {
+                    hljs.highlightElement(block);
+                });
+                console.log(contentElement.innerHTML);
 
                 const metaInfo = document.createElement("div");
                 metaInfo.className = "post-meta";

@@ -44,9 +44,9 @@ public class Forum {
     public final Sources Src;
 
     public final String dbName = "Data/WindForum.db";
-    private Users UsersTool = new Users(dbName);
-    private Posts PostsTool = new Posts(dbName);
-    private SessionController SessionOperator = new SessionController(dbName);
+    private final Users UsersTool = new Users(dbName);
+    private final Posts PostsTool = new Posts(dbName);
+    private final SessionController SessionOperator = new SessionController(dbName);
     public final Email Poster;
 
     public Forum(String AppName, Javalin instance, Sources Src) {
@@ -206,18 +206,8 @@ public class Forum {
         );
 
         this.server.get(
-            "/editor",
-            ctx -> ctx.html(Src.template("editor.html"))
-        );
-
-        this.server.get(
             "/login",
             ctx -> ctx.html(Src.template("login.html"))
-        );
-
-        this.server.get(
-            "/register",
-            ctx -> ctx.html(Src.template("register.html"))
         );
     }
 
@@ -287,12 +277,14 @@ public class Forum {
                     Values result = this.PostsTool.AllPostOfOneUser(postInfo.userEmail());
                     if (!(boolean) result.getFirst()) {
                         ctx.status(404);
+                        return;
                     }
 //                    System.err.println(result);
+//                    System.err.println(result.getFirst());
                     ctx.json(result.getResult());
                 } catch (Exception e) {
                     ctx.status(500);
-                    e.printStackTrace(); // 那服务器报错了我真得看一下了
+                    e.printStackTrace();
                 }
             }
         );

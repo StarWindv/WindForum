@@ -58,7 +58,7 @@ public class Posts {
                     + TABLE_NAME
                     + " ("
                     + "    post_id INTEGER PRIMARY KEY AUTOINCREMENT,"
-                    + "    email_str VARCHAR NOT NULL,"
+                    + "    email_str VARCHAR(100) NOT NULL,"
                     + "    title VARCHAR NOT NULL,"
                     + "    content TEXT NOT NULL,"
                     + "    status INTEGER NOT NULL DEFAULT "
@@ -66,15 +66,16 @@ public class Posts {
                     + ", "
                     + "CONSTRAINT fk_email FOREIGN KEY (email_str) REFERENCES users(email_str)"
                     + ");");
-                db.exec("CREATE UNIQUE INDEX idx_posts_email ON " + TABLE_NAME + "(email_str)");
+                db.exec("CREATE INDEX idx_posts_email ON " + TABLE_NAME + "(email_str)");
                 db.exec("ALTER TABLE " + TABLE_NAME + " ADD COLUMN create_time DATETIME NOT NULL DEFAULT (CAST((julianday('now', 'utc') - 2440587.5) * 86400000 + 0.5 AS INTEGER));");
-                db.exec("CREATE UNIQUE INDEX idx_posts_create ON " + TABLE_NAME + "(create_time)");
+                db.exec("CREATE INDEX idx_posts_create ON " + TABLE_NAME + "(create_time)");
                 db.exec(
                     "ALTER TABLE "
                         + TABLE_NAME
                         + " ADD COLUMN last_update_time DATETIME NOT NULL DEFAULT"
                         + " (CAST((julianday('now', 'utc') - 2440587.5) * 86400000 + 0.5 AS INTEGER));"
                 );
+                db.exec("CREATE INDEX idx_posts_update ON " + TABLE_NAME + "(last_update_time)");
             }
         } catch (Exception e) {
             throw new RuntimeException("Failed to initialize users table: " + e.getMessage(), e);

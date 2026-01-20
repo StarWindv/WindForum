@@ -79,7 +79,7 @@ public class Sources {
             }
         }
         ctx.header("X-Content-Type-Options", "nosniff");
-        System.out.println("Request MimeType: " + mimeType);
+//        System.out.println("Request MimeType: " + mimeType);
         if (isTextType) {
             ctx.contentType(mimeType + "; charset=UTF-8")
                 .result(this.staticFile(staticPath, encoding));

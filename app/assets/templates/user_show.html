@@ -3,6 +3,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WindForum</title>
     <link rel="stylesheet" type="text/css" href="/static/css/posts.css">
     <link rel="stylesheet" type="text/css" href="/static/css/cursor.css">
@@ -11,6 +12,9 @@
 <body>
 <div id="user_info"></div>
 <div id="postContainer"></div>
+<footer>
+    <p>© 2025 WindForum</p>
+</footer>
 <script src="/static/js/focus.js"></script>
 <script src="/static/js/services/posts.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js" defer></script>
@@ -18,18 +22,20 @@
 <script src="/static/js/display/render_posts.js"></script>
 <script src="/static/js/services/error.js"></script>
 <script>
-    document.title = window.location.pathname.split("/")[2] + " | " + document.title;
+    const custom_email = window.location.pathname.split("/")[2]
+    document.title =  custom_email + " | " + document.title;
+    console.log(custom_email);
 
     const poster = new PostManager();
     /** Render Posts List */
     async function loadPosts() {
-        return await poster.getUserPosts(poster.authorizer.getEmail());
+        return await poster.getUserPosts(custom_email);
     }
     renderPosts(document.getElementById("postContainer"), loadPosts);
 
     /** Render User Info */
     async function loadUserInfo() {
-        return await poster.
+        return await poster.getUserPosts(custom_email)
     }
 </script>
 </body>

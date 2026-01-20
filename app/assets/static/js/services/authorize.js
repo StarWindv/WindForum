@@ -98,10 +98,10 @@ class Authorizer {
      * @returns {Promise<boolean>} 验证是否成功
      * @throws {Error} 验证失败时抛出错误
      */
-    async verify(username, email, verifyCode) {
+    async verify(username, email, passwd, verifyCode) {
         try {
         // 创建UserDTO对象，自动计算用户输入验证码的SHA256哈希
-        const userDTO = UserDTO.create(email, username, verifyCode);
+        const userDTO = UserDTO.create(email, username, passwd);
 
         const response = await fetch(Verify, {
             method: 'POST',
@@ -109,10 +109,10 @@ class Authorizer {
             'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-            username: userDTO.username,
-            email: userDTO.email,
-            codeHash: userDTO.codeHash,
-            verifyCode: verifyCode // 原样传递用户输入的原始验证码
+                username: userDTO.username,
+                email: userDTO.email,
+                codeHash: userDTO.codeHash,
+                verifyCode: verifyCode // 原样传递用户输入的原始验证码
             })
         });
 
@@ -122,7 +122,6 @@ class Authorizer {
         }
 
         if (response.status === 200) {
-            // 验证成功，存储用户名和邮箱
             this.setUsername(username);
             this.setEmail(email);
             return true;
