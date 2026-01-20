@@ -152,6 +152,23 @@ public class Forum {
                  * */
             }
         );
+
+        this.server.post(
+            "/api/SessionStatus",
+            ctx -> {
+                String session_id = ctx.header("Session-ID");
+                if (session_id == null || session_id.isEmpty()) {
+                    ctx.status(400);
+                }
+                Values result = this.SessionOperator.loggedInBySessionID(session_id);
+                // System.err.println(result);
+                if ((boolean) result.getFirst()) { 
+                    ctx.status(200);
+                    return;
+                } ctx.status(418);
+
+            }
+        );
     }
 
     private void userUploadMethodGroup() {

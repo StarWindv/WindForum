@@ -1,5 +1,15 @@
-const form = document.getElementById('auth');
 const Auth = new Authorizer();
+
+
+async function checkSessionStatus() {
+    if (await Auth.checkSessionStatus()===200) {
+        window.location.href = "/index";
+    }
+}
+checkSessionStatus();
+
+const form = document.getElementById('auth');
+
 const els = {
     username: document.getElementById('username'),
     email: document.getElementById('email'),

@@ -23,9 +23,8 @@
 
 const RegisterRoute="/api/register";
 const Verify="/api/verify";
-
-
 const Login ="/api/login";
+const SessionStatus ="/api/SessionStatus";
 
 
 class UserDTO {
@@ -49,9 +48,9 @@ class Authorizer {
     constructor() {
         // 本地存储的键名常量
         this.STORAGE_KEYS = {
-            SESSION_ID: null,
-            EMAIL: null,
-            USERNAME: null
+            SESSION_ID: "session-id",
+            EMAIL: "email",
+            USERNAME: "username"
         };
     }
 
@@ -186,6 +185,21 @@ class Authorizer {
             console.error('登录请求出错:', error);
             throw error;
         }
+    }
+
+    async checkSessionStatus() {
+        const data = JSON.stringify({
+                "Session-ID":this.getSessionId()
+        })
+        console.log(data);
+        const response = await fetch(SessionStatus, {
+            method: 'POST',
+            headers: {
+            'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data)
+        });
+        return response.status;
     }
 
     setSessionId(sessionId) {

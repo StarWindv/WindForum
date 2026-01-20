@@ -65,7 +65,7 @@ public class SessionController {
 
     public Values loggedInBySessionID(String session_id) {
         try {
-            return (Boolean) this.isOutdate(session_id).get(0)
+            return (Boolean) this.isOutdate(session_id).getFirst()
                 ? Values.from(false, "User is not login")
                 : Values.from(true, "User has been login");
         } catch (Exception e) {
