@@ -65,7 +65,8 @@ public class SessionController {
 
     public Values loggedInBySessionID(String session_id) {
         try {
-            return (Boolean) this.isOutdate(session_id).getFirst()
+            System.err.println("loggedInBySessionID: " + this.isOutdate(session_id));
+            return !(Boolean) this.isOutdate(session_id).getFirst()
                 ? Values.from(false, "User is not login")
                 : Values.from(true, "User has been login");
         } catch (Exception e) {
@@ -94,8 +95,8 @@ public class SessionController {
         try {
             int affectRows = this.db.instance.delete(
                 this.db.tableName,
-                "session_id = ?",
-                Values.from(session_id)
+                "(session_id = ? or user_email=?)",
+                Values.from(session_id, session_id)
             );
             if (affectRows > 0) {
                 return Values.from(true, "Expire Success");

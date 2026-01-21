@@ -161,11 +161,11 @@ public class Forum {
                     ctx.status(400);
                 }
                 Values result = this.SessionOperator.loggedInBySessionID(session_id);
-                // System.err.println(result);
+                 System.err.println("Session Route: " + result);
                 if ((boolean) result.getFirst()) { 
                     ctx.status(200);
                     return;
-                } ctx.status(418);
+                } ctx.status(401);
 
             }
         );
@@ -365,10 +365,13 @@ public class Forum {
                 if (protectAPI.isProtectedPath(requestFor)) {
                     String session_id = ctx.header("Session-ID");
                     boolean interception = session_id == null || session_id.isEmpty();
-                    if ((boolean) this.SessionOperator.loggedInBySessionID(session_id).get(0)) { interception=false; }
+                    Values checkResult = this.SessionOperator.loggedInBySessionID(session_id);
+//                    System.err.println(checkResult);
+                    if ((boolean) checkResult.getFirst()) { interception=false; }
                     System.out.println("Need Interception: " + interception);
                     if (interception) {
                         ctx.status(401);
+                        ctx.redirect("/login");
                     }
                 } else { /*放行*/ }
             }
