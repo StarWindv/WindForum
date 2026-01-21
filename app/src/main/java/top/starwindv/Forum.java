@@ -264,6 +264,8 @@ public class Forum {
                             needInfo.from(),
                             needInfo.to()
                         );
+//                        System.err.println(posts);
+                        if (!(boolean) posts.getFirst()) { ctx.status(500); return;}
                         response = Values.from(true, "", posts);
                     } else if (hasLimit) {
                         response = PostsTool.getAllPosts(needInfo.isArc(), needInfo.limit());

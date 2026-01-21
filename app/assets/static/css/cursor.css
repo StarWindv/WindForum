@@ -1,9 +1,12 @@
+/*noinspection CssUnknownTarget*/
+
 body.mouse {
     height: 90vh;
-    weight: 90vw;
+    width: 90vw;
     cursor: url('/static/image/cursor/default32x32.png') 0 0, default;
 }
 
+/*noinspection CssUnknownTarget*/
 body.mouse a:hover,
 body.mouse button:hover,
 body.mouse input[type="submit"]:hover,
@@ -17,5 +20,4 @@ body {
     overflow: auto;
     overflow-x: hidden;
     -ms-overflow-style: none;
-    scrollbar-width: none;
 }

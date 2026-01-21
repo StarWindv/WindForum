@@ -161,7 +161,8 @@ public class Posts {
                 orderBy,
                 isAsc,
                 from,
-                to
+                to,
+                "where status="+Status.Active
             );
             if (posts.isEmpty())
                 return Values.from(false, "Post not found");

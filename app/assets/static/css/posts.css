@@ -1,7 +1,6 @@
 .postsList {
     list-style: none;
     padding: 0;
-    margin: 0;
     max-width: 800px;
     margin: 0 auto;
     height: 95vh;
@@ -62,9 +61,8 @@
     margin: 0;
 }
 
-.no-posts { /** 无帖子时 */
+.no-posts {
     text-align: center;
-    /*padding: 48px 24px;*/
     height: 95vh;
     color: #999;
     font-size: 1.1rem;

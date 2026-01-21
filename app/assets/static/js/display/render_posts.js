@@ -38,6 +38,7 @@ async function renderPosts(postContainer, loader) {
         postsList.className = "postsList";
 
         if (postsData && postsData.length > 0) {
+            // console.log(postsData, typeof postsData);
             postsData.forEach(post => {
 
                 const postItem = document.createElement("li");
@@ -53,7 +54,7 @@ async function renderPosts(postContainer, loader) {
                 contentElement.querySelectorAll('pre code').forEach(block => {
                     hljs.highlightElement(block);
                 });
-                console.log(contentElement.innerHTML);
+                // console.log(contentElement.innerHTML);
 
                 const metaInfo = document.createElement("div");
                 metaInfo.className = "post-meta";

@@ -6,6 +6,7 @@ async function checkSessionStatus() {
         window.location.href = "/index";
     }
 }
+// noinspection JSIgnoredPromiseFromCall
 checkSessionStatus();
 
 const form = document.getElementById('auth');
@@ -45,8 +46,7 @@ async function login() {
 }
 
 async function sendVerifyCode(username, email) {
-    const result = await Auth.register(username, email);
-    return result;
+    return await Auth.register(username, email);
 }
 
 async function verifyCodeAndRegister() {

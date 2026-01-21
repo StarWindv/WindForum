@@ -1,54 +1,62 @@
+<!-- Here is a test file for me to test some ideas -->
+
 <!DOCTYPE html>
-<html>
+<!--suppress CssUnusedSymbol -->
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <!-- 必须引入高亮样式，否则看不到颜色 -->
-    <link rel="stylesheet" href="/static/js/outerPKG/highlight/styles/github-dark.min.css">
+    <title>自定义通知气泡</title>
+    <style>
+        .custom-toast {
+            position: fixed;
+
+            left: 50vw;
+
+            top: 30vh;
+            background: #6D4E3FCC;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 4px;
+
+            border: 0.1px solid rgba(77, 56, 43, 0.8);
+
+            z-index: 9999;
+            text-align: center;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+
+        .custom-toast.show {
+            opacity: 1;
+        }
+    </style>
 </head>
 <body>
-<div id="output"></div>
-
-<!-- 1. 引入marked -->
-<script src="https://cdn.jsdelivr.net/npm/marked/lib/marked.umd.js"></script>
-<!-- 2. 引入highlight.js -->
-<script src="/static/js/outerPKG/highlight/highlight.min.js"></script>
+<button onclick="showToast('验证码发送成功<br>请检查您的收件箱或垃圾邮件', 'custom-toast')">点击显示通知</button>
 
 <script>
-    // 你的原始Markdown代码块
-    const mdCode = `
-\`\`\`python
-print("Hello, World!")
-for i in range(3):
-    print(i)
-\`\`\`
-    `;
+    function showToast(message, className, duration = 2000) {
+        let toast = document.querySelector(className);
+        if (!toast) {
+            toast = document.createElement('div');
+            toast.className = className;
+            document.body.appendChild(toast);
+        }
 
-    // 关键：配置marked的高亮回调
-    marked.setOptions({
-      // 这个函数是marked解析代码块时自动调用的
-      // code：代码块里的纯内容（已去掉```python标记）
-      // lang：你定义的语言（python）
-      highlight: function(code, lang) {
-        console.log("=== 调试信息 ===");
-        console.log("解析出的语言：", lang); // 输出：python
-        console.log("解析出的纯代码：", code); // 输出：print("Hello, World!")\nfor i in range(3):\n    print(i)
+        toast.innerHTML = message;
 
-        // highlight.js处理代码，生成带高亮样式的HTML
-        const highlightedCode = hljs.highlight(code, { language: lang }).value;
-        console.log("高亮后的HTML：", highlightedCode); // 输出带<span>样式的HTML
+        setTimeout(() => {
+            toast.classList.add('show');
+        }, 0);
 
-        return highlightedCode;
-      }
-    });
-
-    // 渲染Markdown
-    const html = marked.parse(mdCode);
-    console.log("最终生成的完整HTML：", html); // 看最终结果
-    document.getElementById('output').innerHTML = html;
-    const codeBlocks = document.getElementById('output').querySelectorAll('pre code');
-    codeBlocks.forEach(block => {
-      hljs.highlightElement(block); // 单个处理，比highlightAll快10倍+
-    });
+        setTimeout(() => {
+            setTimeout(() => {
+                if (toast.parentNode) {
+                    toast.parentNode.removeChild(toast);
+                }
+            }, 200);
+        }, duration);
+    }
 </script>
 </body>
 </html>

@@ -86,8 +86,8 @@ public class SQLite {
         if (columnCount != values.size()) {
             throw new IllegalArgumentException(
                     String.format(
-                        "Column Counts: %d, But Got: %d", 
-                            columnCount, 
+                        "Column Counts: %d, But Got: %d",
+                            columnCount,
                             values.size()
                     )
             );
@@ -105,16 +105,16 @@ public class SQLite {
     }
 
     public int update(
-        String tableName, 
-        String setClause, 
-        String whereClause, 
-        Values setValues, 
+        String tableName,
+        String setClause,
+        String whereClause,
+        Values setValues,
         Values whereValues
     ) {
         validateTableAndColumns(tableName, setClause);
         if (
-            whereClause == null 
-                || 
+            whereClause == null
+                ||
                 whereClause.trim().isEmpty()
         ) {
             throw new IllegalArgumentException("Update Method Required Conditions.");
@@ -124,9 +124,9 @@ public class SQLite {
         }
 
         String updateSql = String.format(
-            "UPDATE %s SET %s WHERE %s", 
-                tableName.trim(), 
-                setClause, 
+            "UPDATE %s SET %s WHERE %s",
+                tableName.trim(),
+                setClause,
                 whereClause
         );
 
@@ -165,9 +165,9 @@ public class SQLite {
     }
 
     public List<Map<String, Object>> query(
-        String tableName, 
-        String selectColumns, 
-        String whereClause, 
+        String tableName,
+        String selectColumns,
+        String whereClause,
         Values whereValues
     ) {
         validateTableAndColumns(tableName, selectColumns);
@@ -175,18 +175,18 @@ public class SQLite {
 
         StringBuilder querySql = new StringBuilder("SELECT ");
         querySql.append(
-            selectColumns == null 
-                || 
+            selectColumns == null
+                ||
             selectColumns.trim()
-                .isEmpty() 
+                .isEmpty()
                 ? "*" : selectColumns.trim()
             );
 
         querySql.append(" FROM ").append(tableName.trim());
         if (
-            whereClause != null 
-                && 
-                !whereClause.trim().isEmpty()) 
+            whereClause != null
+                &&
+                !whereClause.trim().isEmpty())
         {
             querySql.append(" WHERE ").append(whereClause.trim());
         }
@@ -379,7 +379,8 @@ public class SQLite {
         String orderByColumn,
         boolean isAsc,
         int from,
-        int to
+        int to,
+        String whereCondition
     ) {
         validateTableAndColumns(tableName, selectColumns);
 
@@ -401,11 +402,13 @@ public class SQLite {
 
         String querySql = "SELECT " +
             (selectColumns == null || selectColumns.trim().isEmpty()
-                ? "*" : selectColumns.trim()) +
-            " FROM " + tableName.trim() +
-            " ORDER BY " + orderByColumn.trim() +
-            (isAsc ? " ASC" : " DESC") +
-            " LIMIT ?, ?";
+                ? "*" : selectColumns.trim())
+            + " FROM " + tableName.trim()
+            + " " + whereCondition
+            + " ORDER BY "
+            + orderByColumn.trim()
+            + (isAsc ? " ASC" : " DESC")
+            + " LIMIT ?, ? ";
 
         try (PreparedStatement pstmt = conn.prepareStatement(querySql)) {
             pstmt.setInt(1, offset);
@@ -427,6 +430,7 @@ public class SQLite {
             }
             return result;
         } catch (SQLException e) {
+//            e.printStackTrace();
             throw new RuntimeException("Query range data failed: ", e);
         }
     }
