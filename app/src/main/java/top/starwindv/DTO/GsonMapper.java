@@ -5,6 +5,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import io.javalin.json.JsonMapper;
 import org.jetbrains.annotations.NotNull;
+import top.starwindv.Utils.Values;
 
 import java.lang.reflect.Type;
 
@@ -24,7 +25,9 @@ public record GsonMapper(Gson gson) implements JsonMapper {
     @NotNull
     @Override
     public String toJsonString(@NotNull Object obj, @NotNull Type type) {
-        return gson.toJson(obj, type);
+        if (obj.getClass().equals(Values.class)) {
+            return ((Values) obj).serialize();
+        } return gson.toJson(obj, type);
     }
 
     @NotNull

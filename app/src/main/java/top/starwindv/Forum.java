@@ -69,7 +69,6 @@ public class Forum {
 
     private void init() {
         this.sessionRoute();
-        this.registerMethodGroup();
         this.staticFile();
         this.loginMethodGroup();
         this.userUploadMethodGroup();
@@ -77,9 +76,10 @@ public class Forum {
         this.viewPage();
     }
 
-    private void registerMethodGroup() {
+//    @SuppressWarnings("AccessStaticViaInstance")
+    private void loginMethodGroup() {
         this.server.post(
-            "/api/register", 
+            "/api/register",
             ctx -> {
                 UserDTO RegisterInfo = ctx.bodyAsClass(UserDTO.class);
                 System.out.println(UserDTO.viewer.Stringify(RegisterInfo));
@@ -111,10 +111,7 @@ public class Forum {
                 }
             }
         );
-    }
 
-//    @SuppressWarnings("AccessStaticViaInstance")
-    private void loginMethodGroup() {
         this.server.post(
             "/api/login",
             ctx ->  {
@@ -162,7 +159,7 @@ public class Forum {
                 }
                 Values result = this.SessionOperator.loggedInBySessionID(session_id);
                  System.err.println("Session Route: " + result);
-                if ((boolean) result.getFirst()) { 
+                if (result.getStatus()) {
                     ctx.status(200);
                     return;
                 } ctx.status(401);
@@ -265,7 +262,7 @@ public class Forum {
                             needInfo.to()
                         );
 //                        System.err.println(posts);
-                        if (!(boolean) posts.getFirst()) { ctx.status(500); return;}
+                        if (!(boolean) posts.getStatus()) { ctx.status(500); return;}
                         response = Values.from(true, "", posts);
                     } else if (hasLimit) {
                         response = PostsTool.getAllPosts(needInfo.isArc(), needInfo.limit());
@@ -275,7 +272,7 @@ public class Forum {
                         ctx.status(400);
                         return;
                     }
-                    if (!(boolean) response.getFirst()) {
+                    if (!(boolean) response.getStatus()) {
                         ctx.status(404);
                     } else {
                         ctx.json(response.getResult());
@@ -294,12 +291,12 @@ public class Forum {
                 try {
                     PostDTO postInfo = ctx.bodyAsClass(PostDTO.class);
                     Values result = this.PostsTool.AllPostOfOneUser(postInfo.userEmail());
-                    if (!(boolean) result.getFirst()) {
+                    if (!(boolean) result.getStatus()) {
                         ctx.status(404);
                         return;
                     }
 //                    System.err.println(result);
-//                    System.err.println(result.getFirst());
+//                    System.err.println(result.getStatus());
                     ctx.json(result.getResult());
                 } catch (Exception e) {
                     ctx.status(500);
@@ -322,7 +319,7 @@ public class Forum {
                     return;
                 }
                 Values result = this.UsersTool.getUserInfo(useful_info);
-                if ((boolean) result.getFirst()) {
+                if (result.getStatus()) {
                     ctx.json(result.getResult());
                 } else if ((boolean) result.getInnerStatus()) {
                     ctx.status(404);
@@ -330,6 +327,11 @@ public class Forum {
                     ctx.status(500);
                 }
             }
+        );
+
+        this.server.get(
+            "/api/test",
+            ctx -> ctx.json(Values.from(true))
         );
 
     } // obtainArticleMethodGroup
@@ -370,7 +372,7 @@ public class Forum {
                     }
                     Values checkResult = this.SessionOperator.loggedInBySessionID(session_id);
                     System.err.println("loggedInBySessionID: " + checkResult);
-                    if (!(boolean) checkResult.getFirst()) {
+                    if (!(boolean) checkResult.getStatus()) {
                         ctx.status(401);
                         ctx.redirect("/login");
                     }

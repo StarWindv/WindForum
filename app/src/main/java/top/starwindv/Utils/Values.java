@@ -7,6 +7,7 @@ import java.util.Arrays;
 import java.util.Iterator;
 
 
+@SuppressWarnings("unused")
 public class Values implements Iterable<Object> {
     private final Object[] elements;
     private int hashCode;
@@ -19,7 +20,7 @@ public class Values implements Iterable<Object> {
         return new Values(elements);
     }
 
-    public Object get(int index) {
+    public final Object get(int index) {
         if (index < 0 || index >= elements.length) {
             throw new IndexOutOfBoundsException(
                 String.format(
@@ -32,7 +33,7 @@ public class Values implements Iterable<Object> {
         return elements[index];
     }
 
-    public int size() {
+    public final int size() {
         return elements.length;
     }
 
@@ -84,14 +85,40 @@ public class Values implements Iterable<Object> {
         return result;
     }
 
-    public Object getFirst() { return this.get(0); }
-    public Object getMessage() { return this.get(1); }
-    public Object getResult() {
-        if (this.size()<3) { return null; }
+    public String serialize() {
+        return String.format(
+            "{\"status\" : %s, \"message\": %s, \"values\": %s, \"inner_status\": %s}\n",
+            this.getFirst(),
+            this.getMessage(),
+            this.getResult(),
+            this.getInnerStatus()
+        );
+    }
+
+    public final Object getFirst() {
+        return this.get(0);
+    }
+
+    public final boolean getStatus() {
+        boolean result = false;
+        if (this.size() >= 1) {
+            result = this.get(0, boolean.class);
+        }
+        return result;
+    }
+
+    public final String getMessage() {
+        if (this.size()<2) { return "[WindForumValues] No Message"; }
+        return this.get(1, String.class);
+    }
+
+    public final Object getResult() {
+        if (this.size()<3) { return "[WindForumValues] No Result"; }
         return this.get(2);
     }
-    public Object getInnerStatus() {
-        if (this.size()<4) { return null; }
+
+    public final Object getInnerStatus() {
+        if (this.size()<4) { return "[WindForumValues] No Status"; }
         return this.get(3);
     }
 }
