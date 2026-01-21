@@ -1,14 +1,6 @@
 const Auth = new Authorizer();
 
 
-async function checkSessionStatus() {
-    if (await Auth.checkSessionStatus()===200) {
-        window.location.href = "/index";
-    }
-}
-// noinspection JSIgnoredPromiseFromCall
-checkSessionStatus();
-
 const form = document.getElementById('auth');
 
 const els = {
@@ -40,7 +32,7 @@ async function login() {
     const result = await Auth.login(email, password);
     if (result.status) {
         form.reset();
-        window.location.href = "/index"; // 登录成功跳转
+        // window.location.href = "/index"; // 登录成功跳转
     }
     return result;
 }

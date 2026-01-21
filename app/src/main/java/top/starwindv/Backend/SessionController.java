@@ -65,11 +65,17 @@ public class SessionController {
 
     public Values loggedInBySessionID(String session_id) {
         try {
-            System.err.println("loggedInBySessionID: " + this.isOutdate(session_id));
-            return !(Boolean) this.isOutdate(session_id).getFirst()
-                ? Values.from(false, "User is not login")
-                : Values.from(true, "User has been login");
+            Values result = this.isOutdate(session_id);
+            System.err.println("isOutdate: " + result);
+            if (!(boolean) result.getFirst()) {
+                // 没过期
+                return Values.from(true, "User has been login");
+            }
+            // 过期了
+            // 因为刚才已经自动销毁旧session了, 所以就是没登录
+            return Values.from(false, "User is not login");
         } catch (Exception e) {
+            e.printStackTrace();
             return Values.from(false, "Query Failed: " + e.getMessage());
         }
     }
@@ -81,6 +87,7 @@ public class SessionController {
             "(session_id = ? or user_email=?)",
             Values.from(user_identify, user_identify)
         );
+        System.err.println("Received ID: " + user_identify);
         if (queryResult.isEmpty()) { // 空的也就是没登录, 自然不会过期
             return Values.from(false, "User is not logged");
         }

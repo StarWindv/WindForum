@@ -37,6 +37,7 @@
 <script src="/static/js/services/posts.js"></script>
 <script src="/static/js/services/authorize.js"></script>
 <script src="/static/js/display/render_posts.js"></script>
+<script src="/static/js/display/domBuilder.js"></script>
 <script src="/static/js/services/error.js"></script>
 <script defer>
     async function loadPosts() {
@@ -49,10 +50,6 @@
         );
     }
     renderPosts(document.getElementById("postContainer"), loadPosts);
-    document.querySelectorAll('div.code').forEach(el => {
-      // then highlight each
-      hljs.highlightElement(el);
-    });
 </script>
 </body>
 </html>

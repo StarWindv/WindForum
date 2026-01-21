@@ -19,11 +19,11 @@ import java.util.Set;
 
 class protectAPI {
     public final static Set<String> path = Set.of(
-        "/dashboard",
+//        "/dashboard",
         "/api/posts/upload",
         "/api/posts/comments",
         "/editor",
-        "/userinfo"
+        "/api/userinfo"
     );
     public static boolean isProtectedPath(String requestFor) {
         for (String pattern : path) {
@@ -364,15 +364,17 @@ public class Forum {
                 String requestFor = ctx.path();
                 if (protectAPI.isProtectedPath(requestFor)) {
                     String session_id = ctx.header("Session-ID");
-                    boolean interception = session_id == null || session_id.isEmpty();
-                    Values checkResult = this.SessionOperator.loggedInBySessionID(session_id);
-//                    System.err.println(checkResult);
-                    if ((boolean) checkResult.getFirst()) { interception=false; }
-                    System.out.println("Need Interception: " + interception);
-                    if (interception) {
+                    if (session_id == null || session_id.isEmpty()) {
                         ctx.status(401);
                         ctx.redirect("/login");
                     }
+                    Values checkResult = this.SessionOperator.loggedInBySessionID(session_id);
+                    System.err.println("loggedInBySessionID: " + checkResult);
+                    if (!(boolean) checkResult.getFirst()) {
+                        ctx.status(401);
+                        ctx.redirect("/login");
+                    }
+
                 } else { /*放行*/ }
             }
         );
