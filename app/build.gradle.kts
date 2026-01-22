@@ -50,6 +50,6 @@ tasks.named<Test>("test") {
 
 application {
     // Define the main class for the application.
-    mainClass.set("top.starwindv.Main")
+    mainClass.set("top.starwindv.forum.Main")
 }
 
