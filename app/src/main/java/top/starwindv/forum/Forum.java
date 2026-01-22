@@ -261,9 +261,11 @@ public class Forum {
                             needInfo.from(),
                             needInfo.to()
                         );
-//                        System.err.println(posts);
-                        if (!(boolean) posts.getStatus()) { ctx.status(500); return;}
-                        response = Values.from(true, "", posts);
+                        if (!(boolean) posts.getStatus()) {
+                            ctx.status(500);
+                            return;
+                        }
+                        response = Values.from(true, "", posts.getResult());
                     } else if (hasLimit) {
                         response = PostsTool.getAllPosts(needInfo.isArc(), needInfo.limit());
                     } else if (hasPostId) {
@@ -275,7 +277,8 @@ public class Forum {
                     if (!(boolean) response.getStatus()) {
                         ctx.status(404);
                     } else {
-                        ctx.json(response.getResult());
+//                        System.err.println(response);
+                        ctx.json(response);
                     }
 
                 } catch (Exception e) {

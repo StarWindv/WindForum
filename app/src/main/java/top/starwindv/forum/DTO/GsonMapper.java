@@ -25,9 +25,11 @@ public record GsonMapper(Gson gson) implements JsonMapper {
     @NotNull
     @Override
     public String toJsonString(@NotNull Object obj, @NotNull Type type) {
-        if (obj.getClass().equals(Values.class)) {
-            return ((Values) obj).serialize();
-        } return gson.toJson(obj, type);
+        if (type.equals(Values.class)) {
+//            System.err.println(type);
+            return ((Values)obj).serialize();
+        }
+        return gson.toJson(obj, type);
     }
 
     @NotNull

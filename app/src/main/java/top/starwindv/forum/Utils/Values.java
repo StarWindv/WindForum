@@ -1,6 +1,7 @@
 package top.starwindv.forum.Utils;
 
 
+import com.google.gson.Gson;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
@@ -87,10 +88,10 @@ public class Values implements Iterable<Object> {
 
     public String serialize() {
         return String.format(
-            "{\"status\" : %s, \"message\": %s, \"values\": %s, \"inner_status\": %s}\n",
-            this.getFirst(),
+            "{\"status\" : \"%s\", \"message\": \"%s\", \"values\": %s, \"inner_status\": \"%s\"}\n",
+            this.get(0),
             this.getMessage(),
-            this.getResult(),
+            new Gson().toJson(this.getResult()),
             this.getInnerStatus()
         );
     }
@@ -102,14 +103,14 @@ public class Values implements Iterable<Object> {
     public final boolean getStatus() {
         boolean result = false;
         if (this.size() >= 1) {
-            result = this.get(0, boolean.class);
+            result = (boolean) this.get(0);
         }
         return result;
     }
 
     public final String getMessage() {
         if (this.size()<2) { return "[WindForumValues] No Message"; }
-        return this.get(1, String.class);
+        return (String) this.get(1);
     }
 
     public final Object getResult() {

@@ -147,7 +147,7 @@ public class Posts {
             if (posts.isEmpty())
                 return Values.from(false, "Post not found");
 
-            return Values.from(true, posts);
+            return Values.from(true, "", posts);
         } catch (Exception e) {
             return Values.from(false, "Failed to get post: " + e.getMessage());
         }
@@ -167,7 +167,7 @@ public class Posts {
             if (posts.isEmpty())
                 return Values.from(false, "Post not found");
 
-            return Values.from(true, posts);
+            return Values.from(true, "", posts);
         } catch (Exception e) {
             return Values.from(false, "Failed to get post: " + e.getMessage());
         }

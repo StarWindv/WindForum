@@ -247,8 +247,8 @@ class PostManager {
       }
 
       if (response.status === 200) {
-        const posts = await response.json();
-        return posts.elements[1];
+          const posts = await response.json();
+          return posts.values;
       }
 
       throw new Error(`查询帖子请求异常, 状态码: ${response.status}`);
