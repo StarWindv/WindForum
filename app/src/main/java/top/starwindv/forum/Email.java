@@ -18,6 +18,7 @@ class SimpleConfig {
 }
 
 
+@SuppressWarnings("unused")
 public class Email {
     private final static String apiKey = System.getenv("RESEND_API_KEY");
     private final static Resend Postman = new Resend(apiKey);
@@ -76,22 +77,6 @@ public class Email {
             e.printStackTrace();
             return "Error";
         }
-    }
-
-    public static void main(String[] args) throws Exception {
-        /*
-           Simple Test Email Module
-         */
-        // System.out.println("Arguments: " + String.join(" ", args));
-        
-        Sources Src = new Sources("E:/Hard_Link/bing_ima/project/jvm-Project/Forum/assets");
-        
-        Email email = new Email(Src.template("email/mail.html"), "WindForum");
-        /*
-          Load a Template that Meets the Conditions
-         */
-        
-        System.out.println(email.verifyCode("TestCode", "starwindv@qq.com"));
     }
 
     public void setTemplate(String template) {

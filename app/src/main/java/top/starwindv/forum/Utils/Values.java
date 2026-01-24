@@ -1,17 +1,25 @@
 package top.starwindv.forum.Utils;
 
 
-import com.google.gson.Gson;
-import org.jetbrains.annotations.NotNull;
-
 import java.util.Arrays;
 import java.util.Iterator;
+
+import io.javalin.json.JsonMapper;
+
+import org.jetbrains.annotations.NotNull;
+
+import top.starwindv.forum.DTO.GsonMapper;
 
 
 @SuppressWarnings("unused")
 public class Values implements Iterable<Object> {
     private final Object[] elements;
     private int hashCode;
+    private JsonMapper jsonMapper = new GsonMapper();
+
+    public void jsonMapper(JsonMapper customMapper) {
+        this.jsonMapper = customMapper;
+    }
 
     private Values(Object... elements) {
         this.elements = elements == null ? new Object[0] : Arrays.copyOf(elements, elements.length);
@@ -87,11 +95,12 @@ public class Values implements Iterable<Object> {
     }
 
     public String serialize() {
+        Object value = this.getResult();
         return String.format(
             "{\"status\" : \"%s\", \"message\": \"%s\", \"values\": %s, \"inner_status\": \"%s\"}\n",
             this.get(0),
             this.getMessage(),
-            new Gson().toJson(this.getResult()),
+            this.jsonMapper.toJsonString(value, value.getClass()),
             this.getInnerStatus()
         );
     }

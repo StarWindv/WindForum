@@ -5,14 +5,13 @@ import top.starwindv.logger.config.WindConfig;
 
 import java.util.function.Consumer;
 
+
+@SuppressWarnings("unused")
 public class WindLogger extends API {
-    protected WindConfig windConfig;
+    protected WindConfig windConfig=new WindConfig();
 
-    public WindLogger() {}
-
-    @Override
-    protected void applyConfig(Consumer<WindConfig> userConfig) {
-        this.windConfig = new WindConfig();
+    public WindLogger(Consumer<WindConfig> userConfig) {
+        this.windConfig.applyConfig(userConfig);
     }
 
     @Override
