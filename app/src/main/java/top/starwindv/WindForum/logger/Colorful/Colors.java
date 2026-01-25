@@ -1,10 +1,11 @@
-package top.starwindv.WindForum.logger;
+package top.starwindv.WindForum.logger.Colorful;
 
 
 import top.starwindv.WindForum.logger.Errors.HexColorFormatError;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 
 @SuppressWarnings("unused")
@@ -26,13 +27,19 @@ public class Colors {
     public static String BYellow = Yellow+Bold;
     public static String BCyan   = Cyan+Bold;
 
-    public static String frontFrom(int r, int g, int b) {
-        return String.format(rgbTemplate, "38;2", r, g, b);
+
+
+    private static final Pattern hexColorRegex = Pattern.compile("^[0-9a-fA-F]+$");
+
+    public static boolean isValidHexColor(String colorStr) {
+        if (colorStr == null) { return false; }
+        return hexColorRegex.matcher(colorStr).matches();
     }
 
-    public static List<Integer> hexProcessor(String hexColor) {
+    public static List<Integer> hexToRGB(String hexColor) {
         hexColor = hexColor.replace("#", "");
         List<Integer> result = new ArrayList<>();
+        if (!isValidHexColor(hexColor)) { throw new HexColorFormatError(hexColor); }
         return switch (hexColor.length()) {
             case 3 -> {
                 for (int idx=0;idx<hexColor.length();idx++) {
@@ -51,8 +58,16 @@ public class Colors {
         };
     }
 
+    public static String frontFrom(int r, int g, int b) {
+        return String.format(rgbTemplate, "38;2", r, g, b);
+    }
+
+    public static String frontFrom(String r, String g, String b) {
+        return String.format(rgbTemplate, "38;2", r, g, b);
+    }
+
     public static String frontFrom(String hexColor) {
-        List<Integer> rgb = hexProcessor(hexColor);
+        List<Integer> rgb = hexToRGB(hexColor);
         return frontFrom(rgb.getFirst(), rgb.get(1), rgb.getLast());
     }
 
@@ -61,7 +76,7 @@ public class Colors {
     }
 
     public static String backgroundFrom(String hexColor) {
-        List<Integer> rgb = hexProcessor(hexColor);
+        List<Integer> rgb = hexToRGB(hexColor);
         return backgroundFrom(rgb.getFirst(), rgb.get(1), rgb.getLast());
     }
 }

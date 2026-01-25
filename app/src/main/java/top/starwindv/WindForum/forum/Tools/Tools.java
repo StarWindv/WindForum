@@ -1,6 +1,7 @@
 package top.starwindv.WindForum.forum.Tools;
 
 
+@SuppressWarnings("unused")
 public class Tools {
     public static boolean hasattr(Object obj, String fieldName) {
         for (Class<?> c = obj.getClass(); c != Object.class; c = c.getSuperclass())

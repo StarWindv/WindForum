@@ -5,7 +5,7 @@ import org.apache.commons.lang3.tuple.Triple;
 import top.starwindv.WindForum.forum.Email;
 import top.starwindv.WindForum.forum.Models.Users;
 import top.starwindv.WindForum.forum.Tools.VerifyCode;
-import top.starwindv.WindForum.logger.Colors;
+import top.starwindv.WindForum.logger.Colorful.Colors;
 import top.starwindv.WindForum.forum.Utils.Values;
 
 import java.util.Map;

@@ -1,7 +1,7 @@
 package top.starwindv.WindForum.logger;
 
 import top.starwindv.WindForum.logger.Abstract.API;
-import top.starwindv.WindForum.logger.config.WindConfig;
+import top.starwindv.WindForum.logger.Config.WindConfig;
 
 import java.util.function.Consumer;
 

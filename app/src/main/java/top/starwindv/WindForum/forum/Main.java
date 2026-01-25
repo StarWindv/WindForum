@@ -23,10 +23,9 @@ import io.javalin.Javalin;
 import picocli.CommandLine;
 
 import top.starwindv.WindForum.forum.Tools.Sources;
-import top.starwindv.WindForum.forum.Tools.*;
 import top.starwindv.WindForum.forum.DTO.GsonMapper;
 import top.starwindv.WindForum.forum.Tools.ArgParser;
-import top.starwindv.WindForum.logger.Colors;
+import top.starwindv.WindForum.logger.Colorful.Colors;
 
 
 class BaseServer {

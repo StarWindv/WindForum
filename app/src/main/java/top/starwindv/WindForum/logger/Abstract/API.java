@@ -1,6 +1,6 @@
 package top.starwindv.WindForum.logger.Abstract;
 
-import top.starwindv.WindForum.logger.config.WindConfig;
+import top.starwindv.WindForum.logger.Config.WindConfig;
 
 
 @SuppressWarnings("unused")

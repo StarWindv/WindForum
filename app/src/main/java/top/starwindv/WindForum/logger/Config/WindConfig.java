@@ -1,4 +1,4 @@
-package top.starwindv.WindForum.logger.config;
+package top.starwindv.WindForum.logger.Config;
 
 import io.javalin.json.JsonMapper;
 
