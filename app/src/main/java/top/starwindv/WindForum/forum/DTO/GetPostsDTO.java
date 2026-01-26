@@ -8,6 +8,7 @@ public class GetPostsDTO {
     private int to;
     private int limit=0;
     private String post_id;
+    private String belongTo;
     private boolean isArc=true;
 
     /*
@@ -17,6 +18,7 @@ public class GetPostsDTO {
 
     public String method() { return this.method; }
     public String post_id() { return this.post_id; }
+    public String belongTo() { return this.belongTo; }
     public boolean isArc() { return this.isArc; }
     public int limit() { return this.limit; }
     public int from() { return this.from; }

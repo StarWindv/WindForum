@@ -61,6 +61,7 @@ public class Posts {
                     + "    email_str VARCHAR(100) NOT NULL,"
                     + "    title VARCHAR NOT NULL,"
                     + "    content TEXT NOT NULL,"
+//                    + "    belongTo TEXT NOT NULL,"
                     + "    status INTEGER NOT NULL DEFAULT "
                     + Status.Active
                     + ", "
@@ -76,6 +77,7 @@ public class Posts {
                         + " (CAST((julianday('now', 'utc') - 2440587.5) * 86400000 + 0.5 AS INTEGER));"
                 );
                 db.exec("CREATE INDEX idx_posts_update ON " + TABLE_NAME + "(last_update_time)");
+//                db.exec("CREATE INDEX idx_belongTo ON " + TABLE_NAME + "(belongTo)");
             }
         } catch (Exception e) {
             throw new RuntimeException("Failed to initialize users table: " + e.getMessage(), e);
@@ -87,7 +89,13 @@ public class Posts {
             int affectedRows = this.db.insert(
                 TABLE_NAME,
                 "(email_str, title, content)",
-                Values.from(PostInformation.userEmail(), PostInformation.title(), PostInformation.content())
+//                "(email_str, title, content, belongTo)",
+                Values.from(
+                    PostInformation.userEmail(),
+                    PostInformation.title(),
+                    PostInformation.content() //,
+//                    PostInformation.belongTo()
+                )
             );
             if (affectedRows > 0) {
                 return Values.from(true, "Post added success");

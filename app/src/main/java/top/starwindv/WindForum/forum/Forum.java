@@ -22,7 +22,6 @@ import java.util.Set;
 
 class protectAPI {
     public final static Set<String> path = Set.of(
-//        "/dashboard",
         "/api/posts/upload",
         "/api/posts/comments",
         "/editor",

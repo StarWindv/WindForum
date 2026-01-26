@@ -1,10 +1,16 @@
 package top.starwindv.WindForum.logger.Colorful;
 
 
+//import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import java.text.SimpleDateFormat;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.Deque;
+import java.util.ArrayDeque;
+import java.util.List;
 
-import java.util.*;
 
 /**
  * [#FF00FF] <br>
@@ -42,8 +48,13 @@ import java.util.*;
  * → 会输出红色的"World"
  * </pre>
  */
-@SuppressWarnings("unused")
+@SuppressWarnings({"unused", "CallToPrintStackTrace"})
 public class Rich {
+    private static SimpleDateFormat Formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    public static void Formatter(SimpleDateFormat customFormatter) {
+        Formatter = customFormatter;
+    }
+
     /**
      * 从字符串里提取括号里的内容，比如从 "[hello]" 里拿到 "hello"。
      *
@@ -90,12 +101,12 @@ public class Rich {
                 if (cleanBlank) {
                     value = key.replaceAll("\\s+", "");
                 }
-                if (!key.isEmpty() && key.indexOf('[') == -1) {
+                if (!key.isEmpty() && key.indexOf(left) == -1) {
                     if (
                         key.length()<minLength
                             || key.length()>maxLength
                     ) { continue; }
-                    result.put("["+key+"]", value);
+                    result.put(left+key+right, value);
                 }
             }
         }
@@ -132,12 +143,22 @@ public class Rich {
             true
         );
     }
+    public static Map<String, String> tagMatch(String input) {
+        return extractBracketContent(
+            input,
+            '<',
+            '>',
+            3, // RED
+            9, // TIMESTAMP
+            true
+        );
+    }
 
     public static boolean counting(String source, String target, int expectedCount) {
         return StringUtils.countMatches(source, target) == expectedCount;
     }
 
-    public String parse(String us) {
+    public static String parseColors(String us) {
         Map<String, String> group = colorMatch(us);
         for (var kv: group.entrySet()) {
             if (kv.getValue().startsWith("#")) {
@@ -157,6 +178,30 @@ public class Rich {
                 );
             }
         }
-        return us+ Colors.Reset;
+        return us + Colors.Reset;
+    }
+
+    public static String parseTags(String us) {
+        Map<String, String> group = tagMatch(us);
+        for (var kv: group.entrySet()) {
+            if (kv.getValue().equals("TIMESTAMP")) {
+                us = us.replace(kv.getKey(), Formatter.format(new java.util.Date()));
+            }
+            try {
+                us = us.replace(kv.getKey(), (String) Colors.getattr(kv.getValue()));
+//                System.out.println(StringEscapeUtils.escapeJava(us));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        return us + Colors.Reset;
+    }
+
+    public static void out(String input) {
+        System.out.println(parseTags(parseColors(input)));
+    }
+    public static void out() {
+        System.out.println();
     }
 }

@@ -26,11 +26,18 @@ import top.starwindv.WindForum.forum.Tools.Sources;
 import top.starwindv.WindForum.forum.DTO.GsonMapper;
 import top.starwindv.WindForum.forum.Tools.ArgParser;
 import top.starwindv.WindForum.logger.Colorful.Colors;
+import top.starwindv.WindForum.logger.WindLogger;
 
 
 class BaseServer {
     private final SimpleDateFormat Formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     private Javalin server;
+    public final WindLogger logger = new WindLogger(
+        cfg -> {
+
+        }
+    );
+
     public Sources Src;
 
     public String page4xx = "err/4n.html";
@@ -201,7 +208,7 @@ class BaseServer {
 
 
 class Services {
-    private final BaseServer server = new BaseServer();
+    public final BaseServer server = new BaseServer();
     public void initialize() {
         /*
         * 或许会有更多的需要注册的类
@@ -226,6 +233,7 @@ public class Main {
         CommandLine cmd = new CommandLine(ArgParser.instance);
         int status = cmd.execute(args);
         if (status!=0) { System.exit(status);}
+        services.server.logger.info("TEST");
         try {
             services.start(
                 ArgParser.instance.host(),

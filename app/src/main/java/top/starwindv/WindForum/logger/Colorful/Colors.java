@@ -3,8 +3,14 @@ package top.starwindv.WindForum.logger.Colorful;
 
 import top.starwindv.WindForum.logger.Errors.HexColorFormatError;
 
+import java.lang.invoke.MethodHandles;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 
@@ -26,8 +32,6 @@ public class Colors {
     public static String Bold = String.format(base, "1" );
     public static String BYellow = Yellow+Bold;
     public static String BCyan   = Cyan+Bold;
-
-
 
     private static final Pattern hexColorRegex = Pattern.compile("^[0-9a-fA-F]+$");
 
@@ -78,5 +82,29 @@ public class Colors {
     public static String backgroundFrom(String hexColor) {
         List<Integer> rgb = hexToRGB(hexColor);
         return backgroundFrom(rgb.getFirst(), rgb.get(1), rgb.getLast());
+    }
+
+
+    private static final Map<String, Field> fieldCache = new HashMap<>();
+    private static final Class<?> currentCls = MethodHandles.lookup().lookupClass();
+    public static Object getattr(String name) {
+        try {
+            if (fieldCache.containsKey(name)) {
+                Object result = fieldCache.get(name).get(null);
+                return result == null ? "" : result;
+            } else {
+                Field field = currentCls.getField(name);
+
+                if (!Modifier.isStatic(field.getModifiers())) {
+                    return "";
+                }
+                fieldCache.put(name, field);
+
+                Object result = field.get(null);
+                return result == null ? "" : result;
+            }
+        } catch (NoSuchFieldException | IllegalAccessException ignored) {
+            return "";
+        }
     }
 }
