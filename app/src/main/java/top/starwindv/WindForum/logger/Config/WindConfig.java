@@ -22,36 +22,52 @@ public class WindConfig {
                                         System.getProperty("user.home")
                                     ).normalize().resolve(appName);
 
-    private final static String title = """
+
+    public static final String msgPH = "$msg";
+    public static final String ipPH = "$ip";
+    public static final String methodPH = "$method";
+    public static final String pathPH = "$path";
+    public static final String statusPH = "$status";
+    public static final String statusColorPH = "$statusColor";
+    public static final String titleColorPH = "$titleColor";
+
+    private final static String title = titleColorPH+"""
             ██╗    ██╗ ██╗ ███╗   ██╗ ██████╗     ███████╗  ██████╗  ██████╗  ██╗   ██╗ ███╗   ███╗
             ██║    ██║ ██║ ████╗  ██║ ██╔══██╗    ██╔════╝ ██╔═══██╗ ██╔══██╗ ██║   ██║ ████╗ ████║
             ██║ █╗ ██║ ██║ ██╔██╗ ██║ ██║  ██║    █████╗   ██║   ██║ ██████╔╝ ██║   ██║ ██╔████╔██║
             ██║███╗██║ ██║ ██║╚██╗██║ ██║  ██║    ██╔══╝   ██║   ██║ ██╔══██╗ ██║   ██║ ██║╚██╔╝██║
             ╚███╔███╔╝ ██║ ██║ ╚████║ ██████╔╝    ██║      ╚██████╔╝ ██║  ██║ ╚██████╔╝ ██║ ╚═╝ ██║
-             ╚══╝╚══╝  ╚═╝ ╚═╝  ╚═══╝ ╚═════╝     ╚═╝       ╚═════╝  ╚═╝  ╚═╝  ╚═════╝  ╚═╝     ╚═╝                                                                                                                 \s
-        """;
-    private static String customTitle="";
+             ╚══╝╚══╝  ╚═╝ ╚═╝  ╚═══╝ ╚═════╝     ╚═╝       ╚═════╝  ╚═╝  ╚═╝  ╚═════╝  ╚═╝     ╚═╝
+            """;
+    private static String customTitle=null;
 
-    public static final String msgPH = "$msg";
-
-    private static String info_template ="[#60DBA9][INFO] <Reset><TIMESTAMP> [#FFDA00]"+msgPH;
-    private static String err_template  ="[#FFDA00]";
+    private static String info_template ="[,255,255][INFO] <Reset><TIMESTAMP> [#008000]"+msgPH;
+    private static String err_template  = "[#DC143C][Err ] <Reset><TIMESTAMP> [#FFFDA00]"+msgPH;
     private static String warn_template ="";
     private static String debug_template="";
 
+    private static String  inbound_template="\n<Bold>[,255,255][->] <Reset><TIMESTAMP> ["+methodPH+"] ["+ipPH+"] ["+pathPH+"]";
+    private static String outbound_template="<Bold>[255,215,][<-] <Reset><TIMESTAMP> ["+statusColorPH+"<Bold>"+statusPH+"<Reset>] ["+ipPH+"]";
+
     public static void cutSize(Long us) { cutSize=us; }
 
-    public void info_template(String us) { info_template = us;}
+    public static void info_template(String us) { info_template = us;}
     public static String info_template() { return info_template; }
 
-    public void err_template(String us) { err_template = us;}
-    public String err_template() { return err_template; }
+    public static void err_template(String us) { err_template = us;}
+    public static String err_template() { return err_template; }
 
-    public void warn_template(String us) { warn_template = us;}
-    public String warn_template() { return warn_template; }
+    public static void warn_template(String us) { warn_template = us;}
+    public static String warn_template() { return warn_template; }
 
-    public void debug_template(String us) { debug_template = us;}
-    public String debug_template() { return debug_template; }
+    public static void debug_template(String us) { debug_template = us;}
+    public static String debug_template() { return debug_template; }
+
+    public static void inbound_template(String us) { inbound_template = us;}
+    public static String inbound_template() { return inbound_template; }
+
+    public static void outbound_template(String us) { outbound_template = us;}
+    public static String outbound_template() { return outbound_template; }
 
     public void applyConfig(Consumer<WindConfig> userConfig) {
         userConfig.accept(this);
@@ -139,5 +155,11 @@ public class WindConfig {
             title.equals(customTitle), customTitle, customTitle.getClass()
         );
         return result;
+    }
+
+    public static String title() {
+        if (customTitle != null) {
+            return customTitle;
+        } return title;
     }
 }

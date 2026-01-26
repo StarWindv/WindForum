@@ -14,9 +14,9 @@ import java.net.InetAddress;
 import java.net.NetworkInterface;
 
 import java.util.*;
-import java.text.SimpleDateFormat;
 import java.nio.file.Paths;
 
+import io.javalin.http.Context;
 import io.javalin.util.JavalinBindException;
 import io.javalin.Javalin;
 
@@ -30,12 +30,9 @@ import top.starwindv.WindForum.logger.WindLogger;
 
 
 class BaseServer {
-    private final SimpleDateFormat Formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     private Javalin server;
     public final WindLogger logger = new WindLogger(
-        cfg -> {
-
-        }
+        cfg -> {} // cfg.setTitle("")
     );
 
     public Sources Src;
@@ -62,21 +59,15 @@ class BaseServer {
         this.registerRoutes();
         this.registerHooks();
         this.registerErrHandlers();
-        String msg = """
-            ██╗    ██╗██╗███╗   ██╗██████╗     ███████╗ ██████╗ ██████╗ ██╗   ██╗███╗   ███╗
-            ██║    ██║██║████╗  ██║██╔══██╗    ██╔════╝██╔═══██╗██╔══██╗██║   ██║████╗ ████║
-            ██║ █╗ ██║██║██╔██╗ ██║██║  ██║    █████╗  ██║   ██║██████╔╝██║   ██║██╔████╔██║
-            ██║███╗██║██║██║╚██╗██║██║  ██║    ██╔══╝  ██║   ██║██╔══██╗██║   ██║██║╚██╔╝██║
-            ╚███╔███╔╝██║██║ ╚████║██████╔╝    ██║     ╚██████╔╝██║  ██║╚██████╔╝██║ ╚═╝ ██║
-             ╚══╝╚══╝ ╚═╝╚═╝  ╚═══╝╚═════╝     ╚═╝      ╚═════╝ ╚═╝  ╚═╝ ╚═════╝ ╚═╝     ╚═╝                                                                                                                 \s
-        """;
+        String msg = "";
         if (host.equals("0.0.0.0")) {
             msg += String.format(" * Serve on: http://%s:%s\n", "localhost", port);
-            msg += String.format(" * Serve on: http:/%s:%s\n", this.getLocalHost(), port);
+            msg += String.format(" * Serve on: http:/%s:%s", this.getLocalHost(), port);
         } else {
             msg = String.format(" * Serve on: http://%s:%d", host, port);
         }
         this.Src.init(this.server);
+        this.logger.title("\n<Yellow>");
         System.out.println(msg);
     }
 
@@ -95,59 +86,15 @@ class BaseServer {
     private void registerHooks() {
         this.server.before(
             ctx -> {
-                String realIP = Optional
-                    .ofNullable(
-                        ctx.header("CF-Connecting-IP")
-                    ).orElse(ctx.ip());
-                if (
-                    realIP.equals(
-                        "[0:0:0:0:0:0:0:1]"
-                    )
-                ) {
-                    realIP = "localhost";
-                }
-                ctx.attribute("IP", realIP);
-                String msg = String.format(
-                    "%s[%s]%s [%s] [%s] [%s] [%s]\n",
-                    Colors.BCyan,
-                    "->",
-                    Colors.Reset,
-                    this.Formatter.format(new java.util.Date()),
-                    ctx.method(),
-                    realIP,
-                    ctx.path()
-                );
-                System.out.printf(msg);
+                String realIP = this.getIP(ctx);
+                this.logger.inbound(realIP, ctx.method().toString(), ctx.path());
             }
         );
 
         this.server.after(
             ctx -> {
-                String realIP = Optional
-                    .ofNullable(
-                        ctx.header("CF-Connecting-IP")
-                    ).orElse(ctx.ip());
-                if (
-                    realIP.equals(
-                        "[0:0:0:0:0:0:0:1]"
-                    )
-                ) {
-                    realIP = "localhost";
-                }
                 int code = ctx.status().getCode();
-                String msg = String.format(
-                    "%s[%s]%s [%s] [%s%s%d%s] [%s]\n\n",
-                    Colors.BYellow,
-                    "<-",
-                    Colors.Reset,
-                    this.Formatter.format(new java.util.Date()),
-                    code < 300 ? Colors.Green : (code < 400 ? Colors.BYellow : Colors.Red),
-                    Colors.Bold,
-                    ctx.status().getCode(),
-                    Colors.Reset,
-                    realIP
-                );
-                System.out.printf(msg);
+                logger.outbound(code, ctx.attribute("IP"));
             }
         );
     }
@@ -204,6 +151,18 @@ class BaseServer {
             Colors.Reset
         );
     }
+
+    private String getIP(Context ctx) {
+        String realIP = Optional
+            .ofNullable(
+                ctx.header("CF-Connecting-IP")
+            ).orElse(ctx.ip());
+        if (realIP.equals("[0:0:0:0:0:0:0:1]")) {
+            realIP = "localhost";
+        }
+        ctx.attribute("IP", realIP);
+        return realIP;
+    }
 }
 
 
@@ -233,7 +192,6 @@ public class Main {
         CommandLine cmd = new CommandLine(ArgParser.instance);
         int status = cmd.execute(args);
         if (status!=0) { System.exit(status);}
-        services.server.logger.info("TEST");
         try {
             services.start(
                 ArgParser.instance.host(),
