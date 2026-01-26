@@ -1,46 +1,48 @@
 <!DOCTYPE html>
 <!--suppress HtmlUnknownTarget -->
 <html lang="zh-cn">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Wind Forum</title>
-    <link rel="stylesheet" type="text/css" href="/static/css/cursor.css">
-    <link rel="stylesheet" type="text/css" href="/static/css/footer.css">
-    <link rel="stylesheet" type="text/css" href="/static/css/login.css">
-</head>
-<body class="mouse">
-<div>
-    <form id="auth" class="Auth">
-        <label class="collector">
-            UserName
-            <input type="text" id="username" name="username" autocomplete="on">
-        </label>
-        <label class="collector">
-            Email
-            <input type="text" id="email" name="email" autocomplete="on">
-        </label>
-        <label class="collector">
-            Password
-            <input type="password" id="password" name="password" autocomplete="on">
-        </label>
-        <label class="collector">
-            Email Verify Code
-            <input type="text" id="verifyCode" name="verifyCode" autocomplete="on">
-        </label>
-        <div class="button-group">
-            <button type="button" id="login">Login</button>
-            <button type="button" id="send_code">Send Email Code</button>
-            <button type="button" id="register">Register</button>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Wind Forum</title>
+        <link rel="stylesheet" type="text/css" href="/static/css/cursor.css">
+        <link rel="stylesheet" type="text/css" href="/static/css/footer.css">
+        <link rel="stylesheet" type="text/css" href="/static/css/login.css">
+        <link rel="stylesheet" type="text/css" href="/static/css/component/notice.css">
+    </head>
+    <body class="mouse">
+        <div>
+            <form id="auth" class="Auth">
+                <label class="collector">
+                    UserName
+                    <input type="text" id="username" name="username" autocomplete="on">
+                </label>
+                <label class="collector">
+                    Email
+                    <input type="text" id="email" name="email" autocomplete="on">
+                </label>
+                <label class="collector">
+                    Password
+                    <input type="password" id="password" name="password" autocomplete="on">
+                </label>
+                <label class="collector">
+                    Email Verify Code
+                    <input type="text" id="verifyCode" name="verifyCode" autocomplete="on">
+                </label>
+                <div class="button-group">
+                    <button type="button" id="login">Login</button>
+                    <button type="button" id="send_code">Send Email Code</button>
+                    <button type="button" id="register">Register</button>
+                </div>
+            </form>
         </div>
-    </form>
-</div>
-<footer>
-    <p>© 2025 WindForum</p>
-</footer>
-<script src="/static/js/focus.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
-<script src="/static/js/services/authorize.js"></script>
-<script src="/static/js/services/login.js"></script>
-</body>
+        <footer>
+            <p>© 2025 WindForum</p>
+        </footer>
+        <script src="/static/js/focus.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
+        <script src="/static/js/services/authorize.js"></script>
+        <script src="/static/js/services/login.js"></script>
+        <script src="/static/js/component/notice.js"></script>
+    </body>
 </html>

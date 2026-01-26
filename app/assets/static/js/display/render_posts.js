@@ -24,15 +24,6 @@ function useStyle(eleTag, method) {
     });
 }
 
-marked.setOptions({
-    highlight: function(code, lang) {
-        if (lang && hljs.getLanguage(lang)) {
-            return hljs.highlight(code, { language: lang }).value;
-        }
-        return hljs.highlightAuto(code).value;
-    }
-});
-
 
 async function renderPosts(postContainer, loader) {
     let postsData;
@@ -60,16 +51,9 @@ async function renderPosts(postContainer, loader) {
                     }),
 
                     (() => {
-                        const contentElement = DOMBuilder.div({
+                        return DOMBuilder.div({
                             html: marked.parse(formatCode(post.content))
                         });
-
-                        // 高亮代码块
-                        setTimeout(() => {
-                            useStyle('pre code', hljs.highlightElement);
-                        }, 0);
-
-                        return contentElement;
                     })(),
 
                     // 元信息
@@ -112,14 +96,17 @@ async function renderPosts(postContainer, loader) {
 
             postsList.appendChild(postItem);
         });
+        setTimeout(() => {
+            useStyle('pre code', hljs.highlightElement);
+        }, 0);
     } else {
         // 没有帖子的情况
         const noPostsMessage = DOMBuilder.li({
             text: "暂无帖子",
-            className: "no-posts"
+            className: "post"
         });
         postsList.appendChild(noPostsMessage);
     }
-
+    postsList.appendChild(footer())
     postContainer.appendChild(postsList);
 }

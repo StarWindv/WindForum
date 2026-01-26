@@ -32,7 +32,7 @@ async function login() {
     const result = await Auth.login(email, password);
     if (result.status) {
         form.reset();
-        // window.location.href = "/index"; // 登录成功跳转
+        window.location.href = "/index"; // 登录成功跳转
     }
     return result;
 }
@@ -69,12 +69,17 @@ async function verifyCodeAndRegister() {
     return verifyResult;
 }
 
-document.getElementById('login').addEventListener('click', async (e) => {
-    e.preventDefault();
-    await login();
-});
+document.getElementById('login')
+    .addEventListener(
+        'click',
+        async (e) => {
+            e.preventDefault();
+            await login();
+        }
+    );
 
-document.getElementById('send_code').addEventListener('click', async (e) => {
+document.getElementById('send_code')
+    .addEventListener('click', async (e) => {
     e.preventDefault();
     resetRequired();
     els.username.required = true;
@@ -87,11 +92,16 @@ document.getElementById('send_code').addEventListener('click', async (e) => {
 
     const username = els.username.value;
     const email = els.email.value;
-    await sendVerifyCode(username, email);
-    alert(`验证码已发送至邮箱：${email}`);
+    const sendStatus = await sendVerifyCode(username, email);
+    if (sendStatus) {
+        notice("验证码发送成功<br>请检查您的收件箱或垃圾邮件", "notice_main");
+    } else {
+        notice("验证码发送失败", "notice_main");
+    }
 });
 
-document.getElementById('register').addEventListener('click', async (e) => {
+document.getElementById('register')
+    .addEventListener('click', async (e) => {
     e.preventDefault();
     try {
         await verifyCodeAndRegister();

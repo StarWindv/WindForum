@@ -1,27 +1,41 @@
 <!DOCTYPE html>
-<!--suppress HtmlUnknownTarget -->
+<!--suppress HtmlUnknownTarget, CssNoGenericFontName -->
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WindForum</title>
+    <title>Wind Forum</title>
     <link rel="stylesheet" type="text/css" href="/static/css/posts.css">
     <link rel="stylesheet" type="text/css" href="/static/css/cursor.css">
     <link rel="stylesheet" type="text/css" href="/static/css/footer.css">
+    <link rel="stylesheet" href="/static/js/outerPKG/highlight/styles/default.min.css">
+    <link rel="font" href="/static/font/JetBrainsMono/fonts/webfonts/JetBrainsMono-SemiBold.woff2">
+    <style>
+        pre code {
+            font-family: "JetBrainsMono-SemiBold" !important;
+            font-weight: 450 !important;
+            border-radius: 8px;
+            font-size: 1rem;
+            background : #FCF5EB !important;
+
+            border: 0.1px solid #3d3d3d50 !important;
+            box-shadow: 0 0 0 0.1px #ff00ff !important; /* x偏移 y偏移 模糊 扩散 颜色 */
+        }
+    </style>
 </head>
 <body>
 <div id="user_info"></div>
 <div id="postContainer"></div>
-<footer>
-    <p>© 2025 WindForum</p>
-</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js" defer></script>
+<script src="/static/js/outerPKG/marked.js"></script>
+<script src="/static/js/outerPKG/highlight/highlight.min.js"></script>
 <script src="/static/js/focus.js"></script>
 <script src="/static/js/services/posts.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js" defer></script>
 <script src="/static/js/services/authorize.js"></script>
 <script src="/static/js/display/render_posts.js"></script>
 <script src="/static/js/display/domBuilder.js"></script>
 <script src="/static/js/services/error.js"></script>
+<script src="/static/js/component/footer.js"></script>
 <script>
     const custom_email = window.location.pathname.split("/")[2]
     document.title =  custom_email + " | " + document.title;
