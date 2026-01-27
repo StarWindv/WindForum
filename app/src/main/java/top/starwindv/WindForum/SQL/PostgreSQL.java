@@ -1,4 +1,4 @@
-package top.starwindv.WindForum.forum.SQL;
+package top.starwindv.WindForum.SQL;
 
 
 import top.starwindv.WindForum.forum.Utils.ColumnConfig;

@@ -14,6 +14,7 @@ import top.starwindv.WindForum.forum.Models.Posts;
 import top.starwindv.WindForum.forum.Models.Users;
 import top.starwindv.WindForum.forum.Tools.Sources;
 import top.starwindv.WindForum.forum.Utils.Values;
+import top.starwindv.WindForum.logger.WindLogger;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -50,11 +51,13 @@ public class Forum {
     private final Posts PostsTool = new Posts(dbName);
     private final SessionController SessionOperator = new SessionController(dbName);
     public final Email Poster;
+    protected WindLogger Logger;
 
-    public Forum(String AppName, Javalin instance, Sources Src) {
+    public Forum(String AppName, Javalin instance, Sources Src, WindLogger logger) {
         this.AppName = AppName;
         this.server = instance;
         this.Src = Src;
+        this.Logger = logger;
         this.init();
         try {
             this.Poster = new Email(Src.template("email/mail.html"), "WindForum");
@@ -230,64 +233,66 @@ public class Forum {
     private void obtainInfoMethodGroup() {
         this.server.post(
             "/api/posts/get",
-            ctx -> {
-                Values response;
-                try {
-                    GetPostsDTO needInfo = ctx.bodyAsClass(GetPostsDTO.class);
+            ctx -> ctx.async(
+                () -> {
+                    Values response;
+                    try {
+                        GetPostsDTO needInfo = ctx.bodyAsClass(GetPostsDTO.class);
 
-                    boolean hasFromTo = (needInfo.from() >= 0 && needInfo.to() >= 0);
-                    boolean hasLimit = (needInfo.limit() > 0);
-                    boolean hasPostId = (needInfo.post_id() != null && !needInfo.post_id().isEmpty());
-                    boolean hasOnlyFrom = (needInfo.from() >= 0 && needInfo.to() < 0);
-                    boolean hasOnlyTo = (needInfo.from() < 0 && needInfo.to() >= 0);
+                        boolean hasFromTo = (needInfo.from() >= 0 && needInfo.to() >= 0);
+                        boolean hasLimit = (needInfo.limit() > 0);
+                        boolean hasPostId = (needInfo.post_id() != null && !needInfo.post_id().isEmpty());
+                        boolean hasOnlyFrom = (needInfo.from() >= 0 && needInfo.to() < 0);
+                        boolean hasOnlyTo = (needInfo.from() < 0 && needInfo.to() >= 0);
 
-                    if (hasOnlyFrom || hasOnlyTo) {
-                        ctx.status(400);
-                        return;
-                    }
-
-                    int paramTypeCount = 0;
-                    if (hasFromTo) paramTypeCount++;
-                    if (hasLimit) paramTypeCount++;
-                    if (hasPostId) paramTypeCount++;
-
-                    if (paramTypeCount > 1) {
-                        ctx.status(400);
-                        return;
-                    }
-
-                    if (hasFromTo) {
-                        Values posts = PostsTool.getFromTo(
-                            "create_time",
-                            needInfo.isArc(),
-                            needInfo.from(),
-                            needInfo.to()
-                        );
-                        if (!(boolean) posts.getStatus()) {
-                            ctx.status(500);
+                        if (hasOnlyFrom || hasOnlyTo) {
+                            ctx.status(400);
                             return;
                         }
-                        response = Values.from(true, "", posts.getResult());
-                    } else if (hasLimit) {
-                        response = PostsTool.getAllPosts(needInfo.isArc(), needInfo.limit());
-                    } else if (hasPostId) {
-                        response = PostsTool.getPost(needInfo.post_id());
-                    } else {
-                        ctx.status(400);
-                        return;
-                    }
-                    if (!(boolean) response.getStatus()) {
-                        ctx.status(404);
-                    } else {
-//                        System.err.println(response);
-                        ctx.json(response);
-                    }
 
-                } catch (Exception e) {
-                    ctx.status(500);
-                     e.printStackTrace();
+                        int paramTypeCount = 0;
+                        if (hasFromTo) paramTypeCount++;
+                        if (hasLimit) paramTypeCount++;
+                        if (hasPostId) paramTypeCount++;
+
+                        if (paramTypeCount > 1) {
+                            ctx.status(400);
+                            return;
+                        }
+
+                        if (hasFromTo) {
+                            Values posts = PostsTool.getFromTo(
+                                "create_time",
+                                needInfo.isArc(),
+                                needInfo.from(),
+                                needInfo.to()
+                            );
+                            if (!(boolean) posts.getStatus()) {
+                                ctx.status(500);
+                                return;
+                            }
+                            response = Values.from(true, "", posts.getResult());
+                        } else if (hasLimit) {
+                            response = PostsTool.getAllPosts(needInfo.isArc(), needInfo.limit());
+                        } else if (hasPostId) {
+                            response = PostsTool.getPost(needInfo.post_id());
+                        } else {
+                            ctx.status(400);
+                            return;
+                        }
+                        if (!(boolean) response.getStatus()) {
+                            ctx.status(404);
+                        } else {
+//                        System.err.println(response);
+                            ctx.json(response);
+                        }
+
+                    } catch (Exception e) {
+                        ctx.status(500);
+                        e.printStackTrace();
+                    }
                 }
-            }
+            )
         );
 
         this.server.post(
@@ -367,23 +372,24 @@ public class Forum {
     @SuppressWarnings("StatementWithEmptyBody")
     private void sessionRoute() {
         this.server.before(
-            ctx -> {
-                String requestFor = ctx.path();
-                if (protectAPI.isProtectedPath(requestFor)) {
-                    String session_id = ctx.header("Session-ID");
-                    if (session_id == null || session_id.isEmpty()) {
-                        ctx.status(401);
-                        ctx.redirect("/login");
-                    }
-                    Values checkResult = this.SessionOperator.loggedInBySessionID(session_id);
-                    System.err.println("loggedInBySessionID: " + checkResult);
-                    if (!(boolean) checkResult.getStatus()) {
-                        ctx.status(401);
-                        ctx.redirect("/login");
-                    }
-
-                } else { /*放行*/ }
-            }
+            ctx -> ctx.async(
+                () -> {
+                    String requestFor = ctx.path();
+                    if (protectAPI.isProtectedPath(requestFor)) {
+                        String session_id = ctx.header("Session-ID");
+                        if (session_id == null || session_id.isEmpty()) {
+                            ctx.status(401);
+                            ctx.redirect("/login");
+                        }
+                        Values checkResult = this.SessionOperator.loggedInBySessionID(session_id);
+                        System.err.println("loggedInBySessionID: " + checkResult);
+                        if (!(boolean) checkResult.getStatus()) {
+                            ctx.status(401);
+                            ctx.redirect("/login");
+                        }
+                    } else { /*放行*/ }
+                }
+            )
         );
     }
 }

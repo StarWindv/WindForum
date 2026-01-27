@@ -2,7 +2,7 @@ package top.starwindv.WindForum.forum.Models;
 
 
 import top.starwindv.WindForum.forum.Utils.Values;
-import top.starwindv.WindForum.forum.SQL.SQLite;
+import top.starwindv.WindForum.SQL.SQLite;
 import top.starwindv.WindForum.forum.Utils.ColumnConfig;
 import top.starwindv.WindForum.forum.Utils.Permission;
 import top.starwindv.WindForum.forum.Utils.Status;

@@ -99,28 +99,29 @@ public class Sources {
      */
     public final void init(Javalin server) {
         server.get(
-            "/static/*", ctx -> {
-                String staticPath = StringUtils.substringAfter(ctx.path(), "/static/");
+            "/static/*", ctx -> ctx.async(
+                () -> {
+                    String staticPath = StringUtils.substringAfter(ctx.path(), "/static/");
 
-                String encoding = "UTF-8";
-                try {
-                    String mimeType = Files.probeContentType(Paths.get(staticPath));
-                    if (mimeType == null) {
-                        mimeType = "text/plain";
+                    String encoding = "UTF-8";
+                    try {
+                        String mimeType = Files.probeContentType(Paths.get(staticPath));
+                        if (mimeType == null) {
+                            mimeType = "text/plain";
+                        }
+                        this.requestFile(
+                            encoding, mimeType, staticPath, ctx
+                        );
+                    } catch (NoSuchFileException ignored) {
+                        ctx.status(404);
+                        System.err.println("No Such File: " + staticPath);
+                    } catch (MalformedInputException ignored) {
+                        ctx.status(501);
+                    } catch (UnsupportedCharsetException ignored) {
+                        ctx.status(400);
                     }
-                    this.requestFile(
-                        encoding, mimeType, staticPath, ctx
-                    );
-
-                } catch (NoSuchFileException ignored) {
-                    ctx.status(404);
-                    System.err.println("No Such File: " + staticPath);
-                } catch (MalformedInputException ignored) {
-                    ctx.status(501);
-                } catch (UnsupportedCharsetException ignored) {
-                    ctx.status(400);
                 }
-            }
+            )
         );
     }
 

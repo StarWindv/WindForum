@@ -13,6 +13,7 @@ package top.starwindv.WindForum.forum;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 
+import java.nio.file.Path;
 import java.util.*;
 import java.nio.file.Paths;
 
@@ -26,13 +27,14 @@ import top.starwindv.WindForum.forum.Tools.Sources;
 import top.starwindv.WindForum.forum.DTO.GsonMapper;
 import top.starwindv.WindForum.forum.Tools.ArgParser;
 import top.starwindv.WindForum.logger.Colorful.Colors;
+
 import top.starwindv.WindForum.logger.WindLogger;
 
 
 class BaseServer {
     private Javalin server;
-    public final WindLogger logger = new WindLogger(
-        cfg -> {} // cfg.setTitle("")
+    public final WindLogger Logger = new WindLogger(
+        config -> config.logFilePath(Path.of("Data/log.db"))
     );
 
     public Sources Src;
@@ -59,16 +61,16 @@ class BaseServer {
         this.registerRoutes();
         this.registerHooks();
         this.registerErrHandlers();
-        String msg = "";
+        List<String> IPList = new ArrayList<>();
         if (host.equals("0.0.0.0")) {
-            msg += String.format(" * Serve on: http://%s:%s\n", "localhost", port);
-            msg += String.format(" * Serve on: http:/%s:%s", this.getLocalHost(), port);
+            IPList.add("http://localhost:"+port);
+            IPList.add(String.format("http:/%s:%s", this.getLocalHost(), port));
         } else {
-            msg = String.format(" * Serve on: http://%s:%d", host, port);
+            IPList.add(String.format("http://%s:%d", host, port));
         }
         this.Src.init(this.server);
-        this.logger.title("\n<Yellow>");
-        System.out.println(msg);
+        this.Logger.title("\n<Yellow>");
+        this.Logger.startMsg(IPList);
     }
 
     private void registerRoutes() {
@@ -87,14 +89,14 @@ class BaseServer {
         this.server.before(
             ctx -> {
                 String realIP = this.getIP(ctx);
-                this.logger.inbound(realIP, ctx.method().toString(), ctx.path());
+                this.Logger.inbound(realIP, ctx.method().toString(), ctx.path());
             }
         );
 
         this.server.after(
             ctx -> {
                 int code = ctx.status().getCode();
-                logger.outbound(code, ctx.attribute("IP"));
+                Logger.outbound(code, ctx.attribute("IP"));
             }
         );
     }
@@ -176,7 +178,7 @@ class Services {
         this.initForum();
     }
     private void initForum() {
-        new Forum("Wind", this.server.instance(), this.server.Src);
+        new Forum("Wind", this.server.instance(), this.server.Src, this.server.Logger);
     }
     public void start(String ip, int port) {
         this.server.start(ip, port);
@@ -192,6 +194,7 @@ public class Main {
         CommandLine cmd = new CommandLine(ArgParser.instance);
         int status = cmd.execute(args);
         if (status!=0) { System.exit(status);}
+
         try {
             services.start(
                 ArgParser.instance.host(),

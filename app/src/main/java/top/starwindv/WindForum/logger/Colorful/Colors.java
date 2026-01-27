@@ -16,24 +16,27 @@ import java.util.regex.Pattern;
 
 @SuppressWarnings("unused")
 public class Colors {
+    private static final Pattern hexColorRegex = Pattern.compile("^[0-9a-fA-F]+$");
+
     // Frontend and Background Styles in Terminal
     private final static String base = "\033[%sm";
     private final static String rgbTemplate = "\033[%s;%s;%s;%sm";
 
     // Commonly Used Colors
     public static String Red    = String.format(base, "31");
-    public static String Green  = String.format(base, "32");
+    public static String Orange = frontFrom("#FFA500");
     public static String Yellow = String.format(base, "38;5;220");
+    public static String Green  = String.format(base, "32");
+    public static String Cyan   = String.format(base, "36");
     public static String Blue   = String.format(base, "34");
     public static String Purple = String.format(base, "35");
-    public static String Cyan   = String.format(base, "36");
     public static String Reset  = String.format(base, "0" );
     
     public static String Bold = String.format(base, "1" );
-    public static String BYellow = Yellow+Bold;
-    public static String BCyan   = Cyan+Bold;
 
-    private static final Pattern hexColorRegex = Pattern.compile("^[0-9a-fA-F]+$");
+    public static String HyperStart = "\u001B]8;;";
+    public static String HyperText  = "\u0007";
+    public static String HyperEnd   = "\u001B]8;;\u0007";
 
     public static boolean isValidHexColor(String colorStr) {
         if (colorStr == null) { return false; }
@@ -89,6 +92,7 @@ public class Colors {
     private static final Class<?> currentCls = MethodHandles.lookup().lookupClass();
     public static Object getattr(String name) {
         try {
+//            System.err.println("Request For: " + name);
             if (fieldCache.containsKey(name)) {
                 Object result = fieldCache.get(name).get(null);
                 return result == null ? "" : result;
@@ -104,6 +108,7 @@ public class Colors {
                 return result == null ? "" : result;
             }
         } catch (NoSuchFieldException | IllegalAccessException ignored) {
+//            System.err.println("Cannot Find: " + name);
             return "";
         }
     }

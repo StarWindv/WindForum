@@ -1,7 +1,7 @@
 package top.starwindv.WindForum.forum.Backend;
 
 
-import top.starwindv.WindForum.forum.SQL.SQLite;
+import top.starwindv.WindForum.SQL.SQLite;
 import top.starwindv.WindForum.forum.Utils.Values;
 import top.starwindv.WindForum.forum.Tools.VerifyCode;
 

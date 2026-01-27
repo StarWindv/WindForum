@@ -21,7 +21,7 @@ public class WindConfig {
     private static Path logPath = Paths.get(
                                         System.getProperty("user.home")
                                     ).normalize().resolve(appName);
-
+    private static Path logFilePath = logPath.resolve("log.sqlite");
 
     public static final String msgPH = "$msg";
     public static final String ipPH = "$ip";
@@ -41,33 +41,41 @@ public class WindConfig {
             """;
     private static String customTitle=null;
 
-    private static String info_template ="[,255,255][INFO] <Reset><TIMESTAMP> [#008000]"+msgPH;
-    private static String err_template  = "[#DC143C][Err ] <Reset><TIMESTAMP> [#FFFDA00]"+msgPH;
-    private static String warn_template ="";
-    private static String debug_template="";
+    private static String info_template ="[,255,255]<Bold>[INFO ] <Reset><TIMESTAMP> <Bold>[#8DF6E8]"+msgPH;
+    private static String err_template  = "[#DC143C]<Bold>[Err  ] <Reset><TIMESTAMP> <Bold>[#FF656F]"+msgPH;
+    private static String warn_template = "[#FFDA00]<Bold>[Warn ] <Reset><TIMESTAMP> <Bold>[#FFDA00]"+msgPH;
+    private static String debug_template= "[#1E90FF]<Bold>[Debug] <Reset><TIMESTAMP> <Bold>[#1E90FF]"+msgPH;
 
     private static String  inbound_template="\n<Bold>[,255,255][->] <Reset><TIMESTAMP> ["+methodPH+"] ["+ipPH+"] ["+pathPH+"]";
     private static String outbound_template="<Bold>[255,215,][<-] <Reset><TIMESTAMP> ["+statusColorPH+"<Bold>"+statusPH+"<Reset>] ["+ipPH+"]";
 
-    public static void cutSize(Long us) { cutSize=us; }
+    private static String start_msg_template = " * Serve on: " + ipPH;
 
-    public static void info_template(String us) { info_template = us;}
-    public static String info_template() { return info_template; }
+    public void cutSize(Long us) { cutSize=us; }
 
-    public static void err_template(String us) { err_template = us;}
-    public static String err_template() { return err_template; }
+    public Path logFilePath() { return logFilePath; }
+    public void logFilePath(Path newPath) { logFilePath=newPath; }
 
-    public static void warn_template(String us) { warn_template = us;}
-    public static String warn_template() { return warn_template; }
+    public void info_template(String us) { info_template = us;}
+    public String info_template() { return info_template; }
 
-    public static void debug_template(String us) { debug_template = us;}
-    public static String debug_template() { return debug_template; }
+    public void err_template(String us) { err_template = us;}
+    public String err_template() { return err_template; }
 
-    public static void inbound_template(String us) { inbound_template = us;}
-    public static String inbound_template() { return inbound_template; }
+    public void warn_template(String us) { warn_template = us;}
+    public String warn_template() { return warn_template; }
 
-    public static void outbound_template(String us) { outbound_template = us;}
-    public static String outbound_template() { return outbound_template; }
+    public void debug_template(String us) { debug_template = us;}
+    public String debug_template() { return debug_template; }
+
+    public void inbound_template(String us) { inbound_template = us;}
+    public String inbound_template() { return inbound_template; }
+
+    public void outbound_template(String us) { outbound_template = us;}
+    public String outbound_template() { return outbound_template; }
+
+    public void start_msg_template(String us) { start_msg_template = us;}
+    public String start_msg_template() { return start_msg_template; }
 
     public void applyConfig(Consumer<WindConfig> userConfig) {
         userConfig.accept(this);
@@ -157,7 +165,7 @@ public class WindConfig {
         return result;
     }
 
-    public static String title() {
+    public String title() {
         if (customTitle != null) {
             return customTitle;
         } return title;

@@ -1,4 +1,4 @@
-package top.starwindv.WindForum.forum.SQL;
+package top.starwindv.WindForum.SQL;
 
 
 import top.starwindv.WindForum.forum.Utils.ColumnConfig;
@@ -157,7 +157,7 @@ public class SQLite {
 
     public Values exec(String SQL) {
         try (PreparedStatement pstmt = conn.prepareStatement(SQL)) {
-            return Values.from(pstmt.execute());
+            return Values.onlyResult(pstmt.execute());
         } catch (SQLException e) {
 //            e.printStackTrace();
             throw new RuntimeException("Exec Failed: ", e);
@@ -327,7 +327,8 @@ public class SQLite {
         String selectColumns,
         String orderByColumn,
         boolean isAsc,
-        int limit
+        int limit,
+        String whereCondition
     ) {
         validateTableAndColumns(tableName, selectColumns);
 
@@ -346,6 +347,7 @@ public class SQLite {
                     ? "*" : selectColumns.trim()
             )
             + " FROM " + tableName.trim()
+            + "where " + whereCondition
             + " ORDER BY " + orderByColumn.trim()
             + (isAsc ? " ASC" : " DESC")
             + " LIMIT ?";

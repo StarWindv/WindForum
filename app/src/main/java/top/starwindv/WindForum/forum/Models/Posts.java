@@ -3,7 +3,7 @@ package top.starwindv.WindForum.forum.Models;
 
 import top.starwindv.WindForum.forum.DTO.PostDTO;
 import top.starwindv.WindForum.forum.Utils.ColumnConfig;
-import top.starwindv.WindForum.forum.SQL.SQLite;
+import top.starwindv.WindForum.SQL.SQLite;
 import top.starwindv.WindForum.forum.Utils.Status;
 import top.starwindv.WindForum.forum.Utils.Values;
 
@@ -149,8 +149,8 @@ public class Posts {
                 "post_id, email_str, title, content, status, create_time, last_update_time",
                 "create_time",
                 isAsc,
-                limit
-
+                limit,
+                "status=" + Status.Active
             );
             if (posts.isEmpty())
                 return Values.from(false, "Post not found");

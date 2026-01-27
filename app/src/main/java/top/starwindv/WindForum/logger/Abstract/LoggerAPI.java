@@ -4,7 +4,7 @@ import top.starwindv.WindForum.logger.Config.WindConfig;
 
 
 @SuppressWarnings("unused")
-public abstract class API {
+public abstract class LoggerAPI {
     protected WindConfig config;
     public abstract void info(Object... obj);
     public abstract void warn(Object... obj);

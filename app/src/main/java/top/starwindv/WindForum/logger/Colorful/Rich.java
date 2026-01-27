@@ -149,7 +149,7 @@ public class Rich {
             '<',
             '>',
             3, // RED
-            9, // TIMESTAMP
+            10, // HyperStart
             true
         );
     }
@@ -183,7 +183,9 @@ public class Rich {
 
     public static String parseTags(String us) {
         Map<String, String> group = tagMatch(us);
+//        System.err.println(group);
         for (var kv: group.entrySet()) {
+
             if (kv.getValue().equals("TIMESTAMP")) {
                 us = us.replace(kv.getKey(), Formatter.format(new java.util.Date()));
             }
