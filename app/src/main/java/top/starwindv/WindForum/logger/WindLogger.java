@@ -1,11 +1,14 @@
 package top.starwindv.WindForum.logger;
 
+
 import org.jetbrains.annotations.NotNull;
+import io.javalin.http.Context;
 
 import top.starwindv.WindForum.logger.Abstract.LoggerAPI;
 import top.starwindv.WindForum.logger.Colorful.Colors;
 import top.starwindv.WindForum.logger.Config.WindConfig;
 import top.starwindv.WindForum.logger.Colorful.Rich;
+import top.starwindv.WindForum.logger.Feature.LogComponent;
 import top.starwindv.WindForum.logger.File.ToFile;
 
 import java.util.Arrays;
@@ -97,6 +100,26 @@ public class WindLogger extends LoggerAPI {
     public void startMsg(List<String> IPList) {
         for(String ip: IPList) {
             Rich.out(this.windConfig.start_msg_template().replace(WindConfig.ipPH, ip));
+        }
+    }
+
+    public void _f_inbound(Context ctx) {
+        ctx.attribute(
+            "logger", new LogComponent(
+                ctx.method().toString(),
+                ctx.attribute("IP"),
+                ctx.path()
+            )
+        );
+    }
+
+    public void _f_outbound(Context ctx) {
+        LogComponent temp = ctx.attribute("logger");
+        int code = ctx.statusCode();
+        String color=code < 300 ? Colors.Green : (code < 400 ? Colors.Yellow : Colors.Red);
+        if (temp != null) {
+            temp.outbound(code, color);
+            Rich.out(temp.toString());
         }
     }
 }

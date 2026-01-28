@@ -42,6 +42,13 @@ class BaseServer {
     public String page4xx = "err/4n.html";
     public String page5xx = "err/4n.html";
 
+    private static boolean useLogFeature = false;
+
+    public static void UseLogFeature(boolean us) {
+        useLogFeature = us;
+    }
+    public BaseServer(Runnable func) { func.run(); }
+
     public Javalin instance() { return this.server; }
 
     private void init() {
@@ -89,14 +96,22 @@ class BaseServer {
         this.server.before(
             ctx -> {
                 String realIP = this.getIP(ctx);
-                this.Logger.inbound(realIP, ctx.method().toString(), ctx.path());
+                if (!useLogFeature) {
+                    this.Logger.inbound(realIP, ctx.method().toString(), ctx.path());
+                } else {
+                    this.Logger._f_inbound(ctx);
+                }
             }
         );
 
         this.server.after(
             ctx -> {
-                int code = ctx.status().getCode();
-                Logger.outbound(code, ctx.attribute("IP"));
+                if (!useLogFeature) {
+                    int code = ctx.status().getCode();
+                    Logger.outbound(code, ctx.attribute("IP"));
+                } else {
+                    this.Logger._f_outbound(ctx);
+                }
             }
         );
     }
@@ -169,7 +184,9 @@ class BaseServer {
 
 
 class Services {
-    public final BaseServer server = new BaseServer();
+    public final BaseServer server = new BaseServer(
+        () -> BaseServer.UseLogFeature(true)
+    );
     public void initialize() {
         /*
         * 或许会有更多的需要注册的类
