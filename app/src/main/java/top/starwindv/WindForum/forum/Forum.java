@@ -81,22 +81,23 @@ public class Forum {
         this.viewPage();
     }
 
-//    @SuppressWarnings("AccessStaticViaInstance")
     private void loginMethodGroup() {
         this.server.post(
             "/api/register",
-            ctx -> {
-                UserDTO RegisterInfo = ctx.bodyAsClass(UserDTO.class);
-                System.out.println(UserDTO.viewer.Stringify(RegisterInfo));
-                Values result = this.authorizer.sendCode(
-                    RegisterInfo.username(),
-                    RegisterInfo.email()
-                );
-                if (!(boolean) result.get(0)) {
-                    ctx.status(400);
+            ctx -> ctx.async(
+                () -> {
+                    UserDTO RegisterInfo = ctx.bodyAsClass(UserDTO.class);
+                    System.out.println(UserDTO.viewer.Stringify(RegisterInfo));
+                    Values result = this.authorizer.sendCode(
+                        RegisterInfo.username(),
+                        RegisterInfo.email()
+                    );
+                    if (!(boolean) result.get(0)) {
+                        ctx.status(400);
+                    }
+                    System.out.println(result);
                 }
-                System.out.println(result);
-            }
+            )
         );
 
         this.server.post(

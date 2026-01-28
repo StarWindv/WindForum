@@ -5,7 +5,7 @@ import picocli.CommandLine;
 import picocli.CommandLine.Option;
 
 
-@SuppressWarnings("unused")
+@SuppressWarnings({"unused", "FieldMayBeFinal", "FieldCanBeLocal"})
 @CommandLine.Command(name = "[Run WindForum Command]", mixinStandardHelpOptions = true,
     description = "WindForum Runtime Config")
 public class ArgParser implements Runnable {
@@ -18,12 +18,14 @@ public class ArgParser implements Runnable {
     @Option(names = {"-h", "--host"}, defaultValue="0.0.0.0", description = "Server Bind Host")
     private String host;
 
+    @Option(names = {"-f", "--feature"}, description = "Use New Logger Feature or Not, Default: true")
+    private boolean useFeature=true;
+
     public String port() { return this.port; }
     public String host() { return this.host; }
+    public boolean useFeature() { return this.useFeature; }
 
     @Override
-    public void run() {
-//        System.out.println("***** " + System.getProperty("sun.java.command"));
-    }
+    public void run() {}
 
 }

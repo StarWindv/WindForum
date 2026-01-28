@@ -31,6 +31,7 @@ import top.starwindv.WindForum.logger.Colorful.Colors;
 import top.starwindv.WindForum.logger.WindLogger;
 
 
+@SuppressWarnings("unused")
 class BaseServer {
     private Javalin server;
     public final WindLogger Logger = new WindLogger(
@@ -48,6 +49,7 @@ class BaseServer {
         useLogFeature = us;
     }
     public BaseServer(Runnable func) { func.run(); }
+    public BaseServer() {}
 
     public Javalin instance() { return this.server; }
 
@@ -184,9 +186,7 @@ class BaseServer {
 
 
 class Services {
-    public final BaseServer server = new BaseServer(
-        () -> BaseServer.UseLogFeature(true)
-    );
+    public final BaseServer server = new BaseServer();
     public void initialize() {
         /*
         * 或许会有更多的需要注册的类
@@ -197,9 +197,10 @@ class Services {
     private void initForum() {
         new Forum("Wind", this.server.instance(), this.server.Src, this.server.Logger);
     }
-    public void start(String ip, int port) {
+    public void start(String ip, int port, boolean useFeature) {
         this.server.start(ip, port);
         this.initialize();
+        BaseServer.UseLogFeature(useFeature);
     }
 }
 
@@ -211,11 +212,11 @@ public class Main {
         CommandLine cmd = new CommandLine(ArgParser.instance);
         int status = cmd.execute(args);
         if (status!=0) { System.exit(status);}
-
         try {
             services.start(
                 ArgParser.instance.host(),
-                Integer.parseInt(ArgParser.instance.port())
+                Integer.parseInt(ArgParser.instance.port()),
+                ArgParser.instance.useFeature()
             );
         } catch (JavalinBindException e) {
             System.err.println(" x This Port Has Been Bind");
