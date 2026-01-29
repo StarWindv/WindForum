@@ -21,9 +21,13 @@ public class ArgParser implements Runnable {
     @Option(names = {"-f", "--feature"}, description = "Use New Logger Feature or Not, Default: true")
     private boolean useFeature=true;
 
+    @Option(names = {"-d", "--debug"}, description = "Start with Debug Mode")
+    private boolean debug=false;
+
     public String port() { return this.port; }
     public String host() { return this.host; }
     public boolean useFeature() { return this.useFeature; }
+    public boolean debug() { return this.debug; }
 
     @Override
     public void run() {}

@@ -8,11 +8,13 @@ import top.starwindv.WindForum.logger.Abstract.LoggerAPI;
 import top.starwindv.WindForum.logger.Colorful.Colors;
 import top.starwindv.WindForum.logger.Config.WindConfig;
 import top.starwindv.WindForum.logger.Colorful.Rich;
+import top.starwindv.WindForum.logger.Errors.TraceUtil;
 import top.starwindv.WindForum.logger.Feature.LogComponent;
 import top.starwindv.WindForum.logger.File.ToFile;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 
 //import org.apache.commons.lang3.StringEscapeUtils;
@@ -21,13 +23,11 @@ import java.util.function.Consumer;
 @SuppressWarnings("unused")
 public class WindLogger extends LoggerAPI {
     protected WindConfig windConfig=new WindConfig();
-    protected ToFile fm;
+    protected static ToFile fm;
 
     public WindLogger(Consumer<WindConfig> userConfig) {
         this.windConfig.applyConfig(userConfig);
-        if (this.windConfig.both() || this.windConfig.toFile()) {
-            this.fm = new ToFile(this.windConfig.logFilePath());
-        }
+        fm = new ToFile(this.windConfig.logFilePath());
     }
 
     @Override
@@ -37,7 +37,7 @@ public class WindLogger extends LoggerAPI {
             Rich.out(this.windConfig.info_template().replace(WindConfig.msgPH, message));
         }
         if (this.windConfig.both() || this.windConfig.toFile()) {
-            this.fm.info(message);
+            fm.info(message);
         }
     }
 
@@ -48,7 +48,7 @@ public class WindLogger extends LoggerAPI {
             Rich.out(this.windConfig.warn_template().replace(WindConfig.msgPH, message));
         }
         if (this.windConfig.both() || this.windConfig.toFile()) {
-            this.fm.warn(message);
+            fm.warn(message);
         }
     }
 
@@ -59,17 +59,32 @@ public class WindLogger extends LoggerAPI {
             Rich.out(this.windConfig.err_template().replace(WindConfig.msgPH, message));
         }
         if (this.windConfig.both() || this.windConfig.toFile()) {
-            this.fm.err(message);
+            fm.err(message);
         }
     }
     @Override
     public void debug (Object... obj) {
-        String message = Arrays.toString(obj);
-        if (this.windConfig.both() || this.windConfig.toTerminal()) {
-            Rich.out(this.windConfig.debug_template().replace(WindConfig.msgPH, message));
+        if  (this.windConfig.useDebug()) {
+            StringBuilder message = new StringBuilder();
+            for (var ele: obj) {
+                message.append(ele);
+            }
+            if (this.windConfig.both() || this.windConfig.toTerminal()) {
+                Rich.out(this.windConfig.debug_template().replace(WindConfig.msgPH, message.toString()));
+            }
+            if (this.windConfig.both() || this.windConfig.toFile()) {
+                fm.debug(message.toString());
+            }
         }
-        if (this.windConfig.both() || this.windConfig.toFile()) {
-            this.fm.debug(message);
+    }
+
+    public void trace(Throwable e) {
+        Map<String, String> result = TraceUtil.Map(e, Colors.Yellow, Colors.Red, Colors.Cyan);
+        if (this.windConfig.both() || this.windConfig.toTerminal()) {
+            Rich.out(result.get(TraceUtil.colorful));
+        }
+        if(!fm.trace(result.get(TraceUtil.noColor))) {
+            fm.err("TraceBackStack Insert Error");
         }
     }
 
@@ -103,6 +118,19 @@ public class WindLogger extends LoggerAPI {
         }
     }
 
+    /**
+     * <h3>
+     *     Feature: 使用上下文组件来进行出入站记录
+     * </h3>
+     * <h5>_f 前缀: _feature_xxx </h5>
+     * <h5>原理: </h5>
+     * 在对应会话的上下文中新建一个日志零件对象
+     * <br> 在入站时写入请求方法, IP 和请求路径
+     * <br> 时间由组件新建时自动写入
+     * <br> 之后在出站时写入出站数据
+     * <br> 并直接用 toString 转换为自定义字符串
+     * <br> 这样来解决日志输出错位的问题
+     * */
     public void _f_inbound(Context ctx) {
         ctx.attribute(
             "logger", new LogComponent(

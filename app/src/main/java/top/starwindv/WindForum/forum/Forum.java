@@ -39,7 +39,6 @@ class protectAPI {
 }
 
 
-@SuppressWarnings("CallToPrintStackTrace")
 public class Forum {
     public final String AppName;
     public final Javalin server;
@@ -51,13 +50,13 @@ public class Forum {
     private final Posts PostsTool = new Posts(dbName);
     private final SessionController SessionOperator = new SessionController(dbName);
     public final Email Poster;
-    protected WindLogger Logger;
+    protected static WindLogger Logger;
 
     public Forum(String AppName, Javalin instance, Sources Src, WindLogger logger) {
         this.AppName = AppName;
         this.server = instance;
         this.Src = Src;
-        this.Logger = logger;
+        Logger = logger;
         this.init();
         try {
             this.Poster = new Email(Src.template("email/mail.html"), "WindForum");
@@ -71,6 +70,8 @@ public class Forum {
             this.SessionOperator
         );
     }
+
+    public static WindLogger Logger() { return Logger; }
 
     private void init() {
         this.sessionRoute();
@@ -87,7 +88,7 @@ public class Forum {
             ctx -> ctx.async(
                 () -> {
                     UserDTO RegisterInfo = ctx.bodyAsClass(UserDTO.class);
-                    System.out.println(UserDTO.viewer.Stringify(RegisterInfo));
+                    Logger.debug(UserDTO.viewer.Stringify(RegisterInfo));
                     Values result = this.authorizer.sendCode(
                         RegisterInfo.username(),
                         RegisterInfo.email()
@@ -95,7 +96,7 @@ public class Forum {
                     if (!(boolean) result.get(0)) {
                         ctx.status(400);
                     }
-                    System.out.println(result);
+                    Logger.debug(result);
                 }
             )
         );
@@ -111,7 +112,7 @@ public class Forum {
                     RegisterInfo.codeHash(),
                     ctx.attribute("IP")
                 );
-                System.out.println(result);
+                Logger.debug(result);
                 if (!(boolean) result.get(0)) {
                     ctx.status(400);
                 }
@@ -122,17 +123,17 @@ public class Forum {
             "/api/login",
             ctx ->  {
                 UserDTO LoginInfo = ctx.bodyAsClass(UserDTO.class);
-//                System.err.println(LoginInfo.viewer.toString(LoginInfo));
+//                Logger.debug(LoginInfo.viewer.toString(LoginInfo));
                 Values result = this.authorizer.login(
                     LoginInfo.email(),
                     LoginInfo.codeHash(),
                     ctx.attribute("IP")
                 );
-//                System.err.println(result);
+//                Logger.debug(result);
                 Map<String, String> response = new HashMap<>();
                 if ((boolean) result.get(0)) {
                     String session_id = (String) result.get(2);
-                    System.out.println("User      : " + LoginInfo.email() + "\nSession-ID: " + session_id);
+                    Logger.debug("User      : " + LoginInfo.email() + "\nSession-ID: " + session_id);
                     response.put("Session-ID", session_id);
                     response.put("status", String.valueOf(true));
                     response.put("message", """
@@ -164,7 +165,7 @@ public class Forum {
                     ctx.status(400);
                 }
                 Values result = this.SessionOperator.loggedInBySessionID(session_id);
-                 System.err.println("Session Route: " + result);
+                 Logger.debug("Session Route: " + result);
                 if (result.getStatus()) {
                     ctx.status(200);
                     return;
@@ -192,7 +193,7 @@ public class Forum {
                         result.put("status", true);
                         result.put("message", "Success");
                     }
-                    System.out.println(postResult);
+                    Logger.debug(postResult);
                 } else {
                     result.put("status", false);
                     result.put("message", "Please check your data and ensure that is not empty");
@@ -260,7 +261,7 @@ public class Forum {
                             ctx.status(400);
                             return;
                         }
-
+                        Long start = System.currentTimeMillis();
                         if (hasFromTo) {
                             Values posts = PostsTool.getFromTo(
                                 "create_time",
@@ -281,16 +282,16 @@ public class Forum {
                             ctx.status(400);
                             return;
                         }
+                        Long end = System.currentTimeMillis();
+                        Logger.debug("数据库查询耗时: ", end - start, " ms");
                         if (!(boolean) response.getStatus()) {
                             ctx.status(404);
                         } else {
-//                        System.err.println(response);
                             ctx.json(response);
                         }
-
                     } catch (Exception e) {
                         ctx.status(500);
-                        e.printStackTrace();
+                        Logger.trace(e);
                     }
                 }
             )
@@ -306,12 +307,12 @@ public class Forum {
                         ctx.status(404);
                         return;
                     }
-//                    System.err.println(result);
-//                    System.err.println(result.getStatus());
+                    Logger.debug(result);
+                    Logger.debug(result.getStatus());
                     ctx.json(result.getResult());
                 } catch (Exception e) {
                     ctx.status(500);
-                    e.printStackTrace();
+                    Logger.trace(e);
                 }
             }
         );
@@ -383,7 +384,7 @@ public class Forum {
                             ctx.redirect("/login");
                         }
                         Values checkResult = this.SessionOperator.loggedInBySessionID(session_id);
-                        System.err.println("loggedInBySessionID: " + checkResult);
+                        Logger.debug("loggedInBySessionID: " + checkResult);
                         if (!(boolean) checkResult.getStatus()) {
                             ctx.status(401);
                             ctx.redirect("/login");

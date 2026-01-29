@@ -1,9 +1,8 @@
 package top.starwindv.WindForum.logger.Feature;
 
 
-import top.starwindv.WindForum.logger.Colorful.Rich;
-
 import java.text.SimpleDateFormat;
+
 
 @SuppressWarnings({"unused", "FieldCanBeLocal"})
 public class LogComponent {

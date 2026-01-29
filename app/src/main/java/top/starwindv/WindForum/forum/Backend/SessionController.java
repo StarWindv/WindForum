@@ -2,6 +2,7 @@ package top.starwindv.WindForum.forum.Backend;
 
 
 import top.starwindv.WindForum.SQL.SQLite;
+import top.starwindv.WindForum.forum.Forum;
 import top.starwindv.WindForum.forum.Utils.Values;
 import top.starwindv.WindForum.forum.Tools.VerifyCode;
 
@@ -47,12 +48,12 @@ class SessionDB {
         // 儒略日换算法
         this.instance.exec(
             "CREATE UNIQUE INDEX idx_session_id ON "+tableName+" (session_id)"
-        ); // 允许多端登录所以只给session上索引
+        ); // 允许多端登录所以只给 session 上索引
     }
 }
 
 
-@SuppressWarnings("UnusedReturnValue")
+@SuppressWarnings("unused, UnusedReturnValue")
 public class SessionController {
     private final SessionDB db;
     public final static int sessionLength = 16;
@@ -66,7 +67,7 @@ public class SessionController {
     public Values loggedInBySessionID(String session_id) {
         try {
             Values result = this.isOutdate(session_id);
-            System.err.println("isOutdate: " + result);
+            Forum.Logger().debug("isOutdate: " + result);
             if (!(boolean) result.getFirst()) {
                 // 没过期
                 return Values.from(true, "User has been login");
@@ -87,7 +88,7 @@ public class SessionController {
             "(session_id = ? or user_email=?)",
             Values.from(user_identify, user_identify)
         );
-        System.err.println("Received ID: " + user_identify);
+        Forum.Logger().debug("Received ID: " + user_identify);
         if (queryResult.isEmpty()) { // 空的也就是没登录, 自然不会过期
             return Values.from(false, "User is not logged");
         }
@@ -129,7 +130,6 @@ public class SessionController {
         }
         try { // outdate check
             Values outdateCheck = this.isOutdate(user_email);
-//            System.out.println("VALUES CONTAINS: " + outdateCheck);
             if (!(boolean) outdateCheck.get(0) && !outdateCheck.get(1).equals("User is not logged")) {
                 return Values.from(
                     true,

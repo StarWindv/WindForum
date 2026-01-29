@@ -31,7 +31,8 @@ public class LogDB {
                             (julianday('now', 'utc') - 2440587.5) * 86400000 + 0.5 AS INTEGER
                         )
                     ),
-                    msg TEXT NOT NULL
+                    msg TEXT NOT NULL,
+                    thread_name TEXT
                 )
                 """, tableName)
         );
@@ -51,6 +52,14 @@ public class LogDB {
             tableName,
             "(msg, level)",
             Values.from(msg, level)
+        ) > 0;
+    }
+
+    public boolean traceInsert(String msg, LogLevel level) {
+        return this.db.insert(
+            tableName,
+            "(msg, level, thread_name)",
+            Values.from(msg, level, Thread.currentThread().getName())
         ) > 0;
     }
 }

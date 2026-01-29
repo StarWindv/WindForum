@@ -9,7 +9,7 @@ import java.sql.*;
 import java.util.stream.Collectors;
 
 
-@SuppressWarnings("UnusedReturnValue")
+@SuppressWarnings({"UnusedReturnValue", "DuplicatedCode"})
 public class PostgreSQL {
     /**
      * Fool-proofing PostgreSQL DataBase Manager

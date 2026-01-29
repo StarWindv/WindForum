@@ -35,6 +35,10 @@ public class ToFile extends ToFileAPI {
         }
     }
 
+    public boolean trace(String TraceStack) {
+        return this.db.traceInsert(TraceStack, LogLevel.TRACE);
+    }
+
     @Override
     public void folderPath(String newPath) {
         this.folderPath = newPath;

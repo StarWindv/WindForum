@@ -34,9 +34,7 @@ import top.starwindv.WindForum.logger.WindLogger;
 @SuppressWarnings("unused")
 class BaseServer {
     private Javalin server;
-    public final WindLogger Logger = new WindLogger(
-        config -> config.logFilePath(Path.of("Data/log.db"))
-    );
+    public WindLogger Logger = null;
 
     public Sources Src;
 
@@ -185,38 +183,36 @@ class BaseServer {
 }
 
 
-class Services {
-    public final BaseServer server = new BaseServer();
-    public void initialize() {
-        /*
-        * 或许会有更多的需要注册的类
-        * 所以有了这个整合接口
-        */
-        this.initForum();
-    }
-    private void initForum() {
-        new Forum("Wind", this.server.instance(), this.server.Src, this.server.Logger);
-    }
-    public void start(String ip, int port, boolean useFeature) {
-        this.server.start(ip, port);
-        this.initialize();
-        BaseServer.UseLogFeature(useFeature);
-    }
-}
-
-
 public class Main {
-    private final static Services services = new Services();
+    private final static BaseServer server = new BaseServer();
+
+    private static void start(
+        String ip,
+        int port,
+        boolean useFeature,
+        boolean debug
+    ) {
+        server.Logger = new WindLogger(
+            config -> {
+                config.logFilePath(Path.of("Data/log.db"));
+                config.useDebug(debug);
+            }
+        );
+        server.start(ip, port);
+        BaseServer.UseLogFeature(useFeature);
+        new Forum("Wind", server.instance(), server.Src, server.Logger);
+    }
 
     public static void main(String[] args) {
         CommandLine cmd = new CommandLine(ArgParser.instance);
         int status = cmd.execute(args);
         if (status!=0) { System.exit(status);}
         try {
-            services.start(
+            start(
                 ArgParser.instance.host(),
                 Integer.parseInt(ArgParser.instance.port()),
-                ArgParser.instance.useFeature()
+                ArgParser.instance.useFeature(),
+                ArgParser.instance.debug()
             );
         } catch (JavalinBindException e) {
             System.err.println(" x This Port Has Been Bind");

@@ -10,4 +10,5 @@ public abstract class LoggerAPI {
     public abstract void warn(Object... obj);
     public abstract void err(Object... obj);
     public abstract void debug(Object... obj);
+    public abstract void trace(Throwable e);
 }

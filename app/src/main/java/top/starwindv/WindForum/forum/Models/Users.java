@@ -40,16 +40,6 @@ public class Users {
             .length(45)
             .notNull()
             .build(),
-/*
-        new ColumnConfig.Builder("reg_time", "TIMESTAMP")
-            .notNull()
-            .defaultValue("CURRENT_TIMESTAMP")
-            .build(),
-        new ColumnConfig.Builder("last_log_time", "TIMESTAMP")
-            .build(),
-
-        迁移使用 exec 接口实现
- */
         new ColumnConfig.Builder("permission", "INTEGER")
             .notNull()
             .defaultValue(Permission.Normal.code)
