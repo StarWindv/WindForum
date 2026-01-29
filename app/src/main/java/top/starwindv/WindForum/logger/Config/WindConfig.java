@@ -46,6 +46,8 @@ public class WindConfig {
     private static String warn_template = "[#FFDA00]<Bold>[Warn ] <Reset><TIMESTAMP> <Bold>[#FFDA00]"+msgPH;
     private static String debug_template= "[#1E90FF]<Bold>[Debug] <Reset><TIMESTAMP> <Bold>[#1E90FF]"+msgPH;
 
+    private static String time_template = "[#607D8B]<Bold>[TIME ] <Reset><TIMESTAMP> <Bold>[#607D8B]"+msgPH;
+
     private static String  inbound_template="\n<Bold>[,255,255][->] <Reset><TIMESTAMP> ["+methodPH+"] ["+ipPH+"] ["+pathPH+"]";
     private static String outbound_template="<Bold>[255,215,][<-] <Reset><TIMESTAMP> ["+statusColorPH+"<Bold>"+statusPH+"<Reset>] ["+ipPH+"]";
 
@@ -67,6 +69,9 @@ public class WindConfig {
 
     public void debug_template(String us) { debug_template = us;}
     public String debug_template() { return debug_template; }
+
+    public void time_template(String us) { time_template = us;}
+    public String time_template() { return time_template; }
 
     public void inbound_template(String us) { inbound_template = us;}
     public String inbound_template() { return inbound_template; }

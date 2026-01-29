@@ -50,7 +50,7 @@ import java.util.List;
  */
 @SuppressWarnings({"unused", "CallToPrintStackTrace"})
 public class Rich {
-    private static SimpleDateFormat Formatter = new SimpleDateFormat("[yyyy-MM-dd HH:mm:ss]");
+    public static SimpleDateFormat Formatter = new SimpleDateFormat("[yyyy-MM-dd HH:mm:ss]");
     public static void Formatter(SimpleDateFormat customFormatter) {
         Formatter = customFormatter;
     }

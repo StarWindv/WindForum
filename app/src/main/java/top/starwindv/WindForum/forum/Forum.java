@@ -261,7 +261,7 @@ public class Forum {
                             ctx.status(400);
                             return;
                         }
-                        Long start = System.currentTimeMillis();
+                        Logger.time();
                         if (hasFromTo) {
                             Values posts = PostsTool.getFromTo(
                                 "create_time",
@@ -282,8 +282,7 @@ public class Forum {
                             ctx.status(400);
                             return;
                         }
-                        Long end = System.currentTimeMillis();
-                        Logger.debug("数据库查询耗时: ", end - start, " ms");
+                        Logger.time();
                         if (!(boolean) response.getStatus()) {
                             ctx.status(404);
                         } else {

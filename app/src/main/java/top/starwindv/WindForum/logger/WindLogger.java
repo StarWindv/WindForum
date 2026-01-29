@@ -15,6 +15,7 @@ import top.starwindv.WindForum.logger.File.ToFile;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
 //import org.apache.commons.lang3.StringEscapeUtils;
@@ -24,6 +25,7 @@ import java.util.function.Consumer;
 public class WindLogger extends LoggerAPI {
     protected WindConfig windConfig=new WindConfig();
     protected static ToFile fm;
+    private final static Map<String, Long> timecache = new ConcurrentHashMap<>();
 
     public WindLogger(Consumer<WindConfig> userConfig) {
         this.windConfig.applyConfig(userConfig);
@@ -32,12 +34,15 @@ public class WindLogger extends LoggerAPI {
 
     @Override
     public void info (@NotNull Object... obj) {
-        String message = Arrays.toString(obj);
+        StringBuilder message = new StringBuilder();
+        for (var ele: obj) {
+            message.append(ele);
+        }
         if (this.windConfig.both() || this.windConfig.toTerminal()) {
             Rich.out(this.windConfig.info_template().replace(WindConfig.msgPH, message));
         }
         if (this.windConfig.both() || this.windConfig.toFile()) {
-            fm.info(message);
+            fm.info(String.valueOf(message));
         }
     }
 
@@ -148,6 +153,30 @@ public class WindLogger extends LoggerAPI {
         if (temp != null) {
             temp.outbound(code, color);
             Rich.out(temp.toString());
+        }
+    }
+
+    private void timeInfo(@NotNull Object... obj) {
+        StringBuilder message = new StringBuilder();
+        for (var ele: obj) {
+            message.append(ele);
+        }
+        Rich.out(this.windConfig.time_template().replace(WindConfig.msgPH, message));
+    }
+
+    public void time() {
+        String threadName = Thread.currentThread().getName();
+        if (!timecache.containsKey(threadName)) {
+            timecache.put(threadName, System.currentTimeMillis());
+        } else {
+            this.timeInfo(
+                "Thread ",
+                threadName,
+                " Elapsed Time: [",
+                System.currentTimeMillis()-timecache.get(threadName),
+                " ms]"
+            );
+            timecache.remove(threadName);
         }
     }
 }
