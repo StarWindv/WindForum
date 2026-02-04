@@ -18,8 +18,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
-//import org.apache.commons.lang3.StringEscapeUtils;
-
 
 @SuppressWarnings("unused")
 public class WindLogger extends LoggerAPI {
@@ -104,12 +102,10 @@ public class WindLogger extends LoggerAPI {
 
     public void outbound(Integer code, String ip) {
         String color=code < 300 ? Colors.Green : (code < 400 ? Colors.Yellow : Colors.Red);
-//        System.err.println(StringEscapeUtils.escapeJava("|>" + color));
         String result = this.windConfig.outbound_template()
             .replace(WindConfig.ipPH, ip)
             .replace(WindConfig.statusColorPH, color)
             .replace(WindConfig.statusPH, code.toString());
-//        System.err.println(StringEscapeUtils.escapeJava("|>" + result));
         Rich.out(result);
     }
 
@@ -164,6 +160,25 @@ public class WindLogger extends LoggerAPI {
         Rich.out(this.windConfig.time_template().replace(WindConfig.msgPH, message));
     }
 
+    /**
+     * 通过静态的 ConcurrentHashMap (timecache) 实现单例缓存
+     * <br>用于记录线程执行的耗时
+     * <br>在需要计时的代码块起始处和结束处分别调用本方法即可自动生成计时日志
+     *
+     * <p><b>实现原理</b></p>
+     * <ul>
+     *   <li>每个线程首次调用时会记录开始时间戳</li>
+     *   <li>同一线程第二次调用时会计算时间差并输出日志</li>
+     *   <li>计时完成后自动清理当前线程的缓存记录</li>
+     * </ul>
+     *
+     * <p><b>线程安全性说明</b></p>
+     * <ul>
+     *   <li>使用线程名称作为缓存键，在当前线程未销毁时名称不会被复用</li>
+     *   <li>ConcurrentHashMap 保证并发访问的安全性</li>
+     *   <li>不会出现线程间缓存数据错乱的问题</li>
+     * </ul>
+     */
     public void time() {
         String threadName = Thread.currentThread().getName();
         if (!timecache.containsKey(threadName)) {
