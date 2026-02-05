@@ -76,7 +76,7 @@ public class SessionController {
             // 因为刚才已经自动销毁旧session了, 所以就是没登录
             return Values.from(false, "User is not login");
         } catch (Exception e) {
-            e.printStackTrace();
+            Forum.Logger().trace(e);
             return Values.from(false, "Query Failed: " + e.getMessage());
         }
     }

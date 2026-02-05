@@ -30,7 +30,6 @@ public class Posts {
                 "type='table' AND name=?",
                 Values.from(TABLE_NAME)
             );
-
             if (tables.isEmpty()) {
                 db.exec("CREATE TABLE IF NOT EXISTS "
                     + TABLE_NAME
@@ -56,6 +55,16 @@ public class Posts {
                 db.exec("CREATE INDEX idx_posts_channel ON " + TABLE_NAME + "(channel_id)");
 
                 db.exec("CREATE INDEX idx_posts_update ON " + TABLE_NAME + "(last_update_time)");
+                db.exec("""
+                    CREATE TRIGGER trigger_posts_update_time
+                    BEFORE UPDATE ON posts
+                    FOR EACH ROW
+                    BEGIN
+                        UPDATE posts
+                        SET last_update_time = CAST((julianday('now', 'utc') - 2440587.5) * 86400000 + 0.5 AS INTEGER)
+                        WHERE rowid = NEW.rowid;
+                    END;
+                    """);
             }
         } catch (Exception e) {
             Forum.Logger().trace(e);
@@ -67,13 +76,12 @@ public class Posts {
         try {
             int affectedRows = this.db.insert(
                 TABLE_NAME,
-                "(email_str, title, content)",
-//                "(email_str, title, content, belongTo)",
+                "(email_str, title, content, channel_id)",
                 Values.from(
                     PostInformation.userEmail(),
                     PostInformation.title(),
-                    PostInformation.content() //,
-//                    PostInformation.belongTo()
+                    PostInformation.content(),
+                    PostInformation.channel_id()
                 )
             );
             if (affectedRows > 0) {
@@ -127,7 +135,7 @@ public class Posts {
         try {
             List<Map<String, Object>> posts = this.db.query(
                 TABLE_NAME,
-                "post_id, email_str, title, content, status, create_time, last_update_time",
+                "post_id, email_str, title, content, status, create_time, last_update_time, channel_id",
                 "create_time",
                 isAsc,
                 limit,
@@ -143,13 +151,12 @@ public class Posts {
         }
     }
 
-    public Values getFromTo(String orderBy, boolean isAsc, int from, int to) {
+    public Values getFromTo(String orderBy, boolean isAsc, int from, int to, String channel_id) {
         try {
             String selectColumns = "post_id, "
                 + TABLE_NAME
                 + ".email_str, title, content, "
                 + TABLE_NAME + ".status, create_time, last_update_time, u.user_name";
-//            Forum.Logger().info(selectColumns);
             List<Map<String, Object>> posts = this.db.queryFromTo(
                 TABLE_NAME,
                 selectColumns,
@@ -159,14 +166,15 @@ public class Posts {
                 to,
                 "Inner Join users u ON " + TABLE_NAME + ".email_str=u.email_str ",
                 "where " + TABLE_NAME + ".status="+Status.Active
+                + String.format(" AND channel_id=%s", channel_id)
             );
             if (posts.isEmpty())
-                return Values.from(false, "Post not found");
+                return Values.from(false, "Post not found", "", true);
             Forum.Logger().debug(posts);
             return Values.from(true, "", posts);
         } catch (Exception e) {
             Forum.Logger().trace(e);
-            return Values.from(false, "Failed to get post: " + e.getMessage());
+            return Values.from(false, "Failed to get post: " + e.getMessage(), "", false);
         }
     }
 }

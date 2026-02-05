@@ -1,0 +1,36 @@
+body {
+    background: #f5f2ed;
+    height: 100vh
+}
+ul { list-style: none; }
+.main {
+    display: flex;
+    height: 100vh;
+    width: 100vw;
+}
+.middle {
+    flex-direction: column;
+    width: 35vw;
+    border-left: #0b1c2c;
+}
+.left_banner img { max-width: 24px; }
+.left_banner {
+    min-width: 26.3vw;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-right: 16px;
+    gap: 4px;
+}
+.right_banner {
+    height: 100vh;
+    width: 37vw;
+}
+.left_banner li {
+    text-align: left;
+    width: fit-content;
+}
+.hide {
+    display: none;
+}

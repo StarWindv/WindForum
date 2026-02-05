@@ -252,18 +252,18 @@ public class Forum {
                     Values response;
                     try {
                         GetPostsDTO needInfo = ctx.bodyAsClass(GetPostsDTO.class);
+                        Logger.debug(needInfo);
 
-                        boolean hasFromTo = (needInfo.from() >= 0 && needInfo.to() >= 0);
-                        boolean hasLimit = (needInfo.limit() > 0);
-                        boolean hasPostId = (needInfo.post_id() != null && !needInfo.post_id().isEmpty());
+                        boolean hasFromTo   = (needInfo.from() >= 0 && needInfo.to() >= 0);
+                        boolean hasLimit    = (needInfo.limit() > 0);
+                        boolean hasPostId   = (needInfo.post_id() != null && !needInfo.post_id().isEmpty());
                         boolean hasOnlyFrom = (needInfo.from() >= 0 && needInfo.to() < 0);
-                        boolean hasOnlyTo = (needInfo.from() < 0 && needInfo.to() >= 0);
+                        boolean hasOnlyTo   = (needInfo.from() < 0 && needInfo.to() >= 0);
 
                         if (hasOnlyFrom || hasOnlyTo) {
                             ctx.status(400);
                             return;
                         }
-
                         int paramTypeCount = 0;
                         if (hasFromTo) paramTypeCount++;
                         if (hasLimit) paramTypeCount++;
@@ -279,10 +279,15 @@ public class Forum {
                                 "create_time",
                                 needInfo.isArc(),
                                 needInfo.from(),
-                                needInfo.to()
+                                needInfo.to(),
+                                needInfo.channel_id()
                             );
-                            if (!(boolean) posts.getStatus()) {
+                            if (!(boolean) posts.getStatus() && !(boolean) posts.getInnerStatus()) {
                                 ctx.status(500);
+                                return;
+                            } else if (!(boolean) posts.getStatus()) {
+                                // ctx.status(404);
+                                ctx.json(""); // 触发前端无帖子
                                 return;
                             }
                             response = Values.from(true, "", posts.getResult());
