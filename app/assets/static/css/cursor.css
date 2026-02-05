@@ -10,7 +10,8 @@ body.mouse {
 body.mouse a:hover,
 body.mouse button:hover,
 body.mouse input[type="submit"]:hover,
-body.mouse input[type="button"]:hover {
+body.mouse input[type="button"]:hover,
+body.mouse #return:hover {
     cursor: url('/static/image/cursor/pointer32x32.png') 0 0, pointer;
 }
 

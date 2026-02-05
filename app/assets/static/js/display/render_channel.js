@@ -9,7 +9,6 @@ async function loadChannel() {
 }
 
 async function renderChannel() {
-    console.log("render channel");
     const channelData = await loadChannel();
     const channelList = DOMBuilder.ul({
         className: "postsList"
