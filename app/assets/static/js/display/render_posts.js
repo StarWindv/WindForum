@@ -39,7 +39,6 @@ async function renderPosts(postContainer, loader) {
     const postsList = DOMBuilder.ul({
         className: "postsList"
     });
-
     if (postsData && postsData.length > 0) {
         postsData.forEach(post => {
             const postItem = DOMBuilder.li({
@@ -69,7 +68,7 @@ async function renderPosts(postContainer, loader) {
                                             DOMBuilder.text("Author: "),
                                             DOMBuilder.a({
                                                 attrs: {href: `/user/${post.email_str}`},
-                                                text: post.email_str
+                                                text: post.user_name
                                             })
                                         ]
                                     });

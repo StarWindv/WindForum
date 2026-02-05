@@ -12,6 +12,16 @@ body {
     background-color: #f5f2ed;
 }
 
+html {
+    height: 100vh;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: auto;
+}
+
 .Auth {
     font-family: 'Georgia', 'Times New Roman', serif;
     max-width: 420px;

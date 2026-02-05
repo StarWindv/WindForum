@@ -180,6 +180,7 @@ public class WindLogger extends LoggerAPI {
      * </ul>
      */
     public void time() {
+        if (!this.windConfig.useTimeLog()) { return; }
         String threadName = Thread.currentThread().getName();
         if (!timecache.containsKey(threadName)) {
             timecache.put(threadName, System.currentTimeMillis());

@@ -2,37 +2,16 @@ package top.starwindv.WindForum.forum.Models;
 
 
 import top.starwindv.WindForum.forum.DTO.PostDTO;
-import top.starwindv.WindForum.forum.Utils.ColumnConfig;
+import top.starwindv.WindForum.forum.Forum;
 import top.starwindv.WindForum.SQL.SQLite;
 import top.starwindv.WindForum.forum.Utils.Status;
 import top.starwindv.WindForum.forum.Utils.Values;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
 
 public class Posts {
-    private static final List<ColumnConfig> TABLE_COLUMNS = Arrays.asList(
-        new ColumnConfig.Builder("post_id", "INTEGER")
-            .autoIncrement()
-            .primaryKey()
-            .build(),
-        new ColumnConfig.Builder("email_str", "INTEGER")
-            .notNull()
-            .build(),
-        new ColumnConfig.Builder("title", "VARCHAR")
-            .notNull()
-            .build(),
-        new ColumnConfig.Builder("content", "TEXT")
-            .notNull()
-            .build(),
-        new ColumnConfig.Builder("status", "INTEGER")
-            .defaultValue(Status.Active)
-            .notNull()
-            .build()
-    );
-
     public final String dbName;
     private final SQLite db;
     private static final String TABLE_NAME = "posts";
@@ -53,7 +32,6 @@ public class Posts {
             );
 
             if (tables.isEmpty()) {
-                db.createTable(TABLE_NAME, TABLE_COLUMNS);
                 db.exec("CREATE TABLE IF NOT EXISTS "
                     + TABLE_NAME
                     + " ("
@@ -61,25 +39,26 @@ public class Posts {
                     + "    email_str VARCHAR(100) NOT NULL,"
                     + "    title VARCHAR NOT NULL,"
                     + "    content TEXT NOT NULL,"
-//                    + "    belongTo TEXT NOT NULL,"
+                    + "    channel_id TEXT NOT NULL,"
                     + "    status INTEGER NOT NULL DEFAULT "
                     + Status.Active
                     + ", "
-                    + "CONSTRAINT fk_email FOREIGN KEY (email_str) REFERENCES users(email_str)"
+                    + " last_update_time DATETIME NOT NULL DEFAULT"
+                    + "(CAST((julianday('now', 'utc') - 2440587.5) * 86400000 + 0.5 AS INTEGER)),"
+                    + " create_time DATETIME NOT NULL DEFAULT"
+                    + "(CAST((julianday('now', 'utc') - 2440587.5) * 86400000 + 0.5 AS INTEGER)),"
+                    + "CONSTRAINT fk_email FOREIGN KEY (email_str) REFERENCES users(email_str),"
+                    + "FOREIGN KEY (channel_id) REFERENCES channel(channel_id)"
                     + ");");
                 db.exec("CREATE INDEX idx_posts_email ON " + TABLE_NAME + "(email_str)");
-                db.exec("ALTER TABLE " + TABLE_NAME + " ADD COLUMN create_time DATETIME NOT NULL DEFAULT (CAST((julianday('now', 'utc') - 2440587.5) * 86400000 + 0.5 AS INTEGER));");
+
                 db.exec("CREATE INDEX idx_posts_create ON " + TABLE_NAME + "(create_time)");
-                db.exec(
-                    "ALTER TABLE "
-                        + TABLE_NAME
-                        + " ADD COLUMN last_update_time DATETIME NOT NULL DEFAULT"
-                        + " (CAST((julianday('now', 'utc') - 2440587.5) * 86400000 + 0.5 AS INTEGER));"
-                );
+                db.exec("CREATE INDEX idx_posts_channel ON " + TABLE_NAME + "(channel_id)");
+
                 db.exec("CREATE INDEX idx_posts_update ON " + TABLE_NAME + "(last_update_time)");
-//                db.exec("CREATE INDEX idx_belongTo ON " + TABLE_NAME + "(belongTo)");
             }
         } catch (Exception e) {
+            Forum.Logger().trace(e);
             throw new RuntimeException("Failed to initialize users table: " + e.getMessage(), e);
         }
     }
@@ -120,6 +99,7 @@ public class Posts {
             }
             return Values.from(true, "", posts.getFirst());
         } catch (Exception e) {
+            Forum.Logger().trace(e);
             return Values.from(false, "Failed to get post: " + e.getMessage());
         }
     }
@@ -138,6 +118,7 @@ public class Posts {
 
             return Values.from(true, "", posts);
         } catch (Exception e) {
+            Forum.Logger().trace(e);
             return Values.from(false, "Failed to get post: " + e.getMessage());
         }
     }
@@ -157,26 +138,34 @@ public class Posts {
 
             return Values.from(true, "", posts);
         } catch (Exception e) {
+            Forum.Logger().trace(e);
             return Values.from(false, "Failed to get post: " + e.getMessage());
         }
     }
 
     public Values getFromTo(String orderBy, boolean isAsc, int from, int to) {
         try {
+            String selectColumns = "post_id, "
+                + TABLE_NAME
+                + ".email_str, title, content, "
+                + TABLE_NAME + ".status, create_time, last_update_time, u.user_name";
+//            Forum.Logger().info(selectColumns);
             List<Map<String, Object>> posts = this.db.queryFromTo(
                 TABLE_NAME,
-                "post_id, email_str, title, content, status, create_time, last_update_time",
+                selectColumns,
                 orderBy,
                 isAsc,
                 from,
                 to,
-                "where status="+Status.Active
+                "Inner Join users u ON " + TABLE_NAME + ".email_str=u.email_str ",
+                "where " + TABLE_NAME + ".status="+Status.Active
             );
             if (posts.isEmpty())
                 return Values.from(false, "Post not found");
-
+            Forum.Logger().debug(posts);
             return Values.from(true, "", posts);
         } catch (Exception e) {
+            Forum.Logger().trace(e);
             return Values.from(false, "Failed to get post: " + e.getMessage());
         }
     }

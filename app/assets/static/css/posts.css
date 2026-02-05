@@ -1,25 +1,32 @@
+pre code {
+    /*noinspection CssNoGenericFontName*/
+    font-family: "JetBrainsMono-SemiBold" !important;
+    font-weight: 450 !important;
+    border-radius: 8px;
+    font-size: 1rem;
+    background : #f9f7f3 !important;
+    border: 0.1px solid #3d3d3d50 !important;
+}
+
 .postsList {
     list-style: none;
     padding: 0;
-    max-width: 800px;
+    min-width: 35vw;
     margin: 0 auto;
-    height: 95vh;
-    border-radius: 8px;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    border-collapse: separate;
+}
+
+.post:not(:first-child) {
+    border-top:0.1px solid #cbb09a;
 }
 
 .post {
-    background-color: #FCF5EB;
-    border-radius: 4px;
+    background-color: #f9f7f3;
     padding: 24px;
-    margin-bottom: 20px;
-    border: 0.1px solid #3d3d3d;
+    margin-bottom: 0.1px;
     box-shadow: 0 0 0 0.1px #D9BFA8;
     transition: all 0.2s ease;
-}
-
-.post:hover {
-    transform: translateY(-1px);
 }
 
 .post h2 {
@@ -74,25 +81,4 @@
     display: block;
     margin: 24px auto;
     border-radius: 4px;
-}
-
-@media (max-width: 768px) {
-    .post {
-        padding: 20px;
-        margin-bottom: 16px;
-    }
-
-    .post h2 {
-        font-size: 1.3rem;
-    }
-
-    .post-meta {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 8px;
-    }
-
-    .post-meta span::before {
-        display: none;
-    }
 }

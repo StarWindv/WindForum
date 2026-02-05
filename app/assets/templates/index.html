@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!--suppress HtmlUnknownTarget, CssNoGenericFontName -->
+<!--suppress HtmlUnknownTarget, CssNoGenericFontName, JSUnresolvedLibraryURL, JSUnresolvedReference, CssUnusedSymbol -->
 <html lang="zh-cn">
     <head>
         <meta charset="utf-8">
@@ -8,24 +8,65 @@
         <link rel="stylesheet" type="text/css" href="/static/css/posts.css">
         <link rel="stylesheet" type="text/css" href="/static/css/cursor.css">
         <link rel="stylesheet" type="text/css" href="/static/css/footer.css">
+        <link rel="stylesheet" type="text/css" href="/static/css/upload_area.css">
         <link rel="stylesheet" href="/static/js/outerPKG/highlight/styles/default.min.css">
         <link rel="font" href="/static/font/JetBrainsMono/fonts/webfonts/JetBrainsMono-SemiBold.woff2">
         <style>
-            pre code {
-                font-family: "JetBrainsMono-SemiBold" !important;
-                font-weight: 450 !important;
-                border-radius: 8px;
-                font-size: 1rem;
-                background : #FCF5EB !important;
-
-                border: 0.1px solid #3d3d3d50 !important;
-                box-shadow: 0 0 0 0.1px #ff00ff !important; /* x偏移 y偏移 模糊 扩散 颜色 */
+            body {
+                background: #f5f2ed;
+                height: 100vh
+            }
+            ul { list-style: none; }
+            .main {
+                display: flex;
+                height: 100vh;
+                width: 100vw;
+            }
+            .middle {
+                flex-direction: column;
+                width: 35vw;
+                border-left: #0b1c2c;
+            }
+            .left_banner img { max-width: 24px; }
+            .left_banner {
+                min-width: 27vw;
+                height: 100vh;
+                display: flex;
+                flex-direction: column;
+                align-items: flex-end;
+                padding-right: 16px;
+                gap: 4px;
+            }
+            .right_banner {
+                height: 100vh;
+                width: 37vw;
+            }
+            .left_banner li {
+                text-align: left;
+                width: fit-content;
+            }
+            .hide {
+                display: none;
             }
         </style>
     </head>
     <body class="mouse">
-<!--        <div id="header"></div>-->
-        <div id="postContainer"></div>
+        <div id="main" class="main">
+            <ul id="left_banner" class="left_banner">
+                <li>
+                    <a href="/index"><img src="/favicon.ico" alt="HOME"></a>&emsp;&nbsp;&nbsp;&emsp;
+                </li>
+                <li>
+                    <a href="/dashboard">个人主页</a>
+                </li>
+            </ul>
+            <div id="middle" class="middle">
+                <div id="upload" class="upload"></div>
+                <div id="postContainer"></div>
+                <div id="channelContainer"></div>
+            </div>
+            <ul id="right_banner" class="right_banner"></ul>
+        </div>
 
         <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js" defer></script>
         <script src="/static/js/outerPKG/marked.js"></script>
@@ -37,17 +78,84 @@
         <script src="/static/js/display/domBuilder.js"></script>
         <script src="/static/js/services/error.js"></script>
         <script src="/static/js/component/footer.js"></script>
+        <script src="/static/js/component/dynamic_input_area.js"></script>
+
         <script defer>
-            async function loadPosts() {
+            async function loadPosts(channel_id = 0) {
                 return await new PostManager().getPosts(
                     {
                         from: 1,
                         to  : 10,
-                        isArc: true
+                        isArc: true,
+                        channel: channel_id
                     }
                 );
             }
-            renderPosts(document.getElementById("postContainer"), loadPosts);
+            const container = document.getElementById("postContainer");
+        </script>
+        <script>
+            const channelContainer = document.getElementById("channelContainer");
+            let TargetChannelId = null;
+            function whenClick() {
+                const channels = document.querySelectorAll(".channel");
+                channels.forEach(
+                    channel => {
+                        channel.addEventListener(
+                            "click",
+                            () => {
+                                TargetChannelId = channel.id;
+                                channelContainer.classList.add("hide");
+                                renderPosts(container, () => { return loadPosts(TargetChannelId); });
+                            }
+                        );
+                    }
+                );
+            }
+        </script>
+        <script>
+            async function loadChannel() {
+                const response = await fetch(
+                    "/api/channel",
+                    { method: "GET" }
+                );
+                if (response.status===200) {
+                    return await response.json()
+                } return [];
+            }
+            async function renderChannel() {
+                const channelData = await loadChannel();
+                const channelList = DOMBuilder.ul({
+                    className: "postsList"
+                });
+                if (channelData && channelData.length > 0) {
+                    channelData.forEach(channel => {
+                        const channelItem = DOMBuilder.li({
+                            className: "post channel",
+                            id: channel.channel_id,
+                            children: [
+                                DOMBuilder.h2({
+                                    text: channel.channel_name
+                                }),
+                                (() => {
+                                    return DOMBuilder.div({
+                                        className: "channelDesc",
+                                        text: channel.description
+                                    });
+                                })()]
+                        });
+                        channelList.append(channelItem);
+                    });
+                } else {
+                    const noChannel = DOMBuilder.li({
+                        text: "暂无频道",
+                        className: "post"
+                    });
+                    channelList.append(noChannel)
+                }
+                channelContainer.append(channelList);
+                whenClick();
+            }
+            renderChannel();
         </script>
     </body>
 </html>

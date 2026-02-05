@@ -1,6 +1,7 @@
 package top.starwindv.WindForum.SQL;
 
 
+import top.starwindv.WindForum.forum.Forum;
 import top.starwindv.WindForum.forum.Utils.ColumnConfig;
 import top.starwindv.WindForum.forum.Utils.Values;
 
@@ -382,6 +383,7 @@ public class SQLite {
         boolean isAsc,
         int from,
         int to,
+        String conjunctiveQuery,
         String whereCondition
     ) {
         validateTableAndColumns(tableName, selectColumns);
@@ -406,6 +408,7 @@ public class SQLite {
             (selectColumns == null || selectColumns.trim().isEmpty()
                 ? "*" : selectColumns.trim())
             + " FROM " + tableName.trim()
+            + " " + conjunctiveQuery
             + " " + whereCondition
             + " ORDER BY "
             + orderByColumn.trim()
@@ -432,7 +435,7 @@ public class SQLite {
             }
             return result;
         } catch (SQLException e) {
-//            e.printStackTrace();
+            Forum.Logger().trace(e);
             throw new RuntimeException("Query range data failed: ", e);
         }
     }

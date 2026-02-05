@@ -18,6 +18,7 @@ public class WindConfig {
     private static Boolean toTerminal = true;
     private static Boolean both = false;
     private static Boolean debugMode = false;
+    private static Boolean timeMode = false;
     private static Path logPath = Paths.get(
                                         System.getProperty("user.home")
                                     ).normalize().resolve(appName);
@@ -113,6 +114,9 @@ public class WindConfig {
 
     public void useDebug(boolean us) { debugMode = us; }
     public boolean useDebug() { return debugMode; }
+
+    public void useTimeLog(boolean us) { timeMode = us; }
+    public boolean useTimeLog() { return timeMode; }
 
     public void setTitle(String us) { customTitle = us; }
     public String setTitle() { return customTitle; }

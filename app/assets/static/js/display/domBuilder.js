@@ -10,6 +10,11 @@ class DOMBuilder {
      * @param {string} options.html - HTML 内容
      * @param {Object} options.attrs - 属性对象
      * @param {Object} options.style - 样式对象
+     * @param {Object} options.id    - 对象ID
+     * @param {Object} options.name  - 对象名称
+     * @param {Object} options.autocomplete - 自动补全
+     * @param {Object} options.placeholder  - 占位符
+     * @param {Object} options.type  - 对象类型
      * @param {string|Array} options.className - CSS 类名
      * @param {Array} options.children - 子元素数组
      * @param {Function} options.on - 事件监听器对象
@@ -42,6 +47,26 @@ class DOMBuilder {
         // 设置样式
         if (options.style) {
             Object.assign(element.style, options.style);
+        }
+
+        if (options.id) {
+            element.id = options.id;
+        }
+
+        if (options.name) {
+            element.name = options.name;
+        }
+
+        if (options.autocomplete) {
+            element.autocomplete = options.autocomplete;
+        }
+
+        if (options.placeholder) {
+            element.placeholder = options.placeholder;
+        }
+
+        if (options.type) {
+            element.type = options.type;
         }
 
         // 设置类名
@@ -95,4 +120,5 @@ class DOMBuilder {
     static a(options) { return this.create('a', options); }
     static pre(options) { return this.create('pre', options); }
     static code(options) { return this.create('code', options); }
+    static label(options) { return this.create('label', options); }
 }

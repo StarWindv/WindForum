@@ -9,13 +9,15 @@ import top.starwindv.WindForum.forum.Backend.SessionController;
 import top.starwindv.WindForum.forum.DTO.GetPostsDTO;
 import top.starwindv.WindForum.forum.DTO.PostDTO;
 import top.starwindv.WindForum.forum.DTO.UserDTO;
-import top.starwindv.WindForum.forum.DTO.*;
+import top.starwindv.WindForum.forum.Models.Channel;
 import top.starwindv.WindForum.forum.Models.Posts;
 import top.starwindv.WindForum.forum.Models.Users;
 import top.starwindv.WindForum.forum.Tools.Sources;
 import top.starwindv.WindForum.forum.Utils.Values;
 import top.starwindv.WindForum.logger.WindLogger;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -45,10 +47,12 @@ public class Forum {
     public final Authorizer authorizer;
     public final Sources Src;
 
-    public final String dbName = "Data/WindForum.db";
-    private final Users UsersTool = new Users(dbName);
-    private final Posts PostsTool = new Posts(dbName);
-    private final SessionController SessionOperator = new SessionController(dbName);
+    private final Path dbDir = Paths.get(".", "Data");
+    private final String dataDBName = dbDir.resolve("WindForum.db").toString();
+    private Users UsersTool;
+    private Posts PostsTool;
+    private Channel ChannelTool;
+    private SessionController SessionOperator;
     public final Email Poster;
     protected static WindLogger Logger;
 
@@ -73,7 +77,15 @@ public class Forum {
 
     public static WindLogger Logger() { return Logger; }
 
+    private void registerTools() {
+        UsersTool = new Users(dataDBName);
+        PostsTool = new Posts(dataDBName);
+        ChannelTool = new Channel(dataDBName);
+        SessionOperator = new SessionController(dataDBName);
+    }
+
     private void init() {
+        this.registerTools();
         this.sessionRoute();
         this.staticFile();
         this.loginMethodGroup();
@@ -342,7 +354,18 @@ public class Forum {
 
         this.server.get(
             "/api/test",
-            ctx -> ctx.json(Values.from(true))
+            ctx -> ctx.json(Values.onlyResult(true))
+        );
+
+        this.server.get(
+            "/api/channel",
+            ctx -> ctx.async(
+                () -> {
+                    Object result = ChannelTool.getChannel().getResult();
+                    Logger.debug(result);
+                    ctx.json(result);
+                }
+            )
         );
 
     } // obtainArticleMethodGroup

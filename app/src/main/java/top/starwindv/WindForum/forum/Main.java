@@ -190,12 +190,14 @@ public class Main {
         String ip,
         int port,
         boolean useFeature,
-        boolean debug
+        boolean debug,
+        boolean time
     ) {
         server.Logger = new WindLogger(
             config -> {
                 config.logFilePath(Path.of("Data/log.db"));
                 config.useDebug(debug);
+                config.useTimeLog(time);
             }
         );
         server.start(ip, port);
@@ -207,12 +209,14 @@ public class Main {
         CommandLine cmd = new CommandLine(ArgParser.instance);
         int status = cmd.execute(args);
         if (status!=0) { System.exit(status);}
+        if (ArgParser.instance.help()) { return; }
         try {
             start(
                 ArgParser.instance.host(),
                 Integer.parseInt(ArgParser.instance.port()),
                 ArgParser.instance.useFeature(),
-                ArgParser.instance.debug()
+                ArgParser.instance.debug(),
+                ArgParser.instance.time()
             );
         } catch (JavalinBindException e) {
             System.err.println(" x This Port Has Been Bind");
