@@ -133,40 +133,42 @@ public class Forum {
 
         this.server.post(
             "/api/login",
-            ctx ->  {
-                UserDTO LoginInfo = ctx.bodyAsClass(UserDTO.class);
+            ctx -> ctx.async(
+                () -> {
+                    UserDTO LoginInfo = ctx.bodyAsClass(UserDTO.class);
 //                Logger.debug(LoginInfo.viewer.toString(LoginInfo));
-                Values result = this.authorizer.login(
-                    LoginInfo.email(),
-                    LoginInfo.codeHash(),
-                    ctx.attribute("IP")
-                );
+                    Values result = this.authorizer.login(
+                        LoginInfo.email(),
+                        LoginInfo.codeHash(),
+                        ctx.attribute("IP")
+                    );
 //                Logger.debug(result);
-                Map<String, String> response = new HashMap<>();
-                if ((boolean) result.get(0)) {
-                    String session_id = (String) result.get(2);
-                    Logger.debug("User      : " + LoginInfo.email() + "\nSession-ID: " + session_id);
-                    response.put("Session-ID", session_id);
-                    response.put("status", String.valueOf(true));
-                    response.put("message", """
+                    Map<String, String> response = new HashMap<>();
+                    if ((boolean) result.get(0)) {
+                        String session_id = (String) result.get(2);
+                        Logger.debug("User      : " + LoginInfo.email() + "\nSession-ID: " + session_id);
+                        response.put("Session-ID", session_id);
+                        response.put("status", String.valueOf(true));
+                        response.put("message", """
                         Please add the complete "Session-ID" field in the Header of subsequent requests, which will serve as your identity identifier.
                         """);
-                } else {
-                    response.put("Session-ID", null);
-                    response.put("status", String.valueOf(false));
-                    response.put("message", """
+                    } else {
+                        response.put("Session-ID", null);
+                        response.put("status", String.valueOf(false));
+                        response.put("message", """
                         Please check if your email address and verification code are correct.
                         """);
-                    ctx.status(401);
+                        ctx.status(401);
+                    }
+                    ctx.contentType("application/json");
+                    ctx.json(response);
+                    /* result: (0, 1, 2)
+                     * 0: boolean
+                     * 1: message
+                     * 2: session_id 当且仅当 0 为真时存在
+                     * */
                 }
-                ctx.contentType("application/json");
-                ctx.json(response);
-                /* result: (0, 1, 2)
-                 * 0: boolean
-                 * 1: message
-                 * 2: session_id 当且仅当 0 为真时存在
-                 * */
-            }
+            )
         );
 
         this.server.post(
@@ -190,7 +192,8 @@ public class Forum {
     private void userUploadMethodGroup() {
         this.server.post(
             "/api/posts/upload",
-            ctx -> {
+            ctx -> ctx.async(
+                ()->{
                 PostDTO PostInfo = ctx.bodyAsClass(PostDTO.class);
                 Map<String, Object> result = new HashMap<>();
                 if (!PostInfo.isEmpty()) {
@@ -213,6 +216,7 @@ public class Forum {
                 }
                 ctx.json(result);
             }
+            )
         );
 
         this.server.post(

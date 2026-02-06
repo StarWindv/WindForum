@@ -68,7 +68,9 @@
                             "click",
                             () => {
                                 TargetChannelId = channel.id;
+                                localStorage.setItem("TargetChannelId", TargetChannelId);
                                 channelContainer.classList.add("hide");
+                                addArea(container);
                                 renderPosts(container, () => { return loadPosts(TargetChannelId); });
                             }
                         );
@@ -89,6 +91,7 @@
                         container.removeChild(container.firstChild);
                     }
                     channelContainer.classList.remove("hide");
+                    localStorage.removeItem("TargetChannelId");
                 }
             );
         </script>

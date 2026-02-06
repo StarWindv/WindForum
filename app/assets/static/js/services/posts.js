@@ -1,3 +1,5 @@
+// noinspection JSUnusedGlobalSymbols
+
 /**
  * 所有API均大小写敏感
  * 
@@ -104,7 +106,7 @@ const getUserVerboseInfo="/api/userinfo";
 
 
 class PostDTO {
-    constructor(email, title, content) {
+    constructor(email, title, content, channel_id) {
         if (!email || !email.trim()) {
         throw new Error('The email cannot be empty');
         }
@@ -114,14 +116,18 @@ class PostDTO {
         if (!content || !content.trim()) {
         throw new Error('The post\s content cannot be empty');
         }
+        if (!channel_id || !channel_id.trim()) {
+        throw new Error('The post\s channel_id cannot be empty');
+        }
         
         this.email = email;
         this.title = title;
         this.content = content;
+        this.channel_id = channel_id;
     }
     
-    static create(email, title, content) {
-        return new PostDTO(email, title, content);
+    static create(email, title, content, channel_id) {
+        return new PostDTO(email, title, content, channel_id);
     }
 }
 
@@ -167,9 +173,10 @@ class PostManager {
           [this.SESSION_ID_HEADER]: sessionId // 请求头携带Session-ID
         },
         body: JSON.stringify({
-          email: post.email,
+          userEmail: post.email,
           title: post.title,
-          content: post.content
+          content: post.content,
+            channel_id: post.channel_id
         })
       });
 

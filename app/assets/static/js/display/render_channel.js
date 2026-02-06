@@ -1,3 +1,14 @@
+/**
+ * @returns {
+ *     [
+ *         {
+ *             channel_id: string,
+ *             channel_name: string,
+ *             email: string, description: string
+ *         }
+ *     ]
+ * }
+ * */
 async function loadChannel() {
     const response = await fetch(
         "/api/channel",
@@ -7,6 +18,7 @@ async function loadChannel() {
         return await response.json()
     } return [];
 }
+
 
 async function renderChannel() {
     const channelData = await loadChannel();

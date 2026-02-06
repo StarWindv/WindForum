@@ -48,9 +48,9 @@ class Authorizer {
     constructor() {
         // 本地存储的键名常量
         this.STORAGE_KEYS = {
-            SESSION_ID: "session-id",
-            EMAIL: "email",
-            USERNAME: "username"
+            SESSION_ID: "wind-session-id",
+            EMAIL: "wind-email",
+            USERNAME: "wind-username"
         };
     }
 
