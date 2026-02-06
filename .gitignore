@@ -4,7 +4,8 @@
 # Ignore Gradle build output directory
 build
 app/bin
-app/Data/*
+app/Data/log.db
+app/Data/WindForum.db
 app/build
 
 # IDE Folders
