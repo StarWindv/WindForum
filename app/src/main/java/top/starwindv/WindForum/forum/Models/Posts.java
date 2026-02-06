@@ -131,6 +131,26 @@ public class Posts {
         }
     }
 
+    public Values LatestPostOfOneUser(String user_email) {
+        try {
+            List<Map<String, Object>> posts = this.db.query(
+                TABLE_NAME,
+                "post_id, email_str, title, content, status, create_time, last_update_time",
+                "email_str=? ORDER BY create_time DESC LIMIT 1",
+                Values.from(user_email)
+            );
+
+            if (posts.isEmpty()) {
+                return Values.from(false, "Post not found");
+            }
+
+            return Values.from(true, "", posts);
+        } catch (Exception e) {
+            Forum.Logger().trace(e);
+            return Values.from(false, "Failed to get post: " + e.getMessage());
+        }
+    }
+
     public Values getAllPosts(boolean isAsc, int limit) {
         try {
             List<Map<String, Object>> posts = this.db.query(

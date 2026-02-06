@@ -26,6 +26,7 @@ import picocli.CommandLine;
 import top.starwindv.WindForum.forum.Tools.Sources;
 import top.starwindv.WindForum.forum.DTO.GsonMapper;
 import top.starwindv.WindForum.forum.Tools.ArgParser;
+import top.starwindv.WindForum.forum.Utils.ServerPlaceHolder;
 import top.starwindv.WindForum.logger.Colorful.Colors;
 
 import top.starwindv.WindForum.logger.WindLogger;
@@ -177,7 +178,7 @@ class BaseServer {
         if (realIP.equals("[0:0:0:0:0:0:0:1]")) {
             realIP = "localhost";
         }
-        ctx.attribute("IP", realIP);
+        ctx.attribute(ServerPlaceHolder.IP, realIP);
         return realIP;
     }
 }

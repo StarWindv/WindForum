@@ -102,6 +102,7 @@ const Upload="/api/posts/upload";
 const comments="/api/posts/comments";
 const getPosts="/api/posts/get";
 const getUserPosts="/api/posts/getUserPosts";
+const getUserLatest="/api/posts/getUserLatest";
 const getUserVerboseInfo="/api/userinfo";
 
 
@@ -143,6 +144,7 @@ class PostManager {
     this.SESSION_ID_HEADER = 'Session-ID';
   }
 
+
   /**
    * 上传帖子
    * @param {PostDTO|{email: string, title: string, content: string}} postData 帖子数据
@@ -154,6 +156,7 @@ class PostManager {
       // 1. 获取并校验Session-ID
       const sessionId = this.authorizer.getSessionId();
       if (!sessionId) {
+          window.location.href = "/login";
         throw new Error('未登录, 无有效Session-ID, 无法上传帖子');
       }
 
@@ -194,12 +197,17 @@ class PostManager {
         };
       }
 
+      if (response.status === 401) {
+          window.location.href = "/login";
+      }
+
       throw new Error(`帖子上传请求异常, 状态码: ${response.status}`);
     } catch (error) {
       console.error('上传帖子出错:', error);
       throw error;
     }
   }
+
 
   /**
    * @param {Object} queryParams 查询参数（三种方式二选一）
@@ -212,7 +220,6 @@ class PostManager {
    * @throws {Error} 参数混合、无Session-ID、接口异常时抛出错误
    */
   async getPosts(queryParams) {
-    try {
       // 1. 获取并校验Session-ID
       const sessionId = this.authorizer.getSessionId();
       if (!sessionId) {
@@ -246,7 +253,7 @@ class PostManager {
       }
 
       if (response.status === 404) {
-        return []; // 无对应帖子返回空数组
+          throw new Error('No Data Found');
       }
 
       if (response.status === 500) {
@@ -257,27 +264,24 @@ class PostManager {
           const posts = await response.json();
           return posts.values;
       }
-
       throw new Error(`查询帖子请求异常, 状态码: ${response.status}`);
-    } catch (error) {
-      console.error('查询帖子出错:', error);
-      throw error;
-    }
   }
+
 
   /**
    * 获取指定用户的所有帖子（无需Session-ID）
    * @param {string} userEmail 目标用户邮箱
+   * @param {string} route
    * @returns {Promise<Array>} 该用户的帖子列表
    * @throws {Error} 邮箱为空、服务器异常时抛出错误
    */
-  async getUserPosts(userEmail) {
+  async getUserPosts(userEmail, route=getUserPosts) {
     try {
       if (!userEmail.trim()) {
         throw new Error('Email cannot be empty');
       }
 
-      const response = await fetch(getUserPosts, {
+      const response = await fetch(route, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -304,9 +308,11 @@ class PostManager {
     }
   }
 
+
   async getUserVerboseInfo(userEmail) {
 
   }
+
 
   /**
    * 上传评论（TODO: 未实现接口的占位方法）

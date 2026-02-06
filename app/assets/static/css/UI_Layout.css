@@ -9,10 +9,11 @@ ul { list-style: none; }
     width: 100vw;
 }
 .middle {
+    display: flex;
     flex-direction: column;
     width: 35vw;
-    border-left: #0b1c2c;
 }
+
 .left_banner img { max-width: 24px; }
 .left_banner {
     min-width: 26.3vw;

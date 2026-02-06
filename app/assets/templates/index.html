@@ -10,16 +10,24 @@
         <link rel="stylesheet" type="text/css" href="/static/css/footer.css">
         <link rel="stylesheet" type="text/css" href="/static/css/upload_area.css">
         <link rel="stylesheet" type="text/css" href="/static/css/UI_Layout.css">
+        <link rel="stylesheet" type="text/css" href="/static/css/component/notice.css">
         <link rel="stylesheet" href="/static/js/outerPKG/highlight/styles/default.min.css">
         <link rel="font" href="/static/font/JetBrainsMono/fonts/webfonts/JetBrainsMono-SemiBold.woff2">
+
+        <style>
+            .channel:hover {
+                background-color: #f0ede6;
+                box-shadow: 0 2px 4px rgba(90, 76, 58, 0.1);
+            }
+        </style>
     </head>
     <body class="mouse">
         <div id="main" class="main">
             <ul id="left_banner" class="left_banner">
-                <li>
+                <li id="menu_icon">
                     <a href="/index"><img src="/favicon.ico" alt="HOME"></a>&emsp;&nbsp;&nbsp;&emsp;
                 </li>
-                <li>
+                <li id="menu_dash">
                     <a href="/dashboard">个人主页</a>
                 </li>
             </ul>
@@ -32,6 +40,7 @@
         </div>
 
         <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js" defer></script>
+        <script src="/static/js/outerPKG/crypto-js.min.js" defer></script>
         <script src="/static/js/outerPKG/marked.js"></script>
         <script src="/static/js/outerPKG/highlight/highlight.min.js"></script>
         <script src="/static/js/focus.js"></script>
@@ -43,13 +52,14 @@
         <script src="/static/js/services/error.js"></script>
         <script src="/static/js/component/footer.js"></script>
         <script src="/static/js/component/dynamic_input_area.js"></script>
+        <script src="/static/js/component/notice.js"></script>
 
         <script defer>
             async function loadPosts(channel_id = 0) {
                 return await new PostManager().getPosts(
                     {
                         from: 1,
-                        to  : 10,
+                        to  : 20,
                         isArc: true,
                         channel_id: channel_id
                     }
@@ -81,7 +91,7 @@
         <script>
             const returnMethod = DOMBuilder.li({
                 text: "返回频道",
-                id: "return"
+                id: "menu_return"
             });
             left_banner.append(returnMethod);
             returnMethod.addEventListener(
@@ -90,6 +100,7 @@
                     while (container.firstChild) {
                         container.removeChild(container.firstChild);
                     }
+                    cachedPostsList = null;
                     channelContainer.classList.remove("hide");
                     localStorage.removeItem("TargetChannelId");
                 }

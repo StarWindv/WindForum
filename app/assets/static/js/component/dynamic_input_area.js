@@ -1,6 +1,18 @@
+// noinspection JSUnusedGlobalSymbols
+
 function autoResizeHeight(textareaElement) {
     textareaElement.style.height = 'auto';
     textareaElement.style.height = (textareaElement.scrollHeight) + 'px';
+}
+
+
+function insertAfter(newElement, targetElement) {
+    const parent = targetElement.parentElement;
+    if (parent.lastChild === targetElement) {
+        parent.appendChild(newElement);
+    } else {
+        parent.insertBefore(newElement, targetElement.nextSibling);
+    }
 }
 
 
@@ -90,19 +102,29 @@ function bindPostMethod() {
                 contentElement?.focus();
                 return;
             }
+            const email = new Authorizer().getEmail();
             const postInfo = new PostDTO(
-                new Authorizer().getEmail(),
+                email,
                 title,
                 content,
                 localStorage.getItem("TargetChannelId")
             );
-
-            const resp = await new PostManager().uploadPost(postInfo);
+            let resp;
+            try {
+                resp = await new PostManager().uploadPost(postInfo);
+            } catch (e) {
+                notice("Post Failed: " + e, "notice_card");
+                return;
+            }
             if (resp.status) {
                 /**
                  * Upload Successful Toast
                  * */
-                alert('True');
+                notice("Post Successful", "notice_card");
+
+                await renderPosts(container, async () => {
+                    return await new PostManager().getUserPosts(email, getUserLatest);
+                }, true);
                 titleElement.value = '';
                 contentElement.value = '';
                 autoResizeHeight(titleElement);
@@ -112,7 +134,7 @@ function bindPostMethod() {
                 /**
                  * Upload Failed Toast
                  * */
-                alert('Failed: ' + (resp.message || '未知错误'));
+                notice("Post Failed: " + (resp.message || "未知错误"), "notice_card");
             }
         }
     );

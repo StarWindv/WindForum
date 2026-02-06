@@ -18,7 +18,7 @@ pre code {
 }
 
 .post:not(:first-child) {
-    border-top:0.1px solid #cbb09a;
+    border-top: 0.1px solid #cbb09a;
 }
 
 .post {
@@ -27,6 +27,7 @@ pre code {
     margin-bottom: 0.1px;
     box-shadow: 0 0 0 0.1px #D9BFA8;
     transition: all 0.2s ease;
+    border: 1px solid #cbb09a;
 }
 
 .post h2 {

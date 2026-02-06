@@ -13,6 +13,7 @@ import top.starwindv.WindForum.forum.Models.Channel;
 import top.starwindv.WindForum.forum.Models.Posts;
 import top.starwindv.WindForum.forum.Models.Users;
 import top.starwindv.WindForum.forum.Tools.Sources;
+import top.starwindv.WindForum.forum.Utils.ServerPlaceHolder;
 import top.starwindv.WindForum.forum.Utils.Values;
 import top.starwindv.WindForum.logger.WindLogger;
 
@@ -105,7 +106,7 @@ public class Forum {
                         RegisterInfo.username(),
                         RegisterInfo.email()
                     );
-                    if (!(boolean) result.get(0)) {
+                    if (!(boolean) result.getFirst()) {
                         ctx.status(400);
                     }
                     Logger.debug(result);
@@ -122,10 +123,10 @@ public class Forum {
                     RegisterInfo.username(),
                     RegisterInfo.verifyCode(),
                     RegisterInfo.codeHash(),
-                    ctx.attribute("IP")
+                    ctx.attribute(ServerPlaceHolder.IP)
                 );
                 Logger.debug(result);
-                if (!(boolean) result.get(0)) {
+                if (!(boolean) result.getFirst()) {
                     ctx.status(400);
                 }
             }
@@ -144,7 +145,7 @@ public class Forum {
                     );
 //                Logger.debug(result);
                     Map<String, String> response = new HashMap<>();
-                    if ((boolean) result.get(0)) {
+                    if ((boolean) result.getFirst()) {
                         String session_id = (String) result.get(2);
                         Logger.debug("User      : " + LoginInfo.email() + "\nSession-ID: " + session_id);
                         response.put("Session-ID", session_id);
@@ -197,18 +198,33 @@ public class Forum {
                 PostDTO PostInfo = ctx.bodyAsClass(PostDTO.class);
                 Map<String, Object> result = new HashMap<>();
                 if (!PostInfo.isEmpty()) {
-                    Values postResult = this.PostsTool.addPost(PostInfo);
-                    if (!(boolean) postResult.get(0)) {
+                    if (!SessionOperator.validateIDAndEmail(ctx, PostInfo.userEmail())) {
+                        ctx.status(401);
                         result.put("status", false);
-                        result.put("message", """
+                        result.put("message", "Inconsistent Email and Session-ID");
+                        Logger.warn(
+                            String.format(
+                                "Inconsistent Email<%s> and Session-ID<%s>",
+                                PostInfo.userEmail(),
+                                ctx.attribute(ServerPlaceHolder.Session_ID)
+                            )
+                        );
+                        SessionOperator.removeByEmail(PostInfo.userEmail());
+                        SessionOperator.removeBySessionID(ctx.attribute(ServerPlaceHolder.Session_ID));
+                    } else {
+                        Values postResult = this.PostsTool.addPost(PostInfo);
+                        if (!(boolean) postResult.getFirst()) {
+                            result.put("status", false);
+                            result.put("message", """
                                 Server Error: Failed When Add Post
                                 """);
-                        ctx.status(400);
-                    } else {
-                        result.put("status", true);
-                        result.put("message", "Success");
+                            ctx.status(500);
+                        } else {
+                            result.put("status", true);
+                            result.put("message", "Success");
+                        }
+                        Logger.debug(postResult);
                     }
-                    Logger.debug(postResult);
                 } else {
                     result.put("status", false);
                     result.put("message", "Please check your data and ensure that is not empty");
@@ -290,8 +306,7 @@ public class Forum {
                                 ctx.status(500);
                                 return;
                             } else if (!(boolean) posts.getStatus()) {
-                                // ctx.status(404);
-                                ctx.json(""); // 触发前端无帖子
+                                ctx.status(404);
                                 return;
                             }
                             response = Values.from(true, "", posts.getResult());
@@ -308,6 +323,7 @@ public class Forum {
                             ctx.status(404);
                         } else {
                             ctx.json(response);
+                            Logger.debug("TEST|", response.serialize());
                         }
                     } catch (Exception e) {
                         ctx.status(500);
@@ -319,10 +335,31 @@ public class Forum {
 
         this.server.post(
             "/api/posts/getUserPosts",
+            ctx -> ctx.async(
+                ()->{
+                    try {
+                        PostDTO postInfo = ctx.bodyAsClass(PostDTO.class);
+                        Values result = this.PostsTool.AllPostOfOneUser(postInfo.userEmail());
+                        if (!(boolean) result.getStatus()) {
+                            ctx.status(404);
+                            return;
+                        }
+                        Logger.debug(result);
+                        Logger.debug(result.getStatus());
+                        ctx.json(result.getResult());
+                    } catch (Exception e) {
+                        ctx.status(500);
+                        Logger.trace(e);
+                    }
+                }
+            )
+        );
+        this.server.post(
+            "/api/posts/getUserLatest",
             ctx -> {
                 try {
                     PostDTO postInfo = ctx.bodyAsClass(PostDTO.class);
-                    Values result = this.PostsTool.AllPostOfOneUser(postInfo.userEmail());
+                    Values result = this.PostsTool.LatestPostOfOneUser(postInfo.userEmail());
                     if (!(boolean) result.getStatus()) {
                         ctx.status(404);
                         return;
@@ -409,7 +446,7 @@ public class Forum {
                 () -> {
                     String requestFor = ctx.path();
                     if (protectAPI.isProtectedPath(requestFor)) {
-                        String session_id = ctx.header("Session-ID");
+                        String session_id = ctx.header(ServerPlaceHolder.Session_ID);
                         if (session_id == null || session_id.isEmpty()) {
                             ctx.status(401);
                             ctx.redirect("/login");
@@ -420,6 +457,7 @@ public class Forum {
                             ctx.status(401);
                             ctx.redirect("/login");
                         }
+                        ctx.attribute(ServerPlaceHolder.Session_ID, session_id);
                     } else { /*放行*/ }
                 }
             )

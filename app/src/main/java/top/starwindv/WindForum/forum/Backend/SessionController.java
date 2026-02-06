@@ -1,8 +1,10 @@
 package top.starwindv.WindForum.forum.Backend;
 
 
+import io.javalin.http.Context;
 import top.starwindv.WindForum.SQL.SQLite;
 import top.starwindv.WindForum.forum.Forum;
+import top.starwindv.WindForum.forum.Utils.ServerPlaceHolder;
 import top.starwindv.WindForum.forum.Utils.Values;
 import top.starwindv.WindForum.forum.Tools.VerifyCode;
 
@@ -179,5 +181,27 @@ public class SessionController {
         } catch (Exception e) {
             return Values.from(false, "Error when remove session by email: " + e.getMessage());
         }
+    }
+
+    public String findMaster(String session_id) {
+        List<Map<String, Object>> check = this.db.instance.query(
+            this.db.tableName,
+            "user_email",
+            "session_id = ?",
+            Values.from(session_id)
+        );
+        return check.isEmpty()? ServerPlaceHolder.Empty : check.getFirst().get(
+            ServerPlaceHolder.user_email
+        ).toString();
+    }
+
+    public Boolean validateIDAndEmail(Context ctx, String email) {
+        String userEmailFromSession = this.findMaster(
+            ctx.attribute(ServerPlaceHolder.Session_ID)
+        );
+        Forum.Logger().debug(email);
+        Forum.Logger().debug(userEmailFromSession);
+        Forum.Logger().debug(email.equals(userEmailFromSession));
+        return email.equals(userEmailFromSession);
     }
 }
