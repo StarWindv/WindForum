@@ -13,18 +13,7 @@ class SimpleConfig {
     public final static String admin = "admin";
     public final static String developer = "starwindv";
     public final static String domain = "@mail.starwindv.top";
-}
-
-
-@SuppressWarnings("unused")
-public class Email {
-    private final static String apiKey = System.getenv("RESEND_API_KEY");
-    private final static Resend Postman = new Resend(apiKey);
-
-    private String template;
-    private final String AppName;
-
-    private static final String logo = """
+    public final static String logo = """
             <table border="0" cellpadding="0" cellspacing="0" role="presentation" style="border-collapse: collapse;">
                 <tr>
                     <td valign="middle">
@@ -35,7 +24,16 @@ public class Email {
                 </tr>
             </table>
         """;
+}
 
+
+@SuppressWarnings("unused")
+public class Email {
+    private final static String apiKey = System.getenv("RESEND_API_KEY");
+    private final static Resend Postman = new Resend(apiKey);
+
+    private String template;
+    private final String AppName;
 
     public Email(String template, String AppName) {
         this.template = template.replace(
@@ -60,7 +58,7 @@ public class Email {
                 .replace("<|cta_link|>"    , "")
                 .replace("<|receiver|>"    , to)
                 .replace("<|sender|>"      , this.AppName)
-                .replace("<|sender_logo_text|>", logo);
+                .replace("<|sender_logo_text|>", SimpleConfig.logo);
 
         CreateEmailOptions Options = CreateEmailOptions.builder()
                 .from(from)

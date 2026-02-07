@@ -8,6 +8,10 @@ pre code {
     border: 0.1px solid #3d3d3d50 !important;
 }
 
+code:hover {
+    background: #f0ede6 !important;
+}
+
 .postsList {
     list-style: none;
     padding: 0;
@@ -28,6 +32,11 @@ pre code {
     box-shadow: 0 0 0 0.1px #D9BFA8;
     transition: all 0.2s ease;
     border: 1px solid #cbb09a;
+}
+
+.post:hover {
+    background-color: #f0ede6;
+    box-shadow: 0 2px 4px rgba(90, 76, 58, 0.1);
 }
 
 .post h2 {

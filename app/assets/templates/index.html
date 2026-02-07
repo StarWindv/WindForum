@@ -13,7 +13,6 @@
         <link rel="stylesheet" type="text/css" href="/static/css/component/notice.css">
         <link rel="stylesheet" href="/static/js/outerPKG/highlight/styles/default.min.css">
         <link rel="font" href="/static/font/JetBrainsMono/fonts/webfonts/JetBrainsMono-SemiBold.woff2">
-
         <style>
             .channel:hover {
                 background-color: #f0ede6;
@@ -23,14 +22,14 @@
     </head>
     <body class="mouse">
         <div id="main" class="main">
-            <ul id="left_banner" class="left_banner">
-                <li id="menu_icon">
+            <div id="left_banner" class="left_banner">
+                <div id="menu_icon">
                     <a href="/index"><img src="/favicon.ico" alt="HOME"></a>&emsp;&nbsp;&nbsp;&emsp;
-                </li>
-                <li id="menu_dash">
+                </div>
+                <div id="menu_dash">
                     <a href="/dashboard">个人主页</a>
-                </li>
-            </ul>
+                </div>
+            </div>
             <div id="middle" class="middle">
                 <div id="upload" class="upload"></div>
                 <div id="postContainer"></div>
@@ -38,76 +37,11 @@
             </div>
             <ul id="right_banner" class="right_banner"></ul>
         </div>
-
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js" defer></script>
-        <script src="/static/js/outerPKG/crypto-js.min.js" defer></script>
-        <script src="/static/js/outerPKG/marked.js"></script>
-        <script src="/static/js/outerPKG/highlight/highlight.min.js"></script>
-        <script src="/static/js/focus.js"></script>
-        <script src="/static/js/services/posts.js"></script>
-        <script src="/static/js/services/authorize.js"></script>
-        <script src="/static/js/display/render_posts.js"></script>
-        <script src="/static/js/display/render_channel.js"></script>
-        <script src="/static/js/display/domBuilder.js"></script>
-        <script src="/static/js/services/error.js"></script>
-        <script src="/static/js/component/footer.js"></script>
-        <script src="/static/js/component/dynamic_input_area.js"></script>
-        <script src="/static/js/component/notice.js"></script>
-
-        <script defer>
-            async function loadPosts(channel_id = 0) {
-                return await new PostManager().getPosts(
-                    {
-                        from: 1,
-                        to  : 20,
-                        isArc: true,
-                        channel_id: channel_id
-                    }
-                );
-            }
-            const container = document.getElementById("postContainer");
-        </script>
+        <script src="/static/js/index/requires.js"></script>
+        <script src="/static/js/component/loader.js"></script>
         <script>
-            const channelContainer = document.getElementById("channelContainer");
-            let TargetChannelId = null;
-            function whenClick() {
-                const channels = document.querySelectorAll(".channel");
-                channels.forEach(
-                    channel => {
-                        channel.addEventListener(
-                            "click",
-                            () => {
-                                TargetChannelId = channel.id;
-                                localStorage.setItem("TargetChannelId", TargetChannelId);
-                                channelContainer.classList.add("hide");
-                                addArea(container);
-                                renderPosts(container, () => { return loadPosts(TargetChannelId); });
-                            }
-                        );
-                    }
-                );
-            }
-        </script>
-        <script>
-            const returnMethod = DOMBuilder.li({
-                text: "返回频道",
-                id: "menu_return"
-            });
-            left_banner.append(returnMethod);
-            returnMethod.addEventListener(
-                "click",
-                () => {
-                    while (container.firstChild) {
-                        container.removeChild(container.firstChild);
-                    }
-                    cachedPostsList = null;
-                    channelContainer.classList.remove("hide");
-                    localStorage.removeItem("TargetChannelId");
-                }
-            );
-        </script>
-        <script>
-            renderChannel();
+            loader(normal_scripts);
+            loader(defer_scripts, true, ()=>{ return main(); });
         </script>
     </body>
 </html>

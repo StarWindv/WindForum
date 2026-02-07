@@ -4,15 +4,9 @@ package top.starwindv.WindForum.forum.Tools;
 import java.util.Random;
 
 
-public class VerifyCode {
-    @SuppressWarnings("SpellCheckingInspection")
+public record VerifyCode(int genLength) {
     private static final String CHAR_SET = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
     private static final Random random = new Random(System.currentTimeMillis());
-    public final int genLength;
-
-    public VerifyCode(int genLength) {
-        this.genLength = genLength;
-    }
 
     public String generate() {
         StringBuilder sb = new StringBuilder(genLength);

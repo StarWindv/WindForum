@@ -116,8 +116,13 @@ public class Posts {
         try {
             List<Map<String, Object>> posts = this.db.query(
                 TABLE_NAME,
-                "post_id, email_str, title, content, status, create_time, last_update_time",
-                "email_str=?",
+                "post_id, "
+                    + TABLE_NAME
+                    + ".email_str, title, content, "
+                    + TABLE_NAME
+                    + ".status, create_time, last_update_time, u.user_name",
+                "users u ON " + TABLE_NAME + ".email_str=u.email_str ",
+                TABLE_NAME+".email_str=?",
                 Values.from(user_email)
             );
             if (posts.isEmpty()) {

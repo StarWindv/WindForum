@@ -93,12 +93,22 @@ function bindPostMethod() {
             const title = titleElement ? titleElement.value.trim() : '';
             const content = contentElement ? contentElement.value.trim() : '';
             if (!title) {
-                alert('请填写帖子标题');
+                notice(
+                    {
+                        title: "NOTICE",
+                        message: "Please Enter the Title of the Post."
+                    }
+                );
                 titleElement?.focus();
                 return;
             }
             if (!content) {
-                alert('请填写帖子正文');
+                notice(
+                    {
+                        title: "NOTICE",
+                        message: "Please Enter the Content of the Post."
+                    }
+                );
                 contentElement?.focus();
                 return;
             }
@@ -113,14 +123,24 @@ function bindPostMethod() {
             try {
                 resp = await new PostManager().uploadPost(postInfo);
             } catch (e) {
-                notice("Post Failed: " + e, "notice_card");
+                notice(
+                    {
+                        title: "ERROR",
+                        message: "Post Failed:<br>"+e
+                    }
+                );
                 return;
             }
             if (resp.status) {
                 /**
                  * Upload Successful Toast
                  * */
-                notice("Post Successful", "notice_card");
+                notice(
+                    {
+                        title: "INFO",
+                        message: "Post Successful:<br>"
+                    }
+                );
 
                 await renderPosts(container, async () => {
                     return await new PostManager().getUserPosts(email, getUserLatest);
@@ -134,7 +154,12 @@ function bindPostMethod() {
                 /**
                  * Upload Failed Toast
                  * */
-                notice("Post Failed: " + (resp.message || "未知错误"), "notice_card");
+                notice(
+                    {
+                        title: "ERROR",
+                        message: "Post Failed:<br>" + (resp.message || "Unknown Error")
+                    }
+                );
             }
         }
     );

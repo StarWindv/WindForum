@@ -16,17 +16,18 @@ ul { list-style: none; }
 
 .left_banner img { max-width: 24px; }
 .left_banner {
-    min-width: 26.3vw;
+    min-width: 28.3vw;
     height: 100vh;
     display: flex;
     flex-direction: column;
     align-items: center;
     padding-right: 16px;
     gap: 4px;
+    transform: translate(43.3px);
 }
 .right_banner {
     height: 100vh;
-    width: 37vw;
+    width: 35vw;
 }
 .left_banner li {
     text-align: left;

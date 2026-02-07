@@ -221,6 +221,50 @@ public class SQLite {
         }
     }
 
+    public List<Map<String, Object>> query(
+        String tableName,
+        String selectColumns,
+        String conjunctiveQuery,
+        String whereClause,
+        Values whereValues
+    ) {
+        validateTableAndColumns(tableName, selectColumns);
+        List<Map<String, Object>> result = new ArrayList<>();
+
+        String querySql = "SELECT " +
+            (selectColumns == null
+                ||
+                selectColumns.trim()
+                    .isEmpty()
+                ? "*" : selectColumns.trim()) +
+            " FROM " + tableName +
+            " INNER JOIN " + conjunctiveQuery.trim() +
+            " WHERE " + whereClause.trim();
+        try (PreparedStatement pstmt = conn.prepareStatement(querySql)) {
+            if (whereValues != null && !whereValues.isEmpty()) {
+                setPreparedStatementParams(pstmt, whereValues);
+            }
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                ResultSetMetaData metaData = rs.getMetaData();
+                int columnCount = metaData.getColumnCount();
+
+                while (rs.next()) {
+                    Map<String, Object> row = new HashMap<>();
+                    for (int i = 1; i <= columnCount; i++) {
+                        String columnName = metaData.getColumnName(i);
+                        Object value = rs.getObject(i);
+                        row.put(columnName, value);
+                    }
+                    result.add(row);
+                }
+            }
+            return result;
+        } catch (SQLException e) {
+            throw new RuntimeException("Select Failed: ", e);
+        }
+    }
+
     private void validateTableAndColumns(String tableName, String columns) {
         if (tableName == null || tableName.trim().isEmpty()) {
             throw new IllegalArgumentException("表名不能为空！");

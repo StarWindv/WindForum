@@ -94,9 +94,19 @@ document.getElementById('send_code')
     const email = els.email.value;
     const sendStatus = await sendVerifyCode(username, email);
     if (sendStatus) {
-        notice("验证码发送成功<br>请检查您的收件箱或垃圾邮件", "notice_main");
+        notice(
+            {
+                title: "INFO",
+                message: "验证码发送成功<br>请检查您的收件箱或垃圾邮件"
+            }
+        );
     } else {
-        notice("验证码发送失败", "notice_main");
+        notice(
+            {
+                title: "ERROR",
+                message: "验证码发送失败"
+            }
+        );
     }
 });
 
@@ -106,6 +116,11 @@ document.getElementById('register')
     try {
         await verifyCodeAndRegister();
     } catch (err) {
-        alert(err.message);
+        notice(
+            {
+                title: "ERROR",
+                message: err.message
+            }
+        );
     }
 });

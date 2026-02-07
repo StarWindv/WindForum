@@ -237,9 +237,9 @@ public class Forum {
 
         this.server.post(
             "/api/posts/comments",
-            ctx -> {
-                // TODO
-            }
+            ctx -> ctx.async(
+                () -> { /* TODO */ }
+            )
         );
     }
 
