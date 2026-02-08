@@ -21,6 +21,7 @@ function addArea(container) {
     if (check!=null && check.length!==0) { return; }
     container.prepend(DOMBuilder.div({
         className: "content-wrapper",
+        id: "content-wrapper",
         children: [
             DOMBuilder.label({
                 children: [

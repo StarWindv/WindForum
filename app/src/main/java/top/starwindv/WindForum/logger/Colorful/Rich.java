@@ -200,11 +200,18 @@ public class Rich {
         return us + Colors.Reset;
     }
 
-    public static void out(String input) {
+    public static void outline(String input) {
         System.out.println(parseTags(parseColors(input)));
     }
-    public static void out() {
+    public static void outline() {
         System.out.println();
+    }
+
+    public static void out(String input) {
+        System.out.print(parseTags(parseColors(input)));
+    }
+    public static void out() {
+        System.out.print("");
     }
 
     public static String process(String input) { return parseTags(parseColors(input)); }

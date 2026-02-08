@@ -24,7 +24,17 @@ class DOMBuilder {
             attrs: val => {
                 Object.entries(val).forEach(([k, v]) => element.setAttribute(k, v));
             },
-            style: val => Object.assign(element.style, val),
+            style: val => {
+                if (typeof val === 'string') {
+                    element.style.cssText = val;
+                } else if (typeof val === 'object' && val !== null) {
+                    Object.entries(val).forEach(([prop, value]) => {
+                        if (value !== null && value !== undefined) {
+                            element.style.setProperty(prop, value);
+                        }
+                    });
+                }
+            },
             on: val => {
                 Object.entries(val).forEach(([evt, fn]) => element.addEventListener(evt, fn));
             },

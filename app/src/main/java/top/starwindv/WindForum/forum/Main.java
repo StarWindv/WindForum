@@ -121,7 +121,7 @@ class BaseServer {
         this.server.error(
             404, ctx->{
                 int code = ctx.status().getCode();
-                System.out.printf(this.EHMsg(code));
+                Forum.Logger().err(this.EHMsg(code));
                 ctx.html(this.Src.template(this.page4xx));
             }
         );

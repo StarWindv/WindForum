@@ -36,12 +36,14 @@
     border: none;
     background-color: transparent;
     cursor: pointer;
-    font-size: 14px;
+    font-size: 12px;
     font-weight: 500;
+    transform: translate(-0.1px, -5.1px);
+    border-radius: 5px;
 }
 
 #upload_post:hover {
-    background-color: #fcf7eb;
+    background-color: #efe9da;
 }
 
 #post_title:focus, #post_content:focus {

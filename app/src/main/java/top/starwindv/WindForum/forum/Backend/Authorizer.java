@@ -3,6 +3,7 @@ package top.starwindv.WindForum.forum.Backend;
 
 import org.apache.commons.lang3.tuple.Triple;
 import top.starwindv.WindForum.forum.Email;
+import top.starwindv.WindForum.forum.Forum;
 import top.starwindv.WindForum.forum.Models.Users;
 import top.starwindv.WindForum.forum.Tools.VerifyCode;
 import top.starwindv.WindForum.logger.Colorful.Colors;
@@ -36,14 +37,13 @@ public class Authorizer {
                 System.currentTimeMillis()
             )
         );
-        System.out.println(email + ", " + code);
+        Forum.Logger().debug(email + ", " + code);
         String responseID = this.Poster.verifyCode(code, email);
         if (!responseID.isEmpty()) {
-            System.out.println(responseID);
+            Forum.Logger().debug(responseID);
             return Values.from(true, "Email Sent");
         } else {
-
-            System.out.println(
+            Forum.Logger().println(
                 Colors.Bold + Colors.Red + "[X]" + Colors.Reset + "Failed to Send Email, Removed"
             );
             codeCache.remove(email);

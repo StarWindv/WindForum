@@ -2,13 +2,21 @@
     cursor: pointer;
 }
 
-
 body {
     background: #FFF2DF;
     scrollbar-width: none;
     overflow: auto;
     overflow-x: hidden;
     -ms-overflow-style: none;
+}
+
+::-webkit-scrollbar-thumb {
+    background: linear-gradient(to bottom, #c55552, #ff9d76);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar {
+    width: 8px;
 }
 
 *::selection {

@@ -1,48 +1,70 @@
 <!DOCTYPE html>
 <!--suppress HtmlUnknownTarget -->
 <html lang="zh-cn">
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Wind Forum</title>
-        <link rel="stylesheet" type="text/css" href="/static/css/cursor.css">
-        <link rel="stylesheet" type="text/css" href="/static/css/footer.css">
-        <link rel="stylesheet" type="text/css" href="/static/css/login.css">
-        <link rel="stylesheet" type="text/css" href="/static/css/component/notice.css">
-    </head>
-    <body class="mouse">
-        <div>
-            <form id="auth" class="Auth">
-                <label class="collector">
-                    UserName
-                    <input type="text" id="username" name="username" autocomplete="on">
-                </label>
-                <label class="collector">
-                    Email
-                    <input type="text" id="email" name="email" autocomplete="on">
-                </label>
-                <label class="collector">
-                    Password
-                    <input type="password" id="password" name="password" autocomplete="on">
-                </label>
-                <label class="collector">
-                    Email Verify Code
-                    <input type="text" id="verifyCode" name="verifyCode" autocomplete="on">
-                </label>
-                <div class="button-group">
-                    <button type="button" id="login">Login</button>
-                    <button type="button" id="send_code">Send Email Code</button>
-                    <button type="button" id="register">Register</button>
-                </div>
-            </form>
-        </div>
-        <footer>
-            <p>© 2025 WindForum</p>
-        </footer>
-        <script src="/static/js/focus.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
-        <script src="/static/js/services/authorize.js"></script>
-        <script src="/static/js/services/login.js"></script>
-        <script src="/static/js/component/notice.js"></script>
-    </body>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wind Forum</title>
+    <link rel="stylesheet" type="text/css" href="/static/css/base.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/footer.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/login.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/component/notice.css">
+    <style>
+        div a {
+            text-decoration: none;
+            color: #c55552;
+        }
+        div a:hover {
+            color: #589efe;
+            text-decoration: underline;
+        }
+        .container {
+            margin-top: 5px;
+            display: flex;
+        }
+        .part {
+            flex-basis: 0;
+            flex-grow: 1;
+            height: 100%;
+            padding-right: 2px;
+            padding-left: 2px;
+        }
+        .switch-link {
+            text-align: center;
+            margin-top: 15px;
+            font-size: 14px;
+            color: #5a4c3a;
+        }
+        .switch-link a {
+            color: #c55552;
+            cursor: pointer;
+        }
+        .switch-link a:hover {
+            color: #589efe;
+            text-decoration: underline;
+        }
+        .license-text {
+            text-align: center;
+            margin-top: 20px;
+            margin-bottom: 20px;
+            font-size: 12px;
+            color: #5a4c3a;
+        }
+    </style>
+</head>
+<body>
+<div>
+    <form id="auth" class="Auth">
+        <!-- 表单内容将通过JS动态生成 -->
+    </form>
+</div>
+<footer>
+    <p>© 2025 WindForum</p>
+</footer>
+<script src="/static/js/focus.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
+<script src="/static/js/services/authorize.js"></script>
+<script src="/static/js/services/login.js"></script>
+<script src="/static/js/component/notice.js"></script>
+</body>
 </html>

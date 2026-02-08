@@ -37,7 +37,7 @@ public class WindLogger extends LoggerAPI {
             message.append(ele);
         }
         if (this.windConfig.both() || this.windConfig.toTerminal()) {
-            Rich.out(this.windConfig.info_template().replace(WindConfig.msgPH, message));
+            Rich.outline(this.windConfig.info_template().replace(WindConfig.msgPH, message));
         }
         if (this.windConfig.both() || this.windConfig.toFile()) {
             fm.info(String.valueOf(message));
@@ -48,7 +48,7 @@ public class WindLogger extends LoggerAPI {
     public void warn (Object... obj) {
         String message = Arrays.toString(obj);
         if (this.windConfig.both() || this.windConfig.toTerminal()) {
-            Rich.out(this.windConfig.warn_template().replace(WindConfig.msgPH, message));
+            Rich.outline(this.windConfig.warn_template().replace(WindConfig.msgPH, message));
         }
         if (this.windConfig.both() || this.windConfig.toFile()) {
             fm.warn(message);
@@ -57,14 +57,18 @@ public class WindLogger extends LoggerAPI {
 
     @Override
     public void err (Object... obj) {
-        String message = Arrays.toString(obj);
+        StringBuilder message = new StringBuilder();
+        for (var ele: obj) {
+            message.append(ele);
+        }
         if (this.windConfig.both() || this.windConfig.toTerminal()) {
-            Rich.out(this.windConfig.err_template().replace(WindConfig.msgPH, message));
+            Rich.outline(this.windConfig.err_template().replace(WindConfig.msgPH, message));
         }
         if (this.windConfig.both() || this.windConfig.toFile()) {
-            fm.err(message);
+            fm.err(String.valueOf(message));
         }
     }
+
     @Override
     public void debug (Object... obj) {
         if  (this.windConfig.useDebug()) {
@@ -73,7 +77,7 @@ public class WindLogger extends LoggerAPI {
                 message.append(ele);
             }
             if (this.windConfig.both() || this.windConfig.toTerminal()) {
-                Rich.out(this.windConfig.debug_template().replace(WindConfig.msgPH, message.toString()));
+                Rich.outline(this.windConfig.debug_template().replace(WindConfig.msgPH, message.toString()));
             }
             if (this.windConfig.both() || this.windConfig.toFile()) {
                 fm.debug(message.toString());
@@ -84,7 +88,7 @@ public class WindLogger extends LoggerAPI {
     public void trace(Throwable e) {
         Map<String, String> result = TraceUtil.Map(e, Colors.Yellow, Colors.Red, Colors.Cyan);
         if (this.windConfig.both() || this.windConfig.toTerminal()) {
-            Rich.out(result.get(TraceUtil.colorful));
+            Rich.outline(result.get(TraceUtil.colorful));
         }
         if(!fm.trace(result.get(TraceUtil.noColor))) {
             fm.err("TraceBackStack Insert Error");
@@ -92,7 +96,7 @@ public class WindLogger extends LoggerAPI {
     }
 
     public void inbound(String ip, String method, String path) {
-        Rich.out(
+        Rich.outline(
             this.windConfig.inbound_template()
                 .replace(WindConfig.ipPH, ip)
                 .replace(WindConfig.methodPH, method)
@@ -106,16 +110,16 @@ public class WindLogger extends LoggerAPI {
             .replace(WindConfig.ipPH, ip)
             .replace(WindConfig.statusColorPH, color)
             .replace(WindConfig.statusPH, code.toString());
-        Rich.out(result);
+        Rich.outline(result);
     }
 
     public void title(String colorTag) {
-        Rich.out(this.windConfig.title().replace(WindConfig.titleColorPH, colorTag));
+        Rich.outline(this.windConfig.title().replace(WindConfig.titleColorPH, colorTag));
     }
 
     public void startMsg(List<String> IPList) {
         for(String ip: IPList) {
-            Rich.out(this.windConfig.start_msg_template().replace(WindConfig.ipPH, ip));
+            Rich.outline(this.windConfig.start_msg_template().replace(WindConfig.ipPH, ip));
         }
     }
 
@@ -148,7 +152,7 @@ public class WindLogger extends LoggerAPI {
         String color=code < 300 ? Colors.Green : (code < 400 ? Colors.Yellow : Colors.Red);
         if (temp != null) {
             temp.outbound(code, color);
-            Rich.out(temp.toString());
+            Rich.outline(temp.toString());
         }
     }
 
@@ -157,7 +161,7 @@ public class WindLogger extends LoggerAPI {
         for (var ele: obj) {
             message.append(ele);
         }
-        Rich.out(this.windConfig.time_template().replace(WindConfig.msgPH, message));
+        Rich.outline(this.windConfig.time_template().replace(WindConfig.msgPH, message));
     }
 
     /**
@@ -193,6 +197,29 @@ public class WindLogger extends LoggerAPI {
                 " ms]"
             );
             timecache.remove(threadName);
+        }
+    }
+
+    public void println(String sep, String level, Object... msg) {
+        this.print(sep, "\n", level, msg);
+    }
+
+    public void println(Object... msg) {
+        this.print(" ", "\n", "info", msg);
+    }
+
+    public void print(String sep, String end, String level, Object... msg) {
+        StringBuilder sb = new StringBuilder();
+        for (var auto: msg) {
+            sb.append(auto)
+                .append(sep);
+        }
+        sb.append(end);
+        if (this.windConfig.both() || this.windConfig.toTerminal()) {
+            Rich.out(String.valueOf(sb));
+        }
+        if (this.windConfig.both() || this.windConfig.toFile()) {
+            fm.write(String.valueOf(sb), level);
         }
     }
 }

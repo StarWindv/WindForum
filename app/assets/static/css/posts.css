@@ -2,7 +2,7 @@ pre code {
     /*noinspection CssNoGenericFontName*/
     font-family: "JetBrainsMono-SemiBold" !important;
     font-weight: 450 !important;
-    border-radius: 8px;
+    border-radius: 4px;
     font-size: 1rem;
     background : #f9f7f3 !important;
     border: 0.1px solid #3d3d3d50 !important;
