@@ -17,6 +17,3 @@ app/assets/static/js/outerPKG/highlight
 
 # Ignore JetBrains Mono Font
 app/assets/static/font/JetBrainsMono
-
-self-clitools/lines-counter/CMakeLists.txt
-self-clitools/lines-counter/pybind_lines.cpp

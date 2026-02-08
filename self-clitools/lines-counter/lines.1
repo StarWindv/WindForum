@@ -1,0 +1,67 @@
+.TH LINES 1 "2026.2.8" "0.0.1" "Line Counter Utility"
+.SH NAME
+lines \- A high-performance line counter for text files with specified extensions
+.SH SYNOPSIS
+.B lines
+[OPTIONS] <extension1> <extension2> ...
+.SH DESCRIPTION
+.B lines
+is a cross-platform, high-performance utility for counting lines of code in text files with user-specified extensions. Key features include recursive directory traversal, exclude path support, newline format detection (LF/CRLF/CR), and minimal output mode. The tool reads files in binary mode to avoid encoding issues and complies with POSIX standards for line counting (adds 1 for files with content but no trailing newline).
+
+.SH OPTIONS
+.TP
+.B \-h, \-\-help
+Display help message and exit
+.TP
+.B \-e, \-\-exclude <path>
+Exclude a specific file or directory from line counting (supports absolute/relative paths). Exclude path matching is case-sensitive on case-sensitive filesystems (e.g., Linux).
+.TP
+.B \-ol, \-\-only-lines
+Output only the total line count (suppresses per-file details like newline format and file paths).
+.TP
+.B \-sf, \-\-suppress-format
+Suppress output of newline format (LF/CRLF/CR) for each processed file.
+
+.SH EXAMPLES
+.TP
+Count lines in all .cpp and .hpp files in the current directory:
+.B ./lines cpp hpp
+.TP
+Count lines in .py files, excluding the venv directory:
+.B ./lines py -e venv
+.TP
+Count lines in .js files and output only the total line count:
+.B ./lines js -ol
+.TP
+Count lines in .ts files, excluding node_modules and suppressing newline format output:
+.B ./lines ts -e node_modules -sf
+
+.SH TECHNICAL NOTES
+.B lines
+requires a C++23-compliant compiler (clang++/g++ 13+). It leverages C++23 features like std::expected (error handling), enhanced std::ranges (directory traversal), and std::filesystem (cross-platform paths). Performance optimizations include 64KB fixed-size buffer I/O, binary mode reading, and short-circuit exclude path checks.
+
+.SH LIMITATIONS
+.IP \[bu] 2
+Does not handle compressed or binary files (designed for plain text).
+.IP \[bu]
+Newline format detection reports the dominant format for files with mixed newlines.
+.IP \[bu]
+Requires C++23-compliant compilers (older toolchains are unsupported).
+
+.SH BUGS
+No known bugs at time of release. Report issues to the project repository.
+
+.SH SEE ALSO
+.B wc(1)
+(standard line count utility),
+.B find(1)
+(directory traversal)
+
+.SH HOMEPAGE
+https://github.com/starwindv/windforum/self-counter/lines-counter
+
+.SH CONNECT
+starwindv.stv@gmail.com
+
+.SH COPYRIGHT
+Copyright (C) 2026. This program is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License v3 (GPLv3).

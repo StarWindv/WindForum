@@ -1,0 +1,17 @@
+Source: lines-counter
+Section: utils
+Priority: optional
+Maintainer: StarWindv <starwindv.stv@gmail.com>
+Build-Depends:
+    clang,
+    libstdc++-dev
+Rules-Requires-Root: binary-targets
+Standards-Version: 4.6.2
+Homepage: https://github.com/starwindv/windforum/lines-counter
+Vcs-Browser: https://github.com/starwindv/windforum/lines-counter
+
+Package: lines-counter
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: A high-performance for counting lines of code in files with specified extensions,
+ with support for excluding paths and detecting newline formats (LF/CRLF/CR).

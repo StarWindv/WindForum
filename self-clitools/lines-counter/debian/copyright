@@ -1,0 +1,6 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: lines-counter
+Upstream-Contact: StarWindv <starwindv.stv@gmail.com>
+Source: https://github.com/starwindv/windforum/self-clitools/lines-counter
+
+License: GPL-3.0

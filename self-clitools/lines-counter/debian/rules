@@ -1,0 +1,15 @@
+#!/usr/bin/make -f
+%:
+	dh $@
+
+override_dh_auto_build:
+	clang++ -o lines main.cpp -std=c++23 -O3 -Wextra
+	strip lines
+
+override_dh_auto_install:
+	mkdir -p debian/lines-counter/usr/local/bin
+	cp lines-counter debian/lines-counter/usr/local/bin/
+	mkdir -p debian/lines-counter/usr/local/share/doc/lines-counter
+	cp readme.md debian/lines-counter/usr/local/share/doc/lines-counter/
+	mkdir -p debian/lines-counter/usr/local/share/man/man1
+	cp lines.1 debian/lines-counter/usr/local/share/man/man1/lines-counter.1
