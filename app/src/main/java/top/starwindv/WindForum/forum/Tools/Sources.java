@@ -3,10 +3,10 @@ package top.starwindv.WindForum.forum.Tools;
 
 import io.javalin.http.Context;
 import org.apache.commons.lang3.StringUtils;
-
 import io.javalin.Javalin;
+import top.starwindv.WindForum.forum.Forum;
 
-//import java.io.IOException;
+
 import java.nio.charset.Charset;
 import java.nio.charset.MalformedInputException;
 import java.nio.charset.UnsupportedCharsetException;
@@ -15,7 +15,6 @@ import java.nio.file.Paths;
 import java.nio.file.Files;
 
 
-@SuppressWarnings("unused")
 public class Sources {
     /**
      * we don't need powerful render
@@ -23,6 +22,7 @@ public class Sources {
      */
     public final String srcRoot;
     public final String template;
+    public final String showTPPath;
     public final String staticFile;
 
     public static final String[] TextMimeTypes = {
@@ -31,37 +31,30 @@ public class Sources {
         "application/xml",
         "application/xhtml+xml"
     };
-    
+
     public Sources(String srcRoot) {
         srcRoot = srcRoot.replace("\\", "/");
         srcRoot = StringUtils.stripEnd(srcRoot, "/");
         this.srcRoot    = srcRoot;
         this.template   = srcRoot + "/templates";
         this.staticFile = srcRoot + "/static";
+        this.showTPPath = "/show/";
     }
 
     public String template(String filePath) throws Exception {
-        return (
-            Files.readString(Paths.get(this.template, filePath))
-        );
+        return Files.readString(Paths.get(this.template, filePath));
     }
 
     public String staticFile(String filePath) throws Exception {
-        return (
-            Files.readString(Paths.get(this.staticFile, filePath))
-        );
+        return Files.readString(Paths.get(this.staticFile, filePath));
     }
 
     public String staticFile(String filePath, String encoding) throws Exception {
-        return (
-            Files.readString(Paths.get(this.staticFile, filePath), Charset.forName(encoding))
-        );
+        return Files.readString(Paths.get(this.staticFile, filePath), Charset.forName(encoding));
     }
 
     public byte[] staticMedia(String filePath) throws Exception {
-        return (
-            Files.readAllBytes(Paths.get(this.staticFile, filePath))
-        );
+        return Files.readAllBytes(Paths.get(this.staticFile, filePath));
     }
 
     private void requestFile(
@@ -79,13 +72,14 @@ public class Sources {
                 }
             }
         }
+
         ctx.header("X-Content-Type-Options", "nosniff");
-//        System.out.println("Request MimeType: " + mimeType);
+        Forum.Logger().debug("Request MimeType: ", mimeType);
+
         if (isTextType) {
             ctx.contentType(mimeType + "; charset=UTF-8")
                 .result(this.staticFile(staticPath, encoding));
         } else {
-            ctx.header("Content-Encoding", "identity");
             ctx.contentType(mimeType)
                 .result(this.staticMedia(staticPath));
         }
@@ -106,12 +100,15 @@ public class Sources {
                     String encoding = "UTF-8";
                     try {
                         String mimeType = Files.probeContentType(Paths.get(staticPath));
-                        if (mimeType == null) {
-                            mimeType = "text/plain";
+
+                        if (mimeType == null || mimeType.trim().isEmpty()) {
+                            mimeType = "application/octet-stream";
+                            ctx.header("X-Content-Type-Options", "nosniff");
+                            ctx.contentType(mimeType)
+                                .result(this.staticMedia(staticPath));
+                        } else {
+                            this.requestFile(encoding, mimeType, staticPath, ctx);
                         }
-                        this.requestFile(
-                            encoding, mimeType, staticPath, ctx
-                        );
                     } catch (NoSuchFileException ignored) {
                         ctx.status(404);
                         System.err.println("No Such File: " + staticPath);
@@ -119,10 +116,26 @@ public class Sources {
                         ctx.status(501);
                     } catch (UnsupportedCharsetException ignored) {
                         ctx.status(400);
+                    } catch (Exception e) {
+                        try {
+                            ctx.header("X-Content-Type-Options", "nosniff")
+                                .contentType("application/octet-stream")
+                                .result(this.staticMedia(staticPath));
+                        } catch (Exception e2) {
+                            ctx.status(500);
+                            Forum.Logger().trace(e2);
+                        }
                     }
                 }
             )
         );
+        server.get(
+            "/show/{template_name}", ctx -> ctx.async(
+                () -> {
+                    String template_name = ctx.pathParam("template_name");
+                    ctx.html(this.template(this.showTPPath+template_name));
+                }
+            )
+        );
     }
-
 }

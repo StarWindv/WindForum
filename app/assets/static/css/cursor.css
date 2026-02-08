@@ -1,20 +1,6 @@
-/*noinspection CssUnknownTarget*/
-
-/*body.mouse {*/
-/*    height: 90vh;*/
-/*    width: 90vw;*/
-/*    cursor: url('/static/image/cursor/default32x32.png') 3 3, default;*/
-/*}*/
-
-
-/*!*noinspection CssUnknownTarget*!*/
-/*body.mouse a:hover,*/
-/*body.mouse button:hover,*/
-/*body.mouse input[type="submit"]:hover,*/
-/*body.mouse input[type="button"]:hover,*/
-/*body.mouse #menu_return:hover {*/
-/*    cursor: url('/static/image/cursor/pointer32x32.png') 0 0, pointer;*/
-/*}*/
+#menu_return:hover {
+    cursor: pointer;
+}
 
 
 body {

@@ -1,0 +1,242 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    background: #FFF2DF;
+    margin: 0;
+    min-height: 100vh;
+    font-family: "JetBrainsMono-SemiBold", "Microsoft YaHei", sans-serif;
+    color: #333;
+    line-height: 32px;
+    overflow-x: hidden;
+}
+
+*::selection {
+    background: #c55552;
+    color: #fff2df;
+}
+
+.click-effect {
+    position: fixed;
+    width: 40px;
+    height: 40px;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    border: 2px solid #409eff;
+    pointer-events: none;
+    animation: click-ripple 0.6s ease-out forwards;
+    z-index: 9999;
+}
+
+@keyframes click-ripple {
+    0% {
+        width: 0;
+        height: 0;
+        opacity: 1;
+        border-width: 3px;
+    }
+    100% {
+        width: 40px;
+        height: 40px;
+        opacity: 0;
+        border-width: 2px;
+    }
+}
+
+.bg-decoration {
+    position: fixed;
+    z-index: -1;
+    opacity: 0.1;
+}
+
+.bg-circle-1 {
+    width: 300px;
+    height: 300px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #c55552, #ff9d76);
+    top: -150px;
+    right: -100px;
+}
+
+.bg-circle-2 {
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    background: linear-gradient(45deg, #409eff, #2ecc71);
+    bottom: -100px;
+    left: -50px;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 40px 20px;
+}
+
+.header {
+    text-align: center;
+    margin-bottom: 50px;
+    position: relative;
+}
+
+.title {
+    color: #333;
+    margin-bottom: 10px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    font-size: 2rem;
+}
+
+.subtitle {
+    font-size: 1.1rem;
+    color: #666;
+    font-weight: 400;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.license-container {
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+    padding: 50px;
+    margin-bottom: 40px;
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgba(255, 157, 118, 0.1);
+}
+
+.license-clause {
+    margin-bottom: 40px;
+    position: relative;
+    counter-increment: clause;
+}
+
+.clause-title {
+    font-size: 1.4rem;
+    color: #333;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid rgba(64, 158, 255, 0.1);
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.clause-content {
+    font-size: 1.05rem;
+    color: #555;
+    margin-bottom: 15px;
+}
+
+.sub-clause {
+    margin: 12px 0 12px 20px;
+    position: relative;
+    padding-left: 25px;
+}
+
+.sub-clause::before {
+    content: '•';
+    position: absolute;
+    left: 0;
+    color: #c55552;
+    font-size: 1.2rem;
+}
+
+.highlight {
+    background: linear-gradient(120deg, rgba(255, 157, 118, 0.1) 0%, rgba(64, 158, 255, 0.05) 100%);
+    padding: 15px 20px;
+    border-radius: 8px;
+    margin: 20px 0;
+}
+
+.footer {
+    text-align: center;
+    padding: 30px 0;
+    color: #777;
+    font-size: 0.9rem;
+    margin-top: 40px;
+}
+
+.footer a {
+    color: #c55552;
+    text-decoration: none;
+    transition: color 0.3s;
+}
+
+.footer a:hover {
+    color: #409eff;
+    text-decoration: underline;
+}
+
+.header a {
+    text-decoration: none;
+    position: relative;
+    color: #333;
+}
+
+.tooltip {
+    position: fixed;
+    padding: 6px 10px;
+    background-color: #fffaf4;
+    color: #333;
+    box-shadow: 0 2px 8px rgba(217, 191, 168, 0.3);
+    font-size: 12px;
+    border-radius: 4px;
+    white-space: nowrap;
+    z-index: 9999;
+    pointer-events: none;
+    display: none;
+}
+
+@media (max-width: 768px) {
+    .container {
+        padding: 20px 15px;
+    }
+
+    .license-container {
+        padding: 30px 20px;
+    }
+
+    .clause-title {
+        font-size: 1.2rem;
+    }
+
+    .bg-decoration {
+        display: none;
+    }
+}
+
+@media (max-width: 480px) {
+    .title {
+        font-size: 1.8rem;
+    }
+
+    .license-container {
+        padding: 20px 15px;
+    }
+
+    .clause-content {
+        font-size: 1rem;
+    }
+}
+
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(255, 242, 223, 0.5);
+}
+
+::-webkit-scrollbar-thumb {
+    background: linear-gradient(to bottom, #c55552, #ff9d76);
+    border-radius: 4px;
+}
+
+.stagger-delay-1 { animation-delay: 0.1s; }
+.stagger-delay-2 { animation-delay: 0.2s; }
+.stagger-delay-3 { animation-delay: 0.3s; }
+.stagger-delay-4 { animation-delay: 0.4s; }
