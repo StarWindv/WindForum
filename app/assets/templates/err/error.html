@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Error | WindForum</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            background-color: #f5f2ed;
+        }
+
+        html {
+            height: 100vh;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: auto;
+        }
+
+        .error-container {
+            font-family: 'Georgia', 'Times New Roman', serif;
+            width: 520px;
+            margin: 0 auto;
+            padding: 60px 40px;
+            background-color: #f9f7f3;
+            border: 1px solid #d4c9b8;
+            border-radius: 2px;
+            box-shadow: 0 2px 8px rgba(90, 76, 58, 0.1);
+            position: relative;
+            text-align: center;
+        }
+
+        .error-code {
+            font-size: 80px;
+            font-weight: 700;
+            color: #5a4c3a;
+            margin-bottom: 16px;
+            letter-spacing: 2px;
+            line-height: 1;
+        }
+
+        .error-title {
+            font-size: 24px;
+            color: #5a4c3a;
+            margin-bottom: 16px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .error-desc {
+            font-size: 16px;
+            color: #8b7d6b;
+            line-height: 1.6;
+            margin-bottom: 40px;
+            padding: 0 20px;
+        }
+
+        .error-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        button {
+            font-family: 'Georgia', 'Times New Roman', serif;
+            font-size: 11px;
+            padding: 12px 24px;
+            background-color: #fff;
+            color: #5a4c3a;
+            border: 1px solid #d4c9b8;
+            border-radius: 3.5px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            letter-spacing: 0.3px;
+            text-transform: uppercase;
+            font-weight: 600;
+            min-width: 120px;
+        }
+
+        button:hover {
+            background-color: #f0ede6;
+            border-color: #8b7d6b;
+            transform: translateY(-1px);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        #back-home {
+            background-color: #5a4c3a;
+            color: #f9f7f3;
+            border-color: #5a4c3a;
+        }
+
+        #back-home:hover {
+            border-color: #3a3328;
+            background-color: #4a3f30;
+        }
+
+        #back {
+            background-color: #e8e2d6;
+            color: #5a4c3a;
+        }
+
+        #contact-support {
+            background-color: transparent;
+            color: #5a4c3a;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding: 20px;
+            color: #5a4c3a;
+            font-family: 'Georgia', serif;
+            font-size: 12px;
+        }
+
+        @media (max-width: 560px) {
+            .error-container {
+                width: 90%;
+                padding: 40px 20px;
+            }
+
+            .error-code {
+                font-size: 60px;
+            }
+
+            .error-actions {
+                gap: 8px;
+            }
+
+            button {
+                width: auto;
+                padding: 10px 18px;
+                min-width: 100px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="error-container">
+    <div class="error-code" id="errorCode">4xx</div>
+    <div class="error-title">Opus!</div>
+    <div class="error-desc">
+        抱歉, 你访问的页面出了些问题. 请检查操作是否正确, 或返回首页继续浏览
+    </div>
+    <div class="error-actions">
+        <button id="back-home">返回首页</button>
+        <button id="back">返回前页</button>
+        <button id="contact-support">联系支持</button>
+    </div>
+</div>
+
+<footer>
+    © 2026 WindForum
+</footer>
+
+<script>
+    function updateErrorPage(code, title, desc) {
+        document.getElementById('errorCode').textContent = code;
+        document.querySelector('.error-title').textContent = title;
+        document.querySelector('.error-desc').textContent = desc;
+    }
+
+    /* <|method|> */
+
+    document.getElementById('back-home').addEventListener('click', function() {
+        window.location.href = '/index';
+    });
+
+    function goBack() {
+        if (window.history.length > 1) {
+            window.history.back();
+        } else {
+            window.location.href = '/index.html';
+        }
+    }
+
+    document.getElementById('back').addEventListener('click', ()=>{ return goBack(); });
+
+    document.getElementById('contact-support').addEventListener('click', function() {
+        window.location.href = 'mailto:support@mail.starwindv.top?subject=网站错误反馈&body=请描述您遇到的问题';
+    });
+</script>
+</body>
+</html>

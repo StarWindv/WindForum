@@ -4,7 +4,7 @@ package top.starwindv.WindForum.forum.Tools;
 import io.javalin.http.Context;
 import org.apache.commons.lang3.StringUtils;
 import io.javalin.Javalin;
-import top.starwindv.WindForum.forum.Forum;
+import top.starwindv.WindForum.forum.Server.Forum;
 
 
 import java.nio.charset.Charset;

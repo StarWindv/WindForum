@@ -9,6 +9,10 @@ public class LogComponent {
     private String inbound;
     private Long inboundTimeStamp;
 
+    private boolean hasMiddle=false;
+    private String middle;
+    private String middlePath;
+
     private String outbound;
     private Long outboundTimeStamp;
 
@@ -30,7 +34,8 @@ public class LogComponent {
     public static final String timeUsedPH = "$TIME_USED";
 
     private static String  inbound_template="\n<Bold>[,255,255][->] <Reset>"+timestampPH+" ["+methodPH+"] ["+ipPH+"] ["+pathPH+"]\n";
-    private static String outbound_template=  "<Bold>[255,215,][<-] <Reset>"+timestampPH+" ["+statusColorPH+"<Bold>"+statusPH+"<Reset>] ["+ipPH+"] ["+timeUsedPH+" ms]";
+    private static String  middle_template = "<Bold><Red>[X>] <Reset>"+timestampPH+" [[255,246,75]<Bold><-><Reset>] [ Handled ] [<Bold>[255,246,75]"+pathPH+"<Reset>]\n";
+    private static String outbound_template= "<Bold>[255,215,][<-] <Reset>"+timestampPH+" ["+statusColorPH+"<Bold>"+statusPH+"<Reset>] ["+ipPH+"] ["+timeUsedPH+" ms]";
 
     public void inbound(String requestMethod, String ip, String requestPath) {
         this.inboundTimeStamp = System.currentTimeMillis();
@@ -45,8 +50,16 @@ public class LogComponent {
         this.statusCode = statusCode;
         this.statusColor = statusColor;
     }
+    public void middle(String path) {
+        this.hasMiddle = true;
+        this.middle = Formatter.format(new java.util.Date());
+        this.middlePath = path;
+    }
     public static void inbound_template(String newTemplate) {
         inbound_template = newTemplate;
+    }
+    public static void middle_template(String newTemplate) {
+        middle_template = newTemplate;
     }
     public static void outbound_template(String newTemplate) {
         outbound_template = newTemplate;
@@ -63,17 +76,23 @@ public class LogComponent {
 
     @Override
     public String toString() {
+        String middleResult   = "";
         String inboundResult  = inbound_template
             .replace(timestampPH, this.inbound)
             .replace(methodPH, this.method)
             .replace(ipPH, this.ip)
             .replace(pathPH, this.path);
+        if (this.hasMiddle) {
+            middleResult = middle_template
+                .replace(timestampPH, this.middle)
+                .replace(pathPH, this.middlePath);
+        }
         String outboundResult = outbound_template
             .replace(timestampPH, this.outbound)
             .replace(statusColorPH, this.statusColor)
             .replace(statusPH, this.statusCode.toString())
             .replace(ipPH, this.ip)
             .replace(timeUsedPH, String.valueOf(this.outboundTimeStamp-this.inboundTimeStamp));
-        return inboundResult+outboundResult;
+        return inboundResult+middleResult+outboundResult;
     }
 }

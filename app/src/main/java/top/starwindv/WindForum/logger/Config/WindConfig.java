@@ -86,7 +86,7 @@ public class WindConfig {
     public void applyConfig(Consumer<WindConfig> userConfig) {
         userConfig.accept(this);
         try {
-            Files.createDirectories(logPath);
+            Files.createDirectories(logFilePath.getParent());
         } catch (IOException e) {
             System.err.println("[WindConfig] Cannot create log folder: " + logPath);
             System.err.println("             Logs will be written to the terminal");

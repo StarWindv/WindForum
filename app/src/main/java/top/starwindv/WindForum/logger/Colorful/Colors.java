@@ -1,6 +1,7 @@
 package top.starwindv.WindForum.logger.Colorful;
 
 
+import top.starwindv.WindForum.forum.Server.Forum;
 import top.starwindv.WindForum.logger.Errors.HexColorFormatError;
 
 import java.lang.invoke.MethodHandles;
@@ -31,7 +32,7 @@ public class Colors {
     public static String Blue   = String.format(base, "34");
     public static String Purple = String.format(base, "35");
     public static String Reset  = String.format(base, "0" );
-    
+
     public static String Bold = String.format(base, "1" );
 
     public static String HyperStart = "\u001B]8;;";
@@ -87,12 +88,10 @@ public class Colors {
         return backgroundFrom(rgb.getFirst(), rgb.get(1), rgb.getLast());
     }
 
-
     private static final Map<String, Field> fieldCache = new HashMap<>();
     private static final Class<?> currentCls = MethodHandles.lookup().lookupClass();
     public static Object getattr(String name) {
         try {
-//            System.err.println("Request For: " + name);
             if (fieldCache.containsKey(name)) {
                 Object result = fieldCache.get(name).get(null);
                 return result == null ? "" : result;
@@ -108,7 +107,7 @@ public class Colors {
                 return result == null ? "" : result;
             }
         } catch (NoSuchFieldException | IllegalAccessException ignored) {
-//            System.err.println("Cannot Find: " + name);
+            Forum.Logger().err("Cannot Find Symbol: ", name);
             return "";
         }
     }

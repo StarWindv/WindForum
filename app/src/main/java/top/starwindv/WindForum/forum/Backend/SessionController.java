@@ -3,7 +3,7 @@ package top.starwindv.WindForum.forum.Backend;
 
 import io.javalin.http.Context;
 import top.starwindv.WindForum.SQL.SQLite;
-import top.starwindv.WindForum.forum.Forum;
+import top.starwindv.WindForum.forum.Server.Forum;
 import top.starwindv.WindForum.forum.Utils.ServerPlaceHolder;
 import top.starwindv.WindForum.forum.Utils.Values;
 import top.starwindv.WindForum.forum.Tools.VerifyCode;

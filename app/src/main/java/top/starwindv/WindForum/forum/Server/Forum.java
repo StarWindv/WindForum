@@ -1,10 +1,11 @@
-package top.starwindv.WindForum.forum;
+package top.starwindv.WindForum.forum.Server;
 
 
 import io.javalin.Javalin;
 
 import top.starwindv.WindForum.forum.Backend.Authorizer;
 
+import top.starwindv.WindForum.forum.Backend.Email;
 import top.starwindv.WindForum.forum.Backend.SessionController;
 import top.starwindv.WindForum.forum.DTO.GetPostsDTO;
 import top.starwindv.WindForum.forum.DTO.PostDTO;

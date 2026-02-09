@@ -2,7 +2,7 @@ package top.starwindv.WindForum.forum.Models;
 
 
 import top.starwindv.WindForum.forum.DTO.ChannelDTO;
-import top.starwindv.WindForum.forum.Forum;
+import top.starwindv.WindForum.forum.Server.Forum;
 import top.starwindv.WindForum.forum.Utils.ColumnConfig;
 import top.starwindv.WindForum.SQL.SQLite;
 import top.starwindv.WindForum.forum.Utils.Status;

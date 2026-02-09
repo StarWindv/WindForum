@@ -1,7 +1,7 @@
 package top.starwindv.WindForum.SQL;
 
 
-import top.starwindv.WindForum.forum.Forum;
+import top.starwindv.WindForum.forum.Server.Forum;
 import top.starwindv.WindForum.forum.Utils.ColumnConfig;
 import top.starwindv.WindForum.forum.Utils.Values;
 

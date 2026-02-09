@@ -4,6 +4,8 @@ package top.starwindv.WindForum.logger;
 import org.jetbrains.annotations.NotNull;
 import io.javalin.http.Context;
 
+import top.starwindv.WindForum.forum.Server.BaseServer;
+import top.starwindv.WindForum.forum.Utils.ServerPlaceHolder;
 import top.starwindv.WindForum.logger.Abstract.LoggerAPI;
 import top.starwindv.WindForum.logger.Colorful.Colors;
 import top.starwindv.WindForum.logger.Config.WindConfig;
@@ -138,7 +140,7 @@ public class WindLogger extends LoggerAPI {
      * */
     public void _f_inbound(Context ctx) {
         ctx.attribute(
-            "logger", new LogComponent(
+            ServerPlaceHolder.Logger, new LogComponent(
                 ctx.method().toString(),
                 ctx.attribute("IP"),
                 ctx.path()
@@ -146,8 +148,17 @@ public class WindLogger extends LoggerAPI {
         );
     }
 
+    public void _f_middle(Context ctx) {
+        LogComponent temp = ctx.attribute(ServerPlaceHolder.Logger);
+        String handler = BaseServer.errorPage;
+        if (temp != null) {
+            temp.middle(handler);
+        }
+        ctx.attribute(ServerPlaceHolder.Logger, temp);
+    }
+
     public void _f_outbound(Context ctx) {
-        LogComponent temp = ctx.attribute("logger");
+        LogComponent temp = ctx.attribute(ServerPlaceHolder.Logger);
         int code = ctx.statusCode();
         String color=code < 300 ? Colors.Green : (code < 400 ? Colors.Yellow : Colors.Red);
         if (temp != null) {

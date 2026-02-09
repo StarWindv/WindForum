@@ -1,4 +1,4 @@
-package top.starwindv.WindForum.forum;
+package top.starwindv.WindForum.forum.Backend;
 
 
 import com.resend.Resend;
