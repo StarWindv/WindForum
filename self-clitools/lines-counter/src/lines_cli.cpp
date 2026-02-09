@@ -8,8 +8,6 @@
 #include <cctype>
 #include <iostream>
 
-#include "lines.hpp"
-
 
 namespace fs = std::filesystem;
 namespace ranges = std::ranges;
@@ -19,9 +17,15 @@ const std::string HELP = R"(Count the lines of files with the specified extensio
 [Usage] <bin_name> <extension>
            [-h /--help] | Output Message and Exit
         [-e /--exclude] | Exclude Files From the Specified Path
-     [-ol/--only_lines] | Output Total Lines Only
+     [-ol/--only-lines] | Output Total Lines Only
 [-sf/--suppress-format] | Prohibit outputting the line break format of the file
 )";
+
+
+void error_help(std::string help_msg) {
+    std::cerr << "[Error  ] Please specify at least one file extension to count (e.g. js, ts, py)" << std::endl;
+    std::cerr << help_msg << std::endl;
+}
 
 
 struct CliConfig {
@@ -101,9 +105,7 @@ std::optional<CliConfig> parse_cli_args(int argc, char* argv[]) {
     }
 
     if (config.include_extensions.empty()) {
-        std::cerr << "[Error  ] Please specify at least one file extension to count (e.g. js, ts, py)" << std::endl;
-        std::cerr << "[Usage  ] " << argv[0] << " [-e/--exclude <exclude path>] [-so/--suppress-output] [-sf/--suppress-format] <extension1> <extension2> ..." << std::endl;
-        std::cerr << "[Example] " << argv[0] << " js -e outerPKG -so -sf" << std::endl;
+        error_help(help_msg);
         return std::nullopt;
     }
 

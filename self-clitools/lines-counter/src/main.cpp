@@ -1,7 +1,7 @@
 #include <iostream>
 #include <iomanip>
 
-#include "lines.hpp"
+#include "lines.cpp"
 #include "lines_cli.cpp"
 
 
