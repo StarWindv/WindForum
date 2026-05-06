@@ -183,7 +183,6 @@ public class Rich {
 
     public static String parseTags(String us) {
         Map<String, String> group = tagMatch(us);
-//        System.err.println(group);
         for (var kv: group.entrySet()) {
 
             if (kv.getValue().equals("TIMESTAMP")) {
@@ -191,7 +190,6 @@ public class Rich {
             }
             try {
                 us = us.replace(kv.getKey(), (String) Colors.getattr(kv.getValue()));
-//                System.out.println(StringEscapeUtils.escapeJava(us));
             } catch (Exception e) {
                 e.printStackTrace();
             }

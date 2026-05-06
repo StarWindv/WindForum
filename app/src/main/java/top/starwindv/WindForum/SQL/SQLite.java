@@ -5,8 +5,22 @@ import top.starwindv.WindForum.forum.Server.Forum;
 import top.starwindv.WindForum.forum.Utils.ColumnConfig;
 import top.starwindv.WindForum.forum.Utils.Values;
 
-import java.util.*;
-import java.sql.*;
+
+import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.Collections;
+
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.DriverManager;
+import java.sql.Statement;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.Types;
+import java.sql.Timestamp;
 import java.util.stream.Collectors;
 
 

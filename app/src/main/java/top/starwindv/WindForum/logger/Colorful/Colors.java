@@ -1,7 +1,6 @@
 package top.starwindv.WindForum.logger.Colorful;
 
 
-import top.starwindv.WindForum.forum.Server.Forum;
 import top.starwindv.WindForum.logger.Errors.HexColorFormatError;
 
 import java.lang.invoke.MethodHandles;
@@ -107,7 +106,7 @@ public class Colors {
                 return result == null ? "" : result;
             }
         } catch (NoSuchFieldException | IllegalAccessException ignored) {
-            Forum.Logger().err("Cannot Find Symbol: ", name);
+//            System.err.println("Cannot Find Symbol: " + name);
             return "";
         }
     }

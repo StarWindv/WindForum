@@ -9,7 +9,6 @@ plugins {
     // Apply the application plugin to add support for building a CLI application in Java.
     application
     java
-    // 新增：添加shadow插件，用于构建包含所有依赖的可执行jar（胖包）
     id("com.github.johnrengelman.shadow") version "8.1.1"
 }
 
@@ -29,11 +28,15 @@ dependencies {
     implementation("com.resend:resend-java:4.11.0")
     implementation("io.javalin:javalin:6.7.0")
     implementation("org.slf4j:slf4j-simple:2.0.7")
-    implementation("org.xerial:sqlite-jdbc:3.51.1.0")
     implementation("org.apache.commons:commons-lang3:3.20.0")
     implementation("com.google.code.gson:gson:2.13.2")
-
     implementation("info.picocli:picocli:4.7.5")
+    implementation("io.jsonwebtoken:jjwt-api:0.13.0")
+
+    implementation("com.squareup.okio:okio-jvm:3.6.0")
+
+    runtimeOnly   ("io.jsonwebtoken:jjwt-impl:0.13.0")
+    runtimeOnly   ("org.xerial:sqlite-jdbc:3.51.1.0")
 }
 
 // Apply a specific Java toolchain to ease working on different environments.

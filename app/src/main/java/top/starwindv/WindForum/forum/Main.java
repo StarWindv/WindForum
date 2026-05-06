@@ -13,14 +13,12 @@ package top.starwindv.WindForum.forum;
 import java.nio.file.Path;
 
 import io.javalin.util.JavalinBindException;
-
 import picocli.CommandLine;
 
 import top.starwindv.WindForum.forum.Server.Forum;
 import top.starwindv.WindForum.forum.Tools.ArgParser;
 import top.starwindv.WindForum.forum.Server.BaseServer;
 import top.starwindv.WindForum.logger.WindLogger;
-
 
 
 public class Main {

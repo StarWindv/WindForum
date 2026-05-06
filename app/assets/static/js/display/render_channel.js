@@ -25,7 +25,7 @@ async function renderChannel() {
     const channelList = DOMBuilder.ul({
         className: "postsList"
     });
-    if (channelData && channelData.length > 0) {
+    if (!(typeof channelData === "string") && channelData && channelData.length > 0) {
         channelData.forEach(channel => {
             const channelItem = DOMBuilder.li({
                 className: "post channel",

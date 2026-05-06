@@ -23,7 +23,7 @@ import java.util.function.Consumer;
 
 @SuppressWarnings("unused")
 public class WindLogger extends LoggerAPI {
-    protected WindConfig windConfig=new WindConfig();
+    protected final WindConfig windConfig=new WindConfig();
     protected static ToFile fm;
     private final static Map<String, Long> timecache = new ConcurrentHashMap<>();
 

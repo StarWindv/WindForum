@@ -15,7 +15,7 @@ function loader(
             ele.rel = "stylesheet";
             ele.type = "text/css";
         }
-        document.body.prepend(ele);
+        document.body.appendChild(ele);
     });
     if (typeof after == 'function') {
         window.addEventListener('load', function() {

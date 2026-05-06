@@ -1,7 +1,7 @@
 package top.starwindv.WindForum.forum.DTO;
 
 
-@SuppressWarnings({"FieldMayBeFinal", "FieldCanBeLocal", "unused"})
+@SuppressWarnings({"FieldMayBeFinal", "unused"})
 public class GetPostsDTO {
     private String method;
     private int from;

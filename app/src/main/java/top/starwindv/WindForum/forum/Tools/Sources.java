@@ -6,7 +6,6 @@ import org.apache.commons.lang3.StringUtils;
 import io.javalin.Javalin;
 import top.starwindv.WindForum.forum.Server.Forum;
 
-
 import java.nio.charset.Charset;
 import java.nio.charset.MalformedInputException;
 import java.nio.charset.UnsupportedCharsetException;
@@ -133,7 +132,11 @@ public class Sources {
             "/show/{template_name}", ctx -> ctx.async(
                 () -> {
                     String template_name = ctx.pathParam("template_name");
-                    ctx.html(this.template(this.showTPPath+template_name));
+                    try {
+                        ctx.html(this.template(this.showTPPath + template_name));
+                    } catch (NoSuchFileException ignored) {
+                        ctx.status(404);
+                    }
                 }
             )
         );

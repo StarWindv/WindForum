@@ -6,9 +6,9 @@ public class ColumnConfig {
     public final String type;
     public Integer length;
     public Object defaultValue;
-    public boolean notNull = false;
-    public boolean primaryKey = false;
-    public boolean autoIncrement = false;
+    public boolean notNull;
+    public boolean primaryKey;
+    public boolean autoIncrement;
 
     public ColumnConfig(Builder builder) {
         this.name = builder.name;

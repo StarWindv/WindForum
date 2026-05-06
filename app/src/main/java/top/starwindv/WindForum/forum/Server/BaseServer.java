@@ -24,7 +24,7 @@ public class BaseServer {
 
     public Sources Src;
 
-    public static String errorPage = "err/error.html";
+    public final static String errorPage = "err/error.html";
 
     private static boolean useLogFeature = false;
 
@@ -80,6 +80,7 @@ public class BaseServer {
     private void registerHooks() {
         this.server.before(
             ctx -> {
+//                this.Logger.info("CLIENT PORT", ctx.req().getRemotePort());
                 String realIP = this.getIP(ctx);
                 if (!useLogFeature) {
                     this.Logger.inbound(realIP, ctx.method().toString(), ctx.path());
